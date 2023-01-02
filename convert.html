@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+
+    const result1 = { "state": "Done", "createdDate": "Jan 2, 2023 6:34:45 PM", "finishedDate": "Jan 2, 2023 6:34:45 PM", "result": "{\"com.syscxp.account.header.account.APIQueryAccountReply\":{\"inventories\":[{\"uuid\":\"7d80d5f47f3141c2a62f23d88e7113a3\",\"name\":\"zhangy\",\"company\":\"tengxun\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"927a639b3cb84d68a2822c87cc567c2b\",\"name\":\"lianjunwei\",\"company\":\"犀思云\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"2671e995c5c14dfbb967a37837d85196\",\"name\":\"wangjie\",\"company\":\"测试\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"2870083d04654bffaea5a68cfa5275ad\",\"name\":\"hst01\",\"company\":\"犀思云\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"3461ddfba0d14dfb8ee8dc45fb7cefd8\",\"name\":\"zxhtest\",\"company\":\"辉哥test1\",\"expiredClean\":false,\"mfa\":false}],\"total\":5,\"success\":true}}" }
+    // 返回结构
+    /* {
+        id: '',
+        children: [
+          {
+            id: '',
+            entities: {},
+            children: []
+          },
+          {
+            id: '',
+            children: [
+              {
+                id: '',
+                entities: {},
+                children: []
+              },
+              { 
+                id: '',
+                entities: '',
+                children: [
+                  {
+                    id: '',
+                    entities: {},
+                    children: []
+                  },
+                ]
+              }
+            ]
+          }
+        ]
+      } */
+      
+    const dealData = (data, customKeys = []) => {
+      let result = {
+        id: '',
+        children: [
+          {
+            id: '',
+            entities: {},
+            children: []
+          }
+        ]
+      }
+      for (let key in data) {
+        let value = data[key]
+        //转化自定义key
+        if (customKeys.includes(key)) {
+          value = JSON.parse(data[key])
+        }
+        if (typeof value === 'object' && value !== null) {
+          if (Object.keys(value).length) {
+            let len = result.children.length
+            result.children[len] = {...dealData(value),id:Date.now()}
+          }
+        } else {
+          let level1 = result.children[0]
+          if(!level1.id){
+            level1.id = Date.now()
+          }
+          level1.entities[key] = value
+        }
+      }
+      result.id = 'root'
+      return result
+    }
+
+    const res1 = dealData(result1, ['result'])
+    console.warn(  res1);
+  </script>
+</body>
+
+</html>
