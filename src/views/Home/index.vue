@@ -2,16 +2,54 @@
   <div class="json-home">
     <!-- 左侧工具导航栏 -->
     <div class="nav-tools">
-      <div class="jv-icon">JV</div>
+      <div class="jv-icon">
+        <span class="char-j">J</span><span class="char-v">V</span>
+      </div>
       <div class="tool-btns">
-        <span class="iconfont icon-zhankai-"></span>
-        <span class="iconfont icon-bx-edit"></span>
-        <span class="iconfont icon-node-layout-1"></span>
-        <span class="iconfont icon-zhankai1"></span>
-        <span class="iconfont icon-nodeexpand"></span>
-        <span class="iconfont icon-import"></span>
-        <span class="iconfont icon-export-json"></span>
-        <span class="iconfont icon-clear-json"></span>
+        <el-tooltip content="展开编辑" placement="top" effect="dark">
+          <span class="iconfont icon-zhankai-"></span>
+        </el-tooltip>
+
+        <el-tooltip content="旋转布局" placement="right" effect="light">
+          <span
+            class="iconfont icon-node-layout-1"
+            :style="{ transform: `rotate(${rotateAngle})` }"
+            @click="onRotate"
+          ></span>
+        </el-tooltip>
+
+        <el-tooltip
+          :content="isExpand ? '收起' : '展开'"
+          placement="right"
+          effect="light"
+        >
+          <span
+            class="iconfont"
+            :class="isExpand ? 'icon-node-collapse' : 'icon-node-expand'"
+            @click="onExpand"
+          ></span>
+        </el-tooltip>
+        <el-tooltip content="导入" placement="right" effect="light">
+          <span class="iconfont icon-import" @click="onImport"></span>
+        </el-tooltip>
+        <el-tooltip content="导出" placement="right" effect="light">
+          <span class="iconfont icon-export-json" @click="onExport"></span>
+        </el-tooltip>
+        <!-- <el-tooltip content="清空" placement="right" effect="light">  -->
+
+        <el-popconfirm
+          title="确定清空JSON?"
+          confirm-button-type="warning"
+          confirm-button-text="确定"
+          cancel-button-text="取消"
+          @confirm="confirmClear"
+          @cancel="cancelClear"
+        >
+          <template #reference>
+            <span class="iconfont icon-clear-json"></span>
+          </template>
+        </el-popconfirm>
+        <!-- </el-tooltip> -->
       </div>
     </div>
     <!-- 右侧操作区 -->
@@ -22,7 +60,7 @@
         <VueJsonEditor
           class="edit-area"
           v-model="jsonData"
-          :mode="'code'" 
+          :mode="'code'"
           :show-btns="false"
           @json-change="onJsonChange"
           @has-error="onJsonError"
@@ -32,12 +70,12 @@
       <div class="json-canvas">
         <div class="canvas-tools top-title">
           <div class="opt-btns">
-            <span class="iconfont icon-plus"></span>
-            <span class="iconfont icon-jianhao"></span>
-            <span class="iconfont icon-xueyuan-shousuo"></span>
-            <span class="iconfont icon-quanping"></span>
-            <span class="iconfont icon-quxiaoquanping"></span>
-            <span class="iconfont icon-save"></span>
+            <span class="iconfont icon-plus" @click="onZoomOut"></span>
+            <span class="iconfont icon-jianhao" @click="onZoomIn"></span>
+            <span class="iconfont icon-xueyuan-shousuo" @click="onAutoZoom"></span>
+            <!-- <span class="iconfont icon-quanping"></span>
+            <span class="iconfont icon-quxiaoquanping"></span> -->
+            <span class="iconfont icon-save" @click="saveAsImage"></span>
           </div>
           <div class="search-wrap">
             <input
@@ -48,226 +86,146 @@
             <span class="iconfont icon-search"></span>
           </div>
         </div>
-        <JsonCanvas v-model="jsonData"/>
+        <JsonCanvas
+          v-model="jsonData"
+          :layoutDirection="layoutDirection"
+          :isExpand="isExpand"
+          ref="jsonCanvasRef"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import * as V3JsonEditor from 'vue3-json-editor'
-import JsonCanvas from '@/views/Home/components/JsonCanvas.vue'
-import { ElNotification } from 'element-plus'
-import {  ref } from "vue";
-const VueJsonEditor = V3JsonEditor.Vue3JsonEditor
-// const jsonData = {
-//   id: 'g1',
-//   name: 'Name1',
-//   count: 123456,
-//   label: '538.90',
-//   currency: 'Yuan',
-//   rate: 1.0,
-//   status: 'B',
-//   variableName: 'V1',
-//   variableValue: 0.341,
-//   variableUp: false,
-//   children: [
-//     {
-//       id: 'g12',
-//       name: 'Deal with LONG label LONG label LONG label LONG label',
-//       count: 123456,
-//       label: '338.00',
-//       rate: 0.627,
-//       status: 'R',
-//       currency: 'Yuan',
-//       variableName: 'V2',
-//       variableValue: 0.179,
-//       variableUp: true,
-//       children: [
-//         {
-//           id: 'g121',
-//           name: 'Name3',
-//           collapsed: true,
-//           count: 123456,
-//           label: '138.00',
-//           rate: 0.123,
-//           status: 'B',
-//           currency: 'Yuan',
-//           variableName: 'V2',
-//           variableValue: 0.27,
-//           variableUp: true,
-//           children: [
-//             {
-//               id: 'g1211',
-//               name: 'Name4',
-//               count: 123456,
-//               label: '138.00',
-//               rate: 1.0,
-//               status: 'B',
-//               currency: 'Yuan',
-//               variableName: 'V1',
-//               variableValue: 0.164,
-//               variableUp: false,
-//               children: [],
-//             },
-//           ],
-//         },
-//         {
-//           id: 'g122',
-//           name: 'Name5',
-//           collapsed: true,
-//           count: 123456,
-//           label: '100.00',
-//           rate: 0.296,
-//           status: 'G',
-//           currency: 'Yuan',
-//           variableName: 'V1',
-//           variableValue: 0.259,
-//           variableUp: true,
-//           children: [
-//             {
-//               id: 'g1221',
-//               name: 'Name6',
-//               count: 123456,
-//               label: '40.00',
-//               rate: 0.4,
-//               status: 'G',
-//               currency: 'Yuan',
-//               variableName: 'V1',
-//               variableValue: 0.135,
-//               variableUp: true,
-//               children: [
-//                 {
-//                   id: 'g12211',
-//                   name: 'Name6-1',
-//                   count: 123456,
-//                   label: '40.00',
-//                   rate: 1.0,
-//                   status: 'R',
-//                   currency: 'Yuan',
-//                   variableName: 'V1',
-//                   variableValue: 0.181,
-//                   variableUp: true,
-//                   children: [],
-//                 },
-//               ],
-//             },
-//             {
-//               id: 'g1222',
-//               name: 'Name7',
-//               count: 123456,
-//               label: '60.00',
-//               rate: 0.6,
-//               status: 'G',
-//               currency: 'Yuan',
-//               variableName: 'V1',
-//               variableValue: 0.239,
-//               variableUp: false,
-//               children: [],
-//             },
-//           ],
-//         },
-//         {
-//           id: 'g123',
-//           name: 'Name8',
-//           collapsed: true,
-//           count: 123456,
-//           label: '100.00',
-//           rate: 0.296,
-//           status: 'DI',
-//           currency: 'Yuan',
-//           variableName: 'V2',
-//           variableValue: 0.131,
-//           variableUp: false,
-//           children: [
-//             {
-//               id: 'g1231',
-//               name: 'Name8-1',
-//               count: 123456,
-//               label: '100.00',
-//               rate: 1.0,
-//               status: 'DI',
-//               currency: 'Yuan',
-//               variableName: 'V2',
-//               variableValue: 0.131,
-//               variableUp: false,
-//               children: [],
-//             },
-//           ],
-//         },
-//       ],
-//     },
-//     {
-//       id: 'g13',
-//       name: 'Name9',
-//       count: 123456,
-//       label: '100.90',
-//       rate: 0.187,
-//       status: 'B',
-//       currency: 'Yuan',
-//       variableName: 'V2',
-//       variableValue: 0.221,
-//       variableUp: true,
-//       children: [
-//         {
-//           id: 'g131',
-//           name: 'Name10',
-//           count: 123456,
-//           label: '33.90',
-//           rate: 0.336,
-//           status: 'R',
-//           currency: 'Yuan',
-//           variableName: 'V1',
-//           variableValue: 0.12,
-//           variableUp: true,
-//           children: [],
-//         },
-//         {
-//           id: 'g132',
-//           name: 'Name11',
-//           count: 123456,
-//           label: '67.00',
-//           rate: 0.664,
-//           status: 'G',
-//           currency: 'Yuan',
-//           variableName: 'V1',
-//           variableValue: 0.241,
-//           variableUp: false,
-//           children: [],
-//         },
-//       ],
-//     },
-//     {
-//       id: 'g14',
-//       name: 'Name12',
-//       count: 123456,
-//       label: '100.00',
-//       rate: 0.186,
-//       status: 'G',
-//       currency: 'Yuan',
-//       variableName: 'V2',
-//       variableValue: 0.531,
-//       variableUp: true,
-//       children: [],
-//     },
-//   ],
-// };
-let jsonData = ref({ "state": "Done", "createdDate": "Jan 2, 2023 6:34:45 PM", "finishedDate": "Jan 2, 2023 6:34:45 PM", "result": "{\"com.syscxp.account.header.account.APIQueryAccountReply\":{\"inventories\":[{\"uuid\":\"7d80d5f47f3141c2a62f23d88e7113a3\",\"name\":\"zhangy\",\"company\":\"tengxun\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"927a639b3cb84d68a2822c87cc567c2b\",\"name\":\"lianjunwei\",\"company\":\"犀思云\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"2671e995c5c14dfbb967a37837d85196\",\"name\":\"wangjie\",\"company\":\"测试\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"2870083d04654bffaea5a68cfa5275ad\",\"name\":\"hst01\",\"company\":\"犀思云\",\"expiredClean\":false,\"mfa\":false},{\"uuid\":\"3461ddfba0d14dfb8ee8dc45fb7cefd8\",\"name\":\"zxhtest\",\"company\":\"辉哥test1\",\"expiredClean\":false,\"mfa\":false}],\"total\":5,\"success\":true}}" }
-
-);
+import * as V3JsonEditor from "vue3-json-editor";
+import JsonCanvas from "@/views/Home/components/JsonCanvas.vue";
+import { ElNotification, roleTypes } from "element-plus";
+import { ref } from "vue";
+const VueJsonEditor = V3JsonEditor.Vue3JsonEditor;
+let jsonData = ref({
+  name: "json-viewer",
+  private: true,
+  version: "0.0.0",
+  type: "module",
+  scripts: {
+    dev: "vite",
+    build: "vite build",
+    preview: "vite preview",
+  },
+  dependencies: {
+    "@antv/g6": "^4.8.1",
+    "element-plus": "^2.2.28",
+    vue: "^3.2.45",
+    "vue3-json-editor": "^1.1.5",
+  },
+  devDependencies: {
+    "@vitejs/plugin-vue": "^4.0.0",
+    sass: "^1.57.1",
+    "unplugin-auto-import": "^0.12.1",
+    "unplugin-vue-components": "^0.22.12",
+    vite: "^4.0.0",
+  },
+});
 const onJsonChange = (json: any) => {
-  jsonData.value =  json 
+  jsonData.value = json;
 };
 const onJsonError = (err: any) => {
-   ElNotification({
-    title: '语法错误',
+  ElNotification({
+    title: "语法错误",
     message: err.message,
-    type: 'error',
-    duration:6000,
-  })
+    type: "error",
+    duration: 6000,
+  });
+};
+//TODO:默认展开几级
+const isExpand = ref(true);
+const onExpand = () => {
+  isExpand.value = !isExpand.value;
+};
+//旋转布局
+const layoutDirection = ref("LR");
+const rotateAngle = ref("0deg");
+const onRotate = () => {
+  const layouts = {
+    LR: "0deg",
+    H: "90deg",
+    RL: "180deg",
+  };
+  //轮流旋转
+  let keys = Object.keys(layouts);
+  //获取下一个方向的索引,并取到所对应的旋转角度
+  let index = (keys.indexOf(layoutDirection.value) + 1) % keys.length;
+  layoutDirection.value = keys[index];
+  rotateAngle.value = layouts[layoutDirection.value];
+};
+//导出json
+const onExport = () => {
+  const filename = `json-viewer.json`;
+  const jsonStr =
+    typeof jsonData.value === "object"
+      ? JSON.stringify(jsonData.value, undefined, 2)
+      : jsonData.value;
+  const blob = new Blob([jsonStr as any], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.setAttribute("style", "display: none");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+};
+//导入json
+const onImport = () => {
+  const input = document.createElement("input");
+  input.setAttribute("type", "file");
+  input.setAttribute("accept", ".json");
+  input.click();
+  input.onchange = () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = () => {
+      const json = reader.result;
+      jsonData.value = JSON.parse(json as string);
+    };
+  };
+};
+//清空json
+const confirmClear = () => {
+  jsonData.value = {} as any;
+};
+const cancelClear = () => {};
+
+//TODO:保存为图片拓展
+const jsonCanvasRef = ref(null);
+const saveAsImage = () => {
+  console.log("保存为图片");
+  if(jsonCanvasRef?.value){
+    (jsonCanvasRef?.value as any).saveImage()
+  }
+};
+const onZoomOut = () => {
+  if(jsonCanvasRef?.value ){
+    (jsonCanvasRef?.value?.toolbar as any).zoomOut()
+  }
+};
+const onZoomIn = () => {
+  if(jsonCanvasRef?.value ){
+    (jsonCanvasRef?.value?.toolbar as any).zoomIn()
+  }
+};
+const onAutoZoom = () => {
+  if(jsonCanvasRef?.value ){
+    (jsonCanvasRef?.value?.toolbar as any).autoZoom()
+  }
 };
 </script>
 <style scoped lang="scss">
+$json-edit-bgc: #f1f4f5;
+$json-edit-primary: #7b6fdd;
+$nav-bgc: #ebebeb;
+$nav-color: #a278dc;
+$hover-color: #7b6fdd;
 .json-home {
   width: 100%;
   height: 100%;
@@ -276,21 +234,27 @@ const onJsonError = (err: any) => {
   .nav-tools {
     width: 50px;
     height: 100%;
-    background-color: #1d2b3a;
+    background-color: $nav-bgc;
     .jv-icon {
       width: 100%;
       height: 50px;
       line-height: 50px;
       text-align: center;
-      color: #fff;
+      color: #c09af7;
       font-size: 20px;
       font-weight: 600;
       //斜体
       font-style: italic;
       //字体阴影
-      text-shadow: 0 0px 2px #ddd;
+      text-shadow: 0 0px 2px $nav-bgc;
       letter-spacing: 4px;
       position: relative;
+      .char-j {
+        color: #a845f5;
+      }
+      .char-v {
+        color: #f5c146;
+      }
       &::after {
         content: "";
         position: absolute;
@@ -300,51 +264,131 @@ const onJsonError = (err: any) => {
         bottom: 1px;
         width: 80%;
         height: 1px;
-        background-color: rgb(149, 149, 149);
+        background-color: $nav-bgc;
       }
     }
     //  工具按钮
     .tool-btns {
       display: flex;
       flex-direction: column;
+      padding: 10px;
       .iconfont {
         width: 100%;
-        height: 50px;
-        line-height: 50px;
+        height: 30px;
+        line-height: 30px;
         text-align: center;
-        color: #ccc;
+        color: $nav-color;
         font-size: 20px;
+        margin: 5px 0;
         cursor: pointer;
         transition: all 0.2s;
+        border-radius: 4px;
         &:hover {
           transform: scale(1.1);
-          color: #fff;
+          color: $hover-color;
+          background-color: #fff;
         }
       }
     }
   }
   .opt-wrap {
     flex: 1;
-    // background-color: pink;
     display: flex;
     .top-title {
-      height: 36px;
-      line-height: 36px;
+      height: 40px;
+      line-height: 40px;
       padding: 0 20px;
-      background-color: #1d2b3a;
-      color: #fff;
+      background-color: $nav-bgc;
+      color: $nav-color;
     }
     //json编辑区域
     .json-wrap {
       width: 450px;
       display: flex;
       flex-direction: column;
-      .edit-area{
-         flex:1;
-         //样式穿透
-         &:deep(#jsoneditor-vue-2.jsoneditor-vue){
-          height:100%;
-         }
+      .edit-area {
+        flex: 1;
+        //样式穿透
+        &:deep(.jsoneditor-vue) {
+          height: 100%;
+          //自定义编辑器主题
+          & div.jsoneditor {
+            border-color: $json-edit-primary;
+            .jsoneditor-outer {
+              .ace_gutter {
+                background-color: $json-edit-bgc;
+              }
+            }
+            .jsoneditor-menu {
+              color: $json-edit-primary;
+              background-color: $json-edit-bgc;
+              border-bottom: 1px solid $json-edit-bgc;
+              & > button {
+                background-color: $json-edit-primary;
+                opacity: 0.7;
+                cursor: pointer;
+                &:hover {
+                  opacity: 1;
+                }
+              }
+              & > button.jsoneditor-undo,
+              button.jsoneditor-redo {
+                opacity: 1;
+                background-color: transparent !important;
+              }
+              & > div.jsoneditor-modes{
+                 & > button {
+                color: #333 !important;
+                }
+                .jsoneditor-contextmenu{
+                  left: 9px!important;
+                  top:30px !important;
+                  width:58px !important;
+                  ul {
+                    width: 100% !important;
+                    .jsoneditor-type-modes{
+                      width:58px !important;
+                      text-align: center;
+                      .jsoneditor-icon{
+                        display: none;
+                      }
+                    }
+                  }
+                }
+              }
+              
+              & > div.jsoneditor-modes .jsoneditor-separator {
+                background: #fff;
+                border-radius: 3px;
+                display: inline-block;
+                width: 58px !important;
+                height: 26px !important;
+                padding: 0 !important;
+                cursor: pointer;
+                &:hover {
+                  color:#222;
+                }
+              }
+              & a.jsoneditor-poweredBy {
+                display: none !important;
+              }
+              &.jsoneditor-menu .jsoneditor-selected {
+                background-color: $json-edit-primary;
+                color: #fff;
+              }
+              & table.jsoneditor-search div.jsoneditor-results {
+                color: $json-edit-primary;
+              }
+              & table.jsoneditor-search input {
+                color: #444;
+                padding-left: 3px;
+              }
+              & .ace_folding-enabled > .ace_gutter-cell {
+                background-color: $json-edit-bgc;
+              }
+            }
+          }
+        }
       }
     }
     // json画布区域
@@ -358,20 +402,24 @@ const onJsonError = (err: any) => {
       .canvas-tools {
         display: flex;
         justify-content: space-between;
-        line-height: 36px;
+        line-height: 40px;
         .opt-btns {
+          display: flex;
+          align-items: center;
           .iconfont {
-            display: inline-block;
-            height: 100%;
-            padding: 0 4px;
+            line-height: 30px;
+            height: 30px;
+            padding: 0 5px;
             text-align: center;
-            color: #ccc;
+            color: $nav-color;
             font-size: 20px;
             cursor: pointer;
             transition: all 0.2s;
+            border-radius: 4px;
             &:hover {
-              transform: scale(1.1);
-              color: #fff;
+              transform: scale(1.06);
+              color: $hover-color;
+              background-color: #fff;
             }
           }
         }
@@ -387,12 +435,9 @@ const onJsonError = (err: any) => {
             width: 100%;
             outline: none;
             padding: 2px 6px;
-            background-color: #f5f5f5;
+            background-color: #fff;
             border-radius: 4px;
             border: none;
-            //光标样式
-
-            //placeholder样式
             &::placeholder {
               color: #aaa;
             }
@@ -400,7 +445,7 @@ const onJsonError = (err: any) => {
           .icon-search {
             position: absolute;
             right: 8px;
-            color: #555;
+            color: $hover-color;
             opacity: 0.8;
             font-size: 18px;
             cursor: pointer;
@@ -412,8 +457,8 @@ const onJsonError = (err: any) => {
           }
         }
       }
-      .canvas-area{
-        flex:1;
+      .canvas-area {
+        flex: 1;
       }
     }
   }

@@ -79,8 +79,47 @@
       return result
     }
 
-    const res1 = dealData(result1, ['result'])
-    console.warn(  res1);
+    // const res1 = dealData(result1, ['result'])
+    // console.warn(  res1);
+    let res = {
+      inventries:[ 'zhansan','lisi']
+    }
+    let result = {
+      id: '',
+      children: [
+        {
+          id: '',
+          keyName: '',
+          entries: {},
+          children: [],
+        },
+      ],
+    };
+    /* {
+      id: '1',
+      children: [
+        {
+          id: '1',
+          entries: {},
+          keyName:''lisi''
+          children: [],
+        },
+        {
+          id: '1',
+          entries: {},
+          keyName:'zhansan'
+          children: [],
+        },
+      ],
+    }; */
+    const dealArr = (data) => {
+      console.log("%c [ data ]-88", "font-size:14px; background:#18b4bc; color:#5cf8ff;", data);
+      //循环数组,判断数组每个值类型
+      //普通类型收集到children的每个子元素的entries中
+      //复杂
+
+    }
+    dealArr(res.inventries)
   </script>
 </body>
 

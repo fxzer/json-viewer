@@ -3,13 +3,21 @@
 </template>
 
 <script lang="ts" setup>
-import G6 from "@antv/g6";
-import { onMounted, reactive, ref ,watch,defineProps} from "vue";
+import G6, { TreeGraph } from "@antv/g6";
+import { onMounted, reactive, ref, watch, defineProps } from "vue";
 import { registerFn } from "./registerFn";
 const props = defineProps({
   modelValue: {
     type: Object,
-    default: () => ({ }),
+    default: () => ({}),
+  },
+  layoutDirection: {
+    type: String,
+    default: "LR",
+  },
+  isExpand: {
+    type: Boolean,
+    default: false,
   },
 });
 const porps = ref(props).value;
@@ -31,17 +39,19 @@ const propsDefalut = {
 watch(
   () => porps.modelValue,
   (newVal) => {
-    initGraph(newVal);
-  } 
+    // initGraph(newVal);
+    drawGraph(newVal);
+  }
 );
+
 //处理数据结构
 const dealData = (data, customKeys: Array<string> = []) => {
   let result = {
-    id: '',
+    id: "",
     children: [
       {
-        id: '',
-        keyName: '',
+        id: "",
+        keyName: "",
         entries: {},
         children: [],
       },
@@ -53,19 +63,17 @@ const dealData = (data, customKeys: Array<string> = []) => {
     if (customKeys.includes(key)) {
       value = JSON.parse(data[key]);
     }
-   if(typeof value === "object" && value !== null) {
+    if (typeof value === "object" && value !== null) {
       if (Object.keys(value).length) {
-        console.log("%c [ Object.keys(value) ]-58", "font-size:14px; background:#5fd44b; color:#a3ff8f;", Object.keys(value));
         let len = result.children.length;
         //生成随机id
-        let id  = Math.random().toString(36).substring(2,10);
-          result.children[len] =  { ...dealData(value), id,keyName:key}  as any;
-        
+        let id = Math.random().toString(36).substring(2, 10);
+        result.children[len] = { ...dealData(value), id, keyName: key } as any;
       }
     } else {
       let level1 = result.children[0];
       if (!level1.id) {
-        let id  = Math.random().toString(36).substring(2,10);
+        let id = Math.random().toString(36).substring(2, 10);
         level1.id = id;
       }
       level1.entries[key] = value;
@@ -94,59 +102,107 @@ const defaultConfig = reactive({
   layout: {
     type: "indented",
     direction: "LR",
-    dropCap: false,
+    dropCap: true,
     indent: 300,
-    getHeight: () => {
-      return 60;
-    },
   },
 });
-const initGraph = (data) => {
-  if (!data) {
-    return;
-  }
-  data = dealData(data, ["result"]);
-  console.log("%c [ data ]-117", "font-size:14px; background:#078791; color:#4bcbd5;", data);
-  data.id = "root";
+const graph = ref<TreeGraph>();
+const toolbar = new G6.ToolBar({
+  getContent: () => {
+    const outDiv = document.createElement("div");
+    outDiv.style.display = "none";
+    //隐藏outDiv
+    return outDiv;
+  },
+});
+const initGraph = () => {
   //去除id不存在的元素
   const { config } = propsDefalut;
-  const tooltip = new G6.Tooltip({
-    offsetX: 20,
-    offsetY: 30,
-    itemTypes: ["node"],
-  });
   registerFn();
-  const graph = new G6.TreeGraph({
+
+  graph.value = new G6.TreeGraph({
     container: jsonCanvas.value as HTMLElement,
     width: width.value, // Number，必须，图的宽度
     height: height.value, // Number，必须，图的高度
     ...defaultConfig,
     ...config,
-    plugins: [tooltip],
+    plugins: [toolbar],
   });
-  graph.read(data); // 渲染数据
-  graph.zoom(config.defaultZoom || 1);
 
   const handleCollapse = (e) => {
     const target = e.target;
     const id = target.get("modelId");
-    const item = graph.findById(id);
+    const item = graph.value?.findById(id) as any;
     const nodeModel = item.getModel();
     nodeModel.collapsed = !nodeModel.collapsed;
-    graph.layout();
-    graph.setItemState(item, "collapse", nodeModel.collapsed as boolean);
+    graph.value?.layout();
+    graph.value?.setItemState(item, "collapse", nodeModel.collapsed as boolean);
   };
-  graph.on("collapse-text:click", (e) => {
+  graph.value.on("collapse-text:click", (e) => {
     handleCollapse(e);
   });
-  graph.on("collapse-back:click", (e) => {
+  graph.value.on("collapse-back:click", (e) => {
     handleCollapse(e);
   });
+};
+const drawGraph = (data) => {
+  if (!data) {
+    return;
+  }
+  let isEmpty = Object.keys(data).length === 0;
+  data = dealData(data, ["result"]);
+  const rootConfig = {
+    id: isEmpty ? "{ }" : "root",
+    type: "root-icon",
+  };
+
+  let graphData = Object.assign({}, data, rootConfig);
+  graph.value?.read(graphData);
+  //判断是否为空对象
+  if (isEmpty) {
+    graph.value?.fitView(200);
+  } else {
+    graph.value?.zoom(0.85);
+  }
 };
 onMounted(() => {
   width.value = jsonCanvas.value?.clientWidth || 1000;
   height.value = jsonCanvas.value?.clientHeight || 800;
-  initGraph(porps.modelValue);
+  initGraph();
+  drawGraph(porps.modelValue);
+});
+
+//旋转布局
+watch(
+  () => porps.layoutDirection,
+  (newVal) => {
+    if (graph.value) {
+      graph.value.changeLayout({
+        type: "indented",
+        direction: newVal,
+        dropCap: true,
+        indent: 300,
+      });
+    }
+  }
+);
+//展开/收起
+watch(
+  () => porps.isExpand,
+  (newVal) => {
+    //获取图数据,修改collapsed属性,重新布局
+    let data = graph.value?.save() as any;
+    data.collapsed = !newVal;
+    graph.value?.layout();
+  }
+);
+//保存为图片
+const saveImage = () => {
+  graph.value?.downloadFullImage("json-viewer");
+};
+defineExpose({
+  saveImage,
+  toolbar
 });
 </script>
 <style scoped lang="scss"></style>

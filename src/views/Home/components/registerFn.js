@@ -19,12 +19,15 @@ export const registerFn = () => {
         const {  collapsed = true , entries ,id, keyName } = cfg;
         let keyNameIsExist =  keyName !=='' && keyName !== undefined && keyName !== null
         //计算矩形节点高度
-        let height = 40;
+        let textFontSize = 12;
+        let padding = textFontSize * 2
+        let lineHeight = textFontSize * 1.4;
+        let height = lineHeight * 2;
         let entriedStr = "";
         if(entries){
           let keyNum =  Object.keys(entries).length;
-           height =  keyNum <= 2 ? 40 : 40 + (keyNum-2) * 10;
-           if(keyNum ){
+            height = padding +  keyNum * lineHeight  - 10;
+           if(keyNum){
              entriedStr =  Object.entries(entries).map((item,index)=>{
               return `${item[0]}:${item[1]}`
              }).join("\n")
@@ -34,9 +37,9 @@ export const registerFn = () => {
           entriedStr = keyName
         }
         const grey = "#CED4D9";
-        // 逻辑不应该在这里判断
+        // 矩形框配置
         const rectConfig = {
-          width: 202,
+          width: 200,
           height,
           lineWidth: 1,
           fontSize: 12,
@@ -65,23 +68,19 @@ export const registerFn = () => {
         });
 
         const rectBBox = rect.getBBox();
-        //循环绘制节点
-        // if(entries){
-
-        // }
-        // label title
+        // 文本
         group.addShape("text", {
           attrs: {
             ...textConfig,
-            x: 12 + nodeOrigin.x,
-            y: 20 + nodeOrigin.y,
-            text: entriedStr   ,
-            fontSize: 12,
+            x: nodeOrigin.x + 10,
+            y: -nodeOrigin.y - 10 ,
+            text: entriedStr,
+            fontSize: textFontSize,
+            lineHeight: lineHeight,
             opacity: 0.85,
             fill: "#000",
             cursor: "pointer",
           },
-          name: "name-shape",
         });
 
         // collapse rect
@@ -152,4 +151,66 @@ export const registerFn = () => {
     },
     "rect"
   );
+  // const rootHtml = (cfg)=> `
+  //   <group>
+  //      <rect style={{
+  //        width: 60, height: 30, fill: '#7E3FEB', stroke: '#fff', radius: 5, 
+  //      }} >
+  //        <text style={{  
+  //          marginLeft: 25,
+  //          marginTop: 5,  
+  //          textAlign: 'center',
+  //          fontSize: 16,
+  //          fontWeight: 'bold', 
+  //          fill: '#fff' }}> ${cfg.id}</text>
+  //      </rect>
+  //    </group>
+  //    ` 
+  //    console.log("%c [ rootHtml ]-184", "font-size:14px; background:#7c84f6; color:#c0c8ff;", rootHtml);
+  // G6.registerNode('root-node', 
+  // {
+  //     //自定义JSX根节点
+  //     jsx:rootHtml
+  // })
+
+    //注册根节点
+    G6.registerNode("root-icon", {
+      draw(cfg, group) {
+        group.addShape("circle", {
+          attrs: {
+            x: 0,
+            y: 20,
+            r: 40,
+          },
+          name: "root-bg-shape",
+        });
+        //添加图标
+        const keyShape = group.addShape("text", {
+          attrs: {
+            x: 0,
+            y: 20,
+            fontFamily: "iconfont",
+            textAlign: "center",
+            text: '\ue867',
+            fontSize: 50,
+            fill: "#7E48F6",
+          },
+          name: "root-shape",
+        });
+        //添加label
+        group.addShape("text", {
+          attrs: {
+            x: 0,
+            y: -4,
+            textAlign: "center",
+            textBaseline: "middle",
+            text: cfg.id,
+            fontSize: 12,
+            fill: "#fff",
+          },
+          name: "root-label",
+        });
+        return keyShape;
+      },
+    });
 };
