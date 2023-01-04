@@ -4,7 +4,17 @@
 
 <script lang="ts" setup>
 import G6, { TreeGraph } from "@antv/g6";
-import { onMounted, reactive, ref, watch, defineProps } from "vue";
+
+import {
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  defineProps,
+  defineExpose,
+  defineEmits,
+nextTick,
+} from "vue";
 import { registerFn } from "./registerFn";
 const props = defineProps({
   modelValue: {
@@ -19,7 +29,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isExpandEditor: {
+    type: Boolean,
+    default: true,
+  },
 });
+
+const emit = defineEmits(["nodeClick"]);
+
 const porps = ref(props).value;
 const width = ref(0);
 const height = ref(0);
@@ -103,7 +120,7 @@ const defaultConfig = reactive({
     type: "indented",
     direction: "LR",
     dropCap: true,
-    indent: 300,
+    indent: 220,
   },
 });
 const graph = ref<TreeGraph>();
@@ -115,6 +132,7 @@ const toolbar = new G6.ToolBar({
     return outDiv;
   },
 });
+const nodeDetail = ref({});
 const initGraph = () => {
   //去除id不存在的元素
   const { config } = propsDefalut;
@@ -138,11 +156,36 @@ const initGraph = () => {
     graph.value?.layout();
     graph.value?.setItemState(item, "collapse", nodeModel.collapsed as boolean);
   };
+
+  const handleNodeClick = (e) => {
+    const node = e.item;
+    nodeDetail.value = node.getModel();
+    emit("nodeClick", nodeDetail.value);
+    // 点击时选中，再点击时取消
+    // graph.value?.setItemState(node, 'selected', !node.hasState('selected')); // 切换选中
+  };
+  const handleNodeMouseEnter = (e) => {
+    const node = e.item;
+    graph.value?.setItemState(node, 'hover', !node.hasState('hover')); // 切换选中
+  };
   graph.value.on("collapse-text:click", (e) => {
+    e.stopPropagation()
     handleCollapse(e);
   });
   graph.value.on("collapse-back:click", (e) => {
+    e.stopPropagation()
     handleCollapse(e);
+  });
+  graph.value.on("node:click", (e) => {
+    handleNodeClick(e);
+  });
+  graph.value.on("node:mouseover", (e) => {
+    e.stopPropagation()
+    handleNodeMouseEnter(e);
+  });
+  graph.value.on("node:mouseout", (e) => {
+    e.stopPropagation()
+    handleNodeMouseEnter(e);
   });
 };
 const drawGraph = (data) => {
@@ -166,8 +209,8 @@ const drawGraph = (data) => {
   }
 };
 onMounted(() => {
-  width.value = jsonCanvas.value?.clientWidth || 1000;
-  height.value = jsonCanvas.value?.clientHeight || 800;
+  width.value = jsonCanvas.value?.clientWidth || 860;
+  height.value = jsonCanvas.value?.clientHeight || 745; 
   initGraph();
   drawGraph(porps.modelValue);
 });
@@ -186,6 +229,22 @@ watch(
     }
   }
 );
+//监听编辑区展开/收起
+watch(
+  () => porps.isExpandEditor,
+  (newVal) => {
+    let newWidth = newVal ? width.value : width.value + 450;
+    graph.value?.changeSize(newWidth, height.value);
+  }
+);
+// const exitFullscreen = () =>{
+//   nextTick(() =>{
+//     width.value = jsonCanvas.value?.clientWidth || 860;
+//     height.value = jsonCanvas.value?.clientHeight || 745; 
+   
+//     graph.value?.changeSize(width.value, height.value);
+//   })
+// }
 //展开/收起
 watch(
   () => porps.isExpand,
@@ -194,15 +253,76 @@ watch(
     let data = graph.value?.save() as any;
     data.collapsed = !newVal;
     graph.value?.layout();
+    if (newVal) {
+      graph.value?.fitView(20);
+    } else {
+      graph.value?.moveTo(width.value / 2, height.value / 2);
+    }
   }
 );
 //保存为图片
 const saveImage = () => {
   graph.value?.downloadFullImage("json-viewer");
 };
+//监听窗口大小变化
+window.onresize = () => {
+  width.value = jsonCanvas.value?.clientWidth || 860;
+  height.value = jsonCanvas.value?.clientHeight || 880;
+  graph.value?.changeSize(width.value, height.value);
+};
+//搜索聚焦节点
+const focusNode = (keyword) => {
+  graph.value?.findAll("node", (node) => {
+        graph.value?.setItemState(node, 'focus', false); // 切换选中
+        graph.value?.setItemState(node, 'hover', false); // 切换选中
+   });
+  if (!keyword || keyword === "root") {
+    const node = graph.value?.findById("root");
+    if(node){
+      graph.value?.setItemState(node, 'hover', !node.hasState('hover')); // 切换选中
+    } 
+    // graph.value?.fitView(20);
+    // graph.value?.focusItem("root");
+    // 获取所有节点
+  } else {
+    const findNodes = graph.value?.findAll("node", (node) => {
+      //查找规则
+      //entries键值对包含 或 keyName 包含
+      let isInclude = false;
+      let keyName = node.get("model").keyName || "";
+      let entries = node.get("model").entries;
+      if (keyName?.includes(keyword)) {
+        isInclude = true;
+        return isInclude;
+      }
+      for (let key in entries) {
+        let keyStr = key.toString();
+        let valStr = entries[key].toString();
+        if (keyStr?.includes(keyword) || valStr?.includes(keyword)) {
+          isInclude = true;
+          break;
+        }
+      }
+      return isInclude;
+    }) || [];
+    // 动画地移动，并配置动画
+    if (findNodes.length > 0) {
+      graph.value?.focusItem(findNodes[0], true, {
+        easing: "easeCubic",
+        duration: 400,
+      });
+      //清除所有节点的选中状态
+      findNodes.forEach((node) => {
+        graph.value?.setItemState(node, 'focus', true); // 切换选中
+      });
+    }
+  }
+};
 defineExpose({
   saveImage,
-  toolbar
+  toolbar,
+  focusNode,
+  graph,
 });
 </script>
 <style scoped lang="scss"></style>

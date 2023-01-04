@@ -6,20 +6,24 @@
         <span class="char-j">J</span><span class="char-v">V</span>
       </div>
       <div class="tool-btns">
-        <el-tooltip content="展开编辑" placement="top" effect="dark">
-          <span class="iconfont icon-zhankai-"></span>
+        <el-tooltip :content="(isExpandEditor ? '收起':'展开') +'编辑'" placement="right" effect="light">
+          <span
+            class="iconfont icon-editor-expand"
+            :style="{ transform: `rotate(${editorIconAngle})` }"
+            @click="onExpandEditor"
+          ></span>
         </el-tooltip>
 
         <el-tooltip content="旋转布局" placement="right" effect="light">
           <span
-            class="iconfont icon-node-layout-1"
+            class="iconfont icon-node-layout"
             :style="{ transform: `rotate(${rotateAngle})` }"
             @click="onRotate"
           ></span>
         </el-tooltip>
 
         <el-tooltip
-          :content="isExpand ? '收起' : '展开'"
+          :content="(isExpand ? '收起' : '展开')+ '节点'"
           placement="right"
           effect="light"
         >
@@ -29,14 +33,23 @@
             @click="onExpand"
           ></span>
         </el-tooltip>
-        <el-tooltip content="导入" placement="right" effect="light">
-          <span class="iconfont icon-import" @click="onImport"></span>
+        <el-tooltip
+          :content="(isFullScreen ? '退出' : '进入')+ '全屏'"
+          placement="right"
+          effect="light"
+        >
+          <span
+            class="iconfont"
+            :class="isFullScreen ? 'icon-fullscreen-cancel' : 'icon-fullscreen-done'"
+            @click="onFullScreen"
+          ></span>
         </el-tooltip>
-        <el-tooltip content="导出" placement="right" effect="light">
+        <el-tooltip content="导入JSON" placement="right" effect="light">
+          <span class="iconfont icon-import-json" @click="onImport"></span>
+        </el-tooltip>
+        <el-tooltip content="导出JSON" placement="right" effect="light">
           <span class="iconfont icon-export-json" @click="onExport"></span>
         </el-tooltip>
-        <!-- <el-tooltip content="清空" placement="right" effect="light">  -->
-
         <el-popconfirm
           title="确定清空JSON?"
           confirm-button-type="warning"
@@ -46,16 +59,20 @@
           @cancel="cancelClear"
         >
           <template #reference>
-            <span class="iconfont icon-clear-json"></span>
+            <!-- <el-tooltip content="清空JSON" placement="right" effect="light"> -->
+            <span class="iconfont icon-clear-json"  ></span>
+            <!-- </el-tooltip> -->  
           </template>
         </el-popconfirm>
-        <!-- </el-tooltip> -->
       </div>
     </div>
     <!-- 右侧操作区 -->
-    <div class="opt-wrap">
+    <div class="opt-wrap" >
       <!-- json编辑区域 -->
-      <div class="json-wrap">
+      <div class="json-wrap" :style="{
+      width: isExpandEditor ? '450px' : '0px',
+      zIndex: isExpandEditor ? 1 : -1,
+    }">
         <div class="wrap-title top-title">JSON内容</div>
         <VueJsonEditor
           class="edit-area"
@@ -70,18 +87,44 @@
       <div class="json-canvas">
         <div class="canvas-tools top-title">
           <div class="opt-btns">
+            <el-tooltip
+              content="放大"
+              placement="bottom"
+              effect="light"
+            >
             <span class="iconfont icon-plus" @click="onZoomOut"></span>
-            <span class="iconfont icon-jianhao" @click="onZoomIn"></span>
-            <span class="iconfont icon-xueyuan-shousuo" @click="onAutoZoom"></span>
+            </el-tooltip>
+            <el-tooltip
+              content="缩小"
+              placement="bottom"
+              effect="light"
+            >
+            <span class="iconfont icon-minus" @click="onZoomIn"></span>
+            </el-tooltip>
+            <el-tooltip
+              content="居中"
+              placement="bottom"
+              effect="light"
+            >
+            <span class="iconfont icon-auto-zoom" @click="onAutoZoom"></span>
+            </el-tooltip>
             <!-- <span class="iconfont icon-quanping"></span>
             <span class="iconfont icon-quxiaoquanping"></span> -->
-            <span class="iconfont icon-save" @click="saveAsImage"></span>
+            <el-tooltip
+              content="存为图片"
+              placement="bottom"
+              effect="light"
+            >
+            <span class="iconfont icon-save-image" @click="showExportImage"></span>
+            </el-tooltip>
           </div>
           <div class="search-wrap">
             <input
               class="search-input"
               type="text"
               placeholder="请输入节点名称"
+              v-model="searchKeyWord"
+              @input="onSearch"
             />
             <span class="iconfont icon-search"></span>
           </div>
@@ -90,19 +133,23 @@
           v-model="jsonData"
           :layoutDirection="layoutDirection"
           :isExpand="isExpand"
+          :isExpandEditor="isExpandEditor"
           ref="jsonCanvasRef"
+          @node-click="nodeClickHandler"
         />
       </div>
     </div>
+    <NodeDialog v-model:value="showNodeDetail" :nodeDetail="nodeDetail"/>
+    <ExportImage v-model:value="exportVisible" @confirm="confirmExport" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import * as V3JsonEditor from "vue3-json-editor";
 import JsonCanvas from "@/views/Home/components/JsonCanvas.vue";
+import ExportImage from "@/views/Home/components/ExportImage.vue";
+import NodeDialog from '@/views/Home/components/NodeDialog.vue'
 import { ElNotification, roleTypes } from "element-plus";
-import { ref } from "vue";
-const VueJsonEditor = V3JsonEditor.Vue3JsonEditor;
+import { reactive, ref } from "vue";
 let jsonData = ref({
   name: "json-viewer",
   private: true,
@@ -138,11 +185,20 @@ const onJsonError = (err: any) => {
     duration: 6000,
   });
 };
+//编辑区展开/收起
+const isExpandEditor = ref(true);
+const editorIconAngle = ref("0deg");
+const onExpandEditor = () => {
+  isExpandEditor.value = !isExpandEditor.value
+  editorIconAngle.value = isExpandEditor.value ? "0deg" : "180deg";
+};
+
 //TODO:默认展开几级
 const isExpand = ref(true);
 const onExpand = () => {
   isExpand.value = !isExpand.value;
 };
+
 //旋转布局
 const layoutDirection = ref("LR");
 const rotateAngle = ref("0deg");
@@ -198,25 +254,73 @@ const cancelClear = () => {};
 
 //TODO:保存为图片拓展
 const jsonCanvasRef = ref(null);
-const saveAsImage = () => {
-  console.log("保存为图片");
-  if(jsonCanvasRef?.value){
-    (jsonCanvasRef?.value as any).saveImage()
+const exportVisible  = ref(false)
+
+const showExportImage = () => {
+  exportVisible.value = true
+};
+
+
+const confirmExport = (config) => {
+  exportVisible.value = false
+  if (jsonCanvasRef?.value) {
+    let { name, type ,padding,backgroundColor} = config;
+    (jsonCanvasRef?.value as any).graph.downloadFullImage(name,type, {
+      padding,
+      backgroundColor,
+    });
   }
 };
 const onZoomOut = () => {
-  if(jsonCanvasRef?.value ){
-    (jsonCanvasRef?.value?.toolbar as any).zoomOut()
+  if (jsonCanvasRef?.value) {
+    (jsonCanvasRef?.value?.toolbar as any).zoomOut();
   }
 };
 const onZoomIn = () => {
-  if(jsonCanvasRef?.value ){
-    (jsonCanvasRef?.value?.toolbar as any).zoomIn()
+  if (jsonCanvasRef?.value) {
+    (jsonCanvasRef?.value?.toolbar as any).zoomIn();
   }
 };
 const onAutoZoom = () => {
-  if(jsonCanvasRef?.value ){
-    (jsonCanvasRef?.value?.toolbar as any).autoZoom()
+  if (jsonCanvasRef?.value) {
+    (jsonCanvasRef?.value?.toolbar as any).autoZoom();
+  }
+};
+//关键词搜索
+const searchKeyWord = ref("");
+//防抖函数
+const debounce = (fn:any, delay: number) => {
+  let timer: any = null;
+  return function () {
+    let context = this;
+    let args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      fn.apply(context, args);
+    }, delay);
+  };
+};
+//TODO:防抖没有生效
+const onSearch = (e) => {
+  if (jsonCanvasRef?.value) {
+   debounce((jsonCanvasRef?.value as any).focusNode, 600)(e.target.value) 
+  }
+};
+
+const showNodeDetail = ref(false);
+const nodeDetail = ref({});
+const nodeClickHandler = (node: any) => {
+  nodeDetail.value = node;
+  showNodeDetail.value = true;
+};
+//全屏/退出全屏
+const isFullScreen = ref(false);
+const onFullScreen = () => {
+  isFullScreen.value = !isFullScreen.value;
+  if (isFullScreen.value) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
   }
 };
 </script>
@@ -230,10 +334,12 @@ $hover-color: #7b6fdd;
   width: 100%;
   height: 100%;
   display: flex;
+  
   //左侧工具导航栏
   .nav-tools {
     width: 50px;
     height: 100%;
+    z-index: 2;
     background-color: $nav-bgc;
     .jv-icon {
       width: 100%;
@@ -300,12 +406,14 @@ $hover-color: #7b6fdd;
       padding: 0 20px;
       background-color: $nav-bgc;
       color: $nav-color;
+      z-index: 2;
     }
     //json编辑区域
     .json-wrap {
       width: 450px;
       display: flex;
       flex-direction: column;
+      transition:all .3s ease-in-out;
       .edit-area {
         flex: 1;
         //样式穿透
@@ -316,6 +424,9 @@ $hover-color: #7b6fdd;
             border-color: $json-edit-primary;
             .jsoneditor-outer {
               .ace_gutter {
+                background-color: $json-edit-bgc;
+              }
+              & .ace_folding-enabled   .ace_gutter-cell {
                 background-color: $json-edit-bgc;
               }
             }
@@ -336,27 +447,27 @@ $hover-color: #7b6fdd;
                 opacity: 1;
                 background-color: transparent !important;
               }
-              & > div.jsoneditor-modes{
-                 & > button {
-                color: #333 !important;
+              & > div.jsoneditor-modes {
+                & > button {
+                  color: #333 !important;
                 }
-                .jsoneditor-contextmenu{
-                  left: 9px!important;
-                  top:30px !important;
-                  width:58px !important;
+                .jsoneditor-contextmenu {
+                  left: 9px !important;
+                  top: 30px !important;
+                  width: 58px !important;
                   ul {
                     width: 100% !important;
-                    .jsoneditor-type-modes{
-                      width:58px !important;
+                    .jsoneditor-type-modes {
+                      width: 58px !important;
                       text-align: center;
-                      .jsoneditor-icon{
+                      .jsoneditor-icon {
                         display: none;
                       }
                     }
                   }
                 }
               }
-              
+
               & > div.jsoneditor-modes .jsoneditor-separator {
                 background: #fff;
                 border-radius: 3px;
@@ -366,7 +477,7 @@ $hover-color: #7b6fdd;
                 padding: 0 !important;
                 cursor: pointer;
                 &:hover {
-                  color:#222;
+                  color: #222;
                 }
               }
               & a.jsoneditor-poweredBy {
@@ -383,9 +494,6 @@ $hover-color: #7b6fdd;
                 color: #444;
                 padding-left: 3px;
               }
-              & .ace_folding-enabled > .ace_gutter-cell {
-                background-color: $json-edit-bgc;
-              }
             }
           }
         }
@@ -401,8 +509,8 @@ $hover-color: #7b6fdd;
       flex-direction: column;
       .canvas-tools {
         display: flex;
-        justify-content: space-between;
         line-height: 40px;
+        min-height: 40px !important;
         .opt-btns {
           display: flex;
           align-items: center;
@@ -424,11 +532,13 @@ $hover-color: #7b6fdd;
           }
         }
         .search-wrap {
-          position: relative;
           display: flex;
           align-items: center;
-          padding: 5px 0;
           width: 180px;
+          height: 30px;
+          position: absolute;
+          right:20px;
+          top:5px;
           .search-input {
             display: inline-block;
             height: 100%;
