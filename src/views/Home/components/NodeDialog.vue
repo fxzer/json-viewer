@@ -15,8 +15,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, computed, defineProps, defineEmits } from "vue";
-const porps = defineProps({
+import {   computed  } from "vue";
+const props = defineProps({
   value: {
     type: Boolean,
     default: false,
@@ -36,7 +36,7 @@ const close = () => {
 };
 const visible = computed({
   get() {
-    return porps.value;
+    return props.value;
   },
   set(val: boolean) {
     emit("update:value", val);
@@ -44,7 +44,7 @@ const visible = computed({
 });
 const node = computed({
   get() {
-    let { keyName, entries, id } = porps.nodeDetail;
+    let { keyName, entries, id } = props.nodeDetail;
     if (id === "root") {
       keyName = {};
     }

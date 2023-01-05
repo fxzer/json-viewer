@@ -195,6 +195,13 @@ export const registerFn = () => {
             shape.attr('stroke', '#F4BE50');
             shape.attr('fill', '#FFFCE8');
           } else {
+            // const states = item.getStates();
+            const isFocus = item.hasState('focus');
+            if(isFocus){
+              shape.attr('stroke', '#65B687');
+              shape.attr('fill', '#E8FFEA');
+              return;
+            }
             shape.attr('stroke', '#7D3EE8');
             shape.attr('fill', '#F2EBFD');
           }
@@ -219,8 +226,48 @@ export const registerFn = () => {
     },
     "rect"
   );
-  //计算节点大小
-  const computeNodeSize = (cfg, base) => {
+ 
+};
+//节点文本溢出省略
+export function fittingString(str, maxWidth, fontSize) {
+  const ellipsis = "...";
+  const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)[0];
+  let currentWidth = 0;
+  let res = str;
+  const pattern = new RegExp("[\u4E00-\u9FA5]+");
+  str.split("").forEach((letter, i) => {
+    if (currentWidth > maxWidth - ellipsisLength) return;
+    if (pattern.test(letter)) {
+      currentWidth += fontSize;
+    } else {
+      currentWidth += G6.Util.getLetterWidth(letter, fontSize);
+    }
+    if (currentWidth > maxWidth - ellipsisLength) {
+      res = `${str.substr(0, i)}${ellipsis}`;
+    }
+  });
+  return res;
+}
+
+  //计算字符长度
+  export const getTextWidth = (longestText, fontSize, fontWeight = 400) => {
+    // 创建临时元素
+    const ele = document.createElement("div");
+    ele.style.position = "absolute";
+    ele.style.whiteSpace = "nowrap";
+    ele.style.fontSize = fontSize + "px";
+    ele.style.fontWeight = fontWeight;
+    ele.innerText = longestText;
+    document.body.append(ele);
+    // 获取span的宽度
+    const width = ele.getBoundingClientRect().width;
+    // 从body中删除该span
+    document.body.removeChild(ele);
+    // 返回span宽度
+    return Math.ceil(width);
+  };
+//计算节点大小
+  export const computeNodeSize = (cfg, base) => {
     const { entries, keyName } = cfg;
     let hasKeyName = !["", undefined, null].includes(keyName);
     const { fontSize, lineHeight, padding, bsheight } = base;
@@ -264,41 +311,3 @@ export const registerFn = () => {
 
     return [width, height, entriesStr];
   };
-  //计算字符长度
-  const getTextWidth = (longestText, fontSize, fontWeight = 400) => {
-    // 创建临时元素
-    const ele = document.createElement("div");
-    ele.style.position = "absolute";
-    ele.style.whiteSpace = "nowrap";
-    ele.style.fontSize = fontSize + "px";
-    ele.style.fontWeight = fontWeight;
-    ele.innerText = longestText;
-    document.body.append(ele);
-    // 获取span的宽度
-    const width = ele.getBoundingClientRect().width;
-    // 从body中删除该span
-    document.body.removeChild(ele);
-    // 返回span宽度
-    return Math.ceil(width);
-  };
-};
-//节点文本溢出省略
-export function fittingString(str, maxWidth, fontSize) {
-  const ellipsis = "...";
-  const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)[0];
-  let currentWidth = 0;
-  let res = str;
-  const pattern = new RegExp("[\u4E00-\u9FA5]+");
-  str.split("").forEach((letter, i) => {
-    if (currentWidth > maxWidth - ellipsisLength) return;
-    if (pattern.test(letter)) {
-      currentWidth += fontSize;
-    } else {
-      currentWidth += G6.Util.getLetterWidth(letter, fontSize);
-    }
-    if (currentWidth > maxWidth - ellipsisLength) {
-      res = `${str.substr(0, i)}${ellipsis}`;
-    }
-  });
-  return res;
-}

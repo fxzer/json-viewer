@@ -10,9 +10,7 @@ import {
   reactive,
   ref,
   watch,
-  defineProps,
   defineExpose,
-  defineEmits,
 nextTick,
 } from "vue";
 import { registerFn } from "./registerFn";
@@ -33,11 +31,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  extraFields: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(["nodeClick"]);
 
-const porps = ref(props).value;
 const width = ref(0);
 const height = ref(0);
 const jsonCanvas = ref<HTMLElement | null>(null);
@@ -54,13 +55,19 @@ const propsDefalut = {
 
 //监听modelValue变化
 watch(
-  () => porps.modelValue,
+  () => props.modelValue,
   (newVal) => {
     // initGraph(newVal);
     drawGraph(newVal);
   }
 );
-
+//监听extraFields变化,重新处理数据画图
+watch(
+  () => props.extraFields,
+  (newVal) => {
+    drawGraph(props.modelValue);
+  }
+);
 //处理数据结构
 const dealData = (data, customKeys: Array<string> = []) => {
   let result = {
@@ -100,6 +107,12 @@ const dealData = (data, customKeys: Array<string> = []) => {
   result.children = result.children.filter((item) => item.id);
   return result;
 };
+const getNodeMaxWidth = (node) => {
+  let { keyName, entries } = node;
+  let maxWidth = 448;
+  let keyNameWidth = keyName.length * 10;
+}
+
 // 默认配置
 const defaultConfig = reactive({
   modes: {
@@ -117,10 +130,18 @@ const defaultConfig = reactive({
     },
   },
   layout: {
-    type: "indented",
-    direction: "LR",
+    type: "mindmap",
+    direction: "H",
+    getHGap: (d) => {
+      console.log("%c [ d ]-130", "font-size:14px; background:#2dccec; color:#71ffff;", d);
+      return 50;
+    },
+    getVGap:(d) =>{
+      let n = Object.keys(d.children).length
+      let m = d.entries ? Object.keys(d.entries).length : 0
+      return 10 * (n  + m) ;
+    },
     dropCap: true,
-    indent: 220,
   },
 });
 const graph = ref<TreeGraph>();
@@ -192,8 +213,13 @@ const drawGraph = (data) => {
   if (!data) {
     return;
   }
+  let extraKeyStr = localStorage.getItem('extraFields') ;
+  if(extraKeyStr){
+     data = dealData(data, JSON.parse(extraKeyStr));
+  }else{
+     data = dealData(data,props.extraFields  as Array<string>);
+  }
   let isEmpty = Object.keys(data).length === 0;
-  data = dealData(data, ["result"]);
   const rootConfig = {
     id: isEmpty ? "{ }" : "root",
     type: "root-icon",
@@ -212,12 +238,12 @@ onMounted(() => {
   width.value = jsonCanvas.value?.clientWidth || 860;
   height.value = jsonCanvas.value?.clientHeight || 745; 
   initGraph();
-  drawGraph(porps.modelValue);
+  drawGraph(props.modelValue);
 });
 
 //旋转布局
 watch(
-  () => porps.layoutDirection,
+  () => props.layoutDirection,
   (newVal) => {
     if (graph.value) {
       graph.value.changeLayout({
@@ -231,7 +257,7 @@ watch(
 );
 //监听编辑区展开/收起
 watch(
-  () => porps.isExpandEditor,
+  () => props.isExpandEditor,
   (newVal) => {
     let newWidth = newVal ? width.value : width.value + 450;
     graph.value?.changeSize(newWidth, height.value);
@@ -247,7 +273,7 @@ watch(
 // }
 //展开/收起
 watch(
-  () => porps.isExpand,
+  () => props.isExpand,
   (newVal) => {
     //获取图数据,修改collapsed属性,重新布局
     let data = graph.value?.save() as any;

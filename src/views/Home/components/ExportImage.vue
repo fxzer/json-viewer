@@ -29,16 +29,16 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="visible = false">关闭</el-button>
-        <el-button @click="confirm" type="primary">导出</el-button>
+        <el-button  @click="visible = false">关闭</el-button>
+        <el-button  @click="confirm" type="primary">导出</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, defineProps, defineEmits } from "vue";
-const porps = defineProps({
+import { ref, reactive, computed,  } from "vue";
+const props = defineProps({
   value: {
     type: Boolean,
     default: false,
@@ -50,7 +50,7 @@ const emit = defineEmits({
 });
 const visible = computed({
   get() {
-    return porps.value;
+    return props.value;
   },
   set(val: boolean) {
     emit("update:value", val);

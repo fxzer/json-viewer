@@ -50,6 +50,9 @@
         <el-tooltip content="导出JSON" placement="right" effect="light">
           <span class="iconfont icon-export-json" @click="onExport"></span>
         </el-tooltip>
+        <el-tooltip content="解析字段" placement="right" effect="light">
+          <span class="iconfont icon-zidingyi" @click="openFieldsDialog"></span>
+        </el-tooltip>
         <el-popconfirm
           title="确定清空JSON?"
           confirm-button-type="warning"
@@ -108,8 +111,6 @@
             >
             <span class="iconfont icon-auto-zoom" @click="onAutoZoom"></span>
             </el-tooltip>
-            <!-- <span class="iconfont icon-quanping"></span>
-            <span class="iconfont icon-quxiaoquanping"></span> -->
             <el-tooltip
               content="存为图片"
               placement="bottom"
@@ -136,11 +137,13 @@
           :isExpandEditor="isExpandEditor"
           ref="jsonCanvasRef"
           @node-click="nodeClickHandler"
+          :extraFields="extraFields"
         />
       </div>
     </div>
     <NodeDialog v-model:value="showNodeDetail" :nodeDetail="nodeDetail"/>
     <ExportImage v-model:value="exportVisible" @confirm="confirmExport" />
+    <CustomFields v-model:value="fieldsVisible" :fields="extraFields" @update:fields="updateFields" />
   </div>
 </template>
 
@@ -148,31 +151,15 @@
 import JsonCanvas from "@/views/Home/components/JsonCanvas.vue";
 import ExportImage from "@/views/Home/components/ExportImage.vue";
 import NodeDialog from '@/views/Home/components/NodeDialog.vue'
+import CustomFields from '@/views/Home/components/CustomFields.vue'
 import { ElNotification, roleTypes } from "element-plus";
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
+import example from "./example.json";
 let jsonData = ref({
-  name: "json-viewer",
-  private: true,
-  version: "0.0.0",
-  type: "module",
-  scripts: {
-    dev: "vite",
-    build: "vite build",
-    preview: "vite preview",
-  },
-  dependencies: {
-    "@antv/g6": "^4.8.1",
-    "element-plus": "^2.2.28",
-    vue: "^3.2.45",
-    "vue3-json-editor": "^1.1.5",
-  },
-  devDependencies: {
-    "@vitejs/plugin-vue": "^4.0.0",
-    sass: "^1.57.1",
-    "unplugin-auto-import": "^0.12.1",
-    "unplugin-vue-components": "^0.22.12",
-    vite: "^4.0.0",
-  },
+  "state": "Done",
+  "createdDate": "Jan 5, 2023 1:13:21 PM",
+  "finishedDate": "Jan 5, 2023 1:13:21 PM",
+  "name":["list","wangwu"]
 });
 const onJsonChange = (json: any) => {
   jsonData.value = json;
@@ -185,6 +172,12 @@ const onJsonError = (err: any) => {
     duration: 6000,
   });
 };
+const updateFields =  (fields: any,isStorage:boolean) => {
+  extraFields.value = fields
+  localStorage.setItem('isStorage',JSON.stringify(isStorage))
+  let str = isStorage ? JSON.stringify(fields) : ''
+  localStorage.setItem('extraFields',str)
+}
 //编辑区展开/收起
 const isExpandEditor = ref(true);
 const editorIconAngle = ref("0deg");
@@ -323,6 +316,13 @@ const onFullScreen = () => {
     document.exitFullscreen();
   }
 };
+
+//自定义需要额外解析的字段
+const extraFields = ref([]);
+const fieldsVisible = ref(false) 
+const openFieldsDialog = () => {
+  fieldsVisible.value = true
+}
 </script>
 <style scoped lang="scss">
 $json-edit-bgc: #f1f4f5;
@@ -545,6 +545,7 @@ $hover-color: #7b6fdd;
             width: 100%;
             outline: none;
             padding: 2px 6px;
+            padding-right:26px;
             background-color: #fff;
             border-radius: 4px;
             border: none;
