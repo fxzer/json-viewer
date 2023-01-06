@@ -11,6 +11,7 @@
   "dependencies": {
     "@antv/g6": "^4.8.1",
     "element-plus": "^2.2.28",
+    "pinia": "^2.0.28",
     "vue": "^3.2.45",
     "vue3-json-editor": "^1.1.5"
   },

@@ -3,17 +3,19 @@
 </template>
 
 <script lang="ts" setup>
-import G6, { TreeGraph } from "@antv/g6";
-
+import G6, {  TreeGraph } from "@antv/g6";
+import { LayoutConfig  } from "@/store/module/type";
 import {
   onMounted,
   reactive,
   ref,
   watch,
-  defineExpose,
-nextTick,
 } from "vue";
 import { registerFn } from "./registerFn";
+import useStore from "@/store";
+import { toRefs } from "vue";
+const { layout } = useStore();
+const { type,config ,setType,setConfig} = toRefs(layout);
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -107,12 +109,6 @@ const dealData = (data, customKeys: Array<string> = []) => {
   result.children = result.children.filter((item) => item.id);
   return result;
 };
-const getNodeMaxWidth = (node) => {
-  let { keyName, entries } = node;
-  let maxWidth = 448;
-  let keyNameWidth = keyName.length * 10;
-}
-
 // 默认配置
 const defaultConfig = reactive({
   modes: {
@@ -129,21 +125,28 @@ const defaultConfig = reactive({
       stroke: "#CED4D9",
     },
   },
-  layout: {
-    type: "mindmap",
-    direction: "H",
-    getHGap: (d) => {
-      console.log("%c [ d ]-130", "font-size:14px; background:#2dccec; color:#71ffff;", d);
-      return 50;
-    },
-    getVGap:(d) =>{
-      let n = Object.keys(d.children).length
-      let m = d.entries ? Object.keys(d.entries).length : 0
-      return 10 * (n  + m) ;
-    },
-    dropCap: true,
-  },
+  layout: config ,
 });
+
+//监听到布局配置变化,重新布局
+watch(() => config.value, (val) => {
+  if (graph.value) {
+    graph.value.changeLayout(val);
+    console.log("%c [ val ]-135", "font-size:14px; background:#b131e7; color:#f575ff;", val);
+  }
+  localStorage.setItem('layoutType', type.value);
+  localStorage.setItem("layoutConfig", JSON.stringify(val));  
+},{deep:true});
+
+//获取缓存布局配置
+const layoutConfig:LayoutConfig = JSON.parse(localStorage.getItem('layoutConfig'))
+const layoutType =  localStorage.getItem('layoutType') 
+if( layoutConfig && Object.keys(layoutConfig).length){
+ setConfig.value(layoutConfig)
+}else{
+  setType.value(layoutType ? layoutType : 'indented')
+}
+
 const graph = ref<TreeGraph>();
 const toolbar = new G6.ToolBar({
   getContent: () => {
@@ -344,6 +347,8 @@ const focusNode = (keyword) => {
     }
   }
 };
+
+
 defineExpose({
   saveImage,
   toolbar,

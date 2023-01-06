@@ -14,13 +14,19 @@
           ></span>
         </el-tooltip>
 
-        <el-tooltip content="旋转布局" placement="right" effect="light">
+        <el-tooltip content="布局配置" placement="right" effect="light">
+          <span
+            class="iconfont icon-node-layout"
+            @click="openLayoutConfig"
+          ></span>
+        </el-tooltip>
+        <!-- <el-tooltip content="旋转布局" placement="right" effect="light">
           <span
             class="iconfont icon-node-layout"
             :style="{ transform: `rotate(${rotateAngle})` }"
             @click="onRotate"
           ></span>
-        </el-tooltip>
+        </el-tooltip> -->
 
         <el-tooltip
           :content="(isExpand ? '收起' : '展开')+ '节点'"
@@ -138,21 +144,25 @@
           ref="jsonCanvasRef"
           @node-click="nodeClickHandler"
           :extraFields="extraFields"
+          :layoutConfig="layoutConfig"
         />
       </div>
     </div>
     <NodeDialog v-model:value="showNodeDetail" :nodeDetail="nodeDetail"/>
     <ExportImage v-model:value="exportVisible" @confirm="confirmExport" />
-    <CustomFields v-model:value="fieldsVisible" :fields="extraFields" @update:fields="updateFields" />
+    <LayoutCustom v-model:value="drawerVisible" v-model:config="layoutConfig"  />
+    <FieldsCustom v-model:value="fieldsVisible" :fields="extraFields" @update:fields="updateFields" />
   </div>
 </template>
 
 <script lang="ts" setup>
+//TODO:导入路径问题
 import JsonCanvas from "@/views/Home/components/JsonCanvas.vue";
 import ExportImage from "@/views/Home/components/ExportImage.vue";
 import NodeDialog from '@/views/Home/components/NodeDialog.vue'
-import CustomFields from '@/views/Home/components/CustomFields.vue'
-import { ElNotification, roleTypes } from "element-plus";
+import FieldsCustom from '@/views/Home/components/FieldsCustom.vue'
+import LayoutCustom from '@/views/Home/components/LayoutCustom.vue'
+import { ElNotification} from "element-plus";
 import { reactive, ref, watch } from "vue";
 import example from "./example.json";
 let jsonData = ref({
@@ -161,6 +171,18 @@ let jsonData = ref({
   "finishedDate": "Jan 5, 2023 1:13:21 PM",
   "name":["list","wangwu"]
 });
+
+//布局配置抽屉
+const drawerVisible = ref(false)
+const layoutConfig = ref({
+    type: "indented",
+    direction: "LR", 
+    indent: 250,
+    dropCap: false,
+})
+const openLayoutConfig = () => {
+  drawerVisible.value =  !drawerVisible.value
+}
 const onJsonChange = (json: any) => {
   jsonData.value = json;
 };
@@ -337,7 +359,7 @@ $hover-color: #7b6fdd;
   
   //左侧工具导航栏
   .nav-tools {
-    width: 50px;
+    min-width: 50px;
     height: 100%;
     z-index: 2;
     background-color: $nav-bgc;

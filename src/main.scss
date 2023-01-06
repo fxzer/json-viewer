@@ -15,5 +15,14 @@ html,body{
       display: none; /* Chrome Safari */
     }
 }
+ .layout-modal {
+  left: 50px !important;
+  top: 40px !important;
+  max-width: 450px;
+  .el-drawer.ltr {
+    border-right: 1px solid #f0f0f0;
+    box-shadow: 0 12px 10px #f0f0f0;
+}
+}
 /* 引入iconfont */
 @import '//at.alicdn.com/t/c/font_3847355_9zherkeqbc7.css'
