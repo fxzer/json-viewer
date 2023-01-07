@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    // "target": "esnext",
+    "target": "ES2017",
+    "lib": ["ES2017", "DOM"],
     // "useDefineForClassFields": true,
     // "module": "esnext",
-    // "moduleResolution": "node",
+    "moduleResolution": "node",
     // "strict": true,
     // "jsx": "preserve",
     // "sourceMap": true,
-    "resolveJsonModule": true,
+    // "resolveJsonModule": true,
     "esModuleInterop": true,
     // "lib": ["esnext", "dom"],
     "baseUrl": "./",

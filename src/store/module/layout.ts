@@ -10,46 +10,37 @@ export const UseLayoutStore = defineStore({
         type: "indented",
         direction: "H", // 'LR' | 'RL'  | 'H'
         directions: ["LR", "RL", "H"],
-        indent: 300,
+        indent: 240,
         dropCap: false,
       },
       dendrogram: {
         type: "dendrogram",
-        direction: "H", // 'LR' | 'RL'  | 'H'
+        direction: "LR",  
         directions: ["LR", "RL", "H"],
-        rankSep: 500,
-        nodeSep: 500,
-        radial: true,
+        rankSep: 240,
+        nodeSep: 240,
       },
       mindmap: {
         type: "mindmap",
-        direction: "H",
+        direction: "LR",
         directions: ["LR", "RL", "H"],
-        autoMode:true,
-        hgap: 120,
-        vgap: 120,
+        hgap: 150,
+        vgap: 100,
         getHGap: () => {
-          return 120;
+          return 150;
         },
         getVGap: () => {
-          return 120;
+          return 100;
         },
-        atuoGetVGap: (d) => {
-          let n = Object.keys(d.children).length;
-          let m = d.entries ? Object.keys(d.entries).length : 0;
-          return 10 * (n + m);
-        },
-        dropCap: true,
       },
       compactBox: {
         type: "compactBox",
-        direction: "V",
-        directions: ["LR", "RL", "TB", "BT", "H", "V"],
-        radial: true,
-        hgap: 120,
-        vgap: 120,
+        direction: "LR",
+        directions: ["LR", "RL",  "H"],
+        hgap: 150,
+        vgap: 100,
         getHGap: () => {
-          return 300;
+          return 150;
         },
         getVGap: (d) => {
           return 100;

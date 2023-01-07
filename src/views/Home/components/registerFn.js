@@ -1,13 +1,6 @@
 import G6 from "@antv/g6";
-// 自定义节点、边
-const colors = {
-  B: "#5B8FF9",
-  R: "#F46649",
-  Y: "#EEBC20",
-  G: "#5BD8A6",
-  DI: "#A7A7A7",
-};
-export const registerFn = () => {
+
+export const registerFn = ( ) => {
   //注册根节点
   G6.registerNode("root-icon", {
     draw(cfg, group) {
@@ -217,7 +210,8 @@ export const registerFn = () => {
           }
         }
       },
-      getAnchorPoints() {
+      getAnchorPoints(d) {
+
         return [
           [0, 0.5],
           [1, 0.5],

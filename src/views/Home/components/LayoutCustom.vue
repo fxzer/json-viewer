@@ -35,7 +35,7 @@
               active-text="是"
               inactive-text="否"
             >
-            </el-switch>
+            </el-switch> <span class="text-info">开启后子节点从父节点下一行开始依次渲染</span>
           </el-form-item>
           <el-form-item label="缩进距离">
             <el-input v-model.number="config.indent">
@@ -45,17 +45,6 @@
         </div>
         <!--dendrogram生态树  -->
         <div class="dendrogram" v-if="type == 'dendrogram'">
-          <el-form-item label="是否径向">
-            <el-switch
-              v-model="config.radial"
-              :active-value="true"
-              :inactive-value="false"
-              inline-prompt
-              active-text="是"
-              inactive-text="否"
-            >
-            </el-switch>
-          </el-form-item>
           <el-form-item label="层级间距">
             <el-input v-model.number="config.rankSep">
               <template #append>px</template>
@@ -69,24 +58,7 @@
         </div>
         <!--  mindmap脑图树-->
         <div class="mindmap" v-if="type == 'mindmap'">
-          <el-form-item label="布局模式">
-            <el-radio-group v-model="config.autoMode">
-              <el-radio-button :label="true">自动计算 </el-radio-button>
-              <el-radio-button :label="false">手动定义 </el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-          <div class="custom-mode" v-if="!config.autoMode">
-            <el-form-item label="节点换行">
-              <el-switch
-                v-model="config.dropCap"
-                :active-value="true"
-                :inactive-value="false"
-                inline-prompt
-                active-text="是"
-                inactive-text="否"
-              >
-              </el-switch>
-            </el-form-item>
+          <div class="custom-mode"  >
             <el-form-item label="水平间距">
               <el-input v-model.number="config.hgap">
                 <template #append>px</template>
@@ -101,17 +73,6 @@
         </div>
         <!-- compactBox紧凑树 -->
         <div class="compactBox" v-if="type == 'compactBox'">
-          <el-form-item label="是否径向">
-            <el-switch
-              v-model="config.radial"
-              :active-value="true"
-              :inactive-value="false"
-              inline-prompt
-              active-text="是"
-              inactive-text="否"
-            >
-            </el-switch>
-          </el-form-item>
           <el-form-item label="水平间距">
             <el-input v-model.number="config.hgap">
               <template #append>px</template>
@@ -153,4 +114,25 @@ const visible = computed({
 });
 
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.layout-custom  {
+  .text-info{
+    color: #909399;
+    font-size: 13px;
+    margin-left:10px;
+  }
+  .el-form-item {
+    margin-bottom: 10px;
+  }
+  :deep(.el-radio-group){
+    display: flex;
+    width: 100%;
+    .el-radio-button {
+      flex:1 !important;
+    }
+    .el-radio-button__inner{
+      width: 100%;
+    }
+  }
+}
+</style>

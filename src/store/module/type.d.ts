@@ -6,8 +6,6 @@ export interface LayoutConfig{
   dropCap?: boolean;
   rankSep?: number;
   nodeSep?: number;
-  radial?: boolean;
-  autoMode?: boolean;
   hgap?: number;
   vgap?: number;
   getHGap?: () => number;
