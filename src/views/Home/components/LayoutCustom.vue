@@ -115,6 +115,7 @@ const visible = computed({
 
 </script>
 <style scoped lang="scss">
+
 .layout-custom  {
   .text-info{
     color: #909399;

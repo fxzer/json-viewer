@@ -1,9 +1,11 @@
 <template>
   <div class="layout-options">
-    <div class="layout-item" 
-    v-for="(ltype, index) in typeList" :key="index"
-    :class="{'selected': ltype.type === type }"
-    @click="onTypeSelect(ltype)"
+    <div
+      class="layout-item"
+      v-for="(ltype, index) in typeList"
+      :key="index"
+      :class="{ selected: ltype.type === type }"
+      @click="onTypeSelect(ltype)"
     >
       <img :src="ltype.image" alt="" />
       <p class="type-name">{{ ltype.name }}</p>
@@ -12,12 +14,14 @@
 </template>
 
 <script lang="ts" setup>
-import  useStore  from '@/store/index';
-import { toRefs, watch } from 'vue';
-import { TypeOption } from '@/types/layout/option'
-const { layout } = useStore();
+import useStore from "@/store/index";
+import { toRefs, watch } from "vue";
+import { TypeOption } from "@/types/layout/option";
+const { layout, theme } = useStore();
 const { type } = toRefs(layout);
-const typeList: Array<TypeOption>  = [
+const { currentTheme } =  theme 
+
+const typeList: Array<TypeOption> = [
   {
     type: "indented",
     name: "缩进树",
@@ -44,9 +48,8 @@ const typeList: Array<TypeOption>  = [
   },
 ];
 const onTypeSelect = (ltype) => {
-   layout.setType(ltype.type) 
+  layout.setType(ltype.type);
 };
-watch(() => layout.type ,(val) => console.log(val))
 </script>
 <style scoped lang="scss">
 .layout-options {
@@ -63,36 +66,37 @@ watch(() => layout.type ,(val) => console.log(val))
     margin-right: 10px;
     transition: all 0.3s ease-in-out;
     //第四个去除右边距
+   
     &:nth-child(4n) {
       margin-right: 0;
     }
     &:hover {
       transform: translateY(-2px);
-      img{
-        box-shadow: 0 6px 16px rgba(107, 147, 224, 0.14);
+      img {
+        box-shadow: 0 6px 16px v-bind("currentTheme.bgcolor");
       }
       .type-name {
-        color: #444;
+        font-weight: 600;
       }
     }
-    &.selected {  
-      img{
-        border-color: #a278dc;
+    &.selected {
+      img {
+        border: 1px solid v-bind("currentTheme.color");
       }
       .type-name {
-        color: #a278dc;
+        color: v-bind("currentTheme.hcolor");
       }
     }
     img {
       width: 100%;
-      border: 1px solid #f0f0f0;
-     border-radius: 3px;
+      border: 1px solid v-bind("currentTheme.bgcolor");
+      border-radius: 3px;
       height: calc(100% - 20px);
     }
     .type-name {
       text-align: center;
       font-size: 12px;
-      color: #666;
+      color: v-bind("currentTheme.color");
     }
   }
 }

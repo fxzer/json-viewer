@@ -12,3 +12,15 @@ export interface LayoutConfig{
   getVGap?: (d: any) => number;
   atuoGetVGap?: (d: any) => number;
 }
+export interface ThemeItem{
+  label: string;
+  key: string;
+  color: string;
+  bgcolor: string;
+  hbcolor: string;
+  hcolor: string;
+}
+export interface ThemeConfig{
+  themeActive: string;
+  themeList:  ThemeItem[];
+}

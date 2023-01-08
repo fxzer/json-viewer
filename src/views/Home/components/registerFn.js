@@ -1,6 +1,8 @@
 import G6 from "@antv/g6";
 
-export const registerFn = ( ) => {
+export const registerFn = (theme) => {
+  const { color, hcolor, key } = theme;
+  let isDark = key === "dark";
   //注册根节点
   G6.registerNode("root-icon", {
     draw(cfg, group) {
@@ -21,8 +23,9 @@ export const registerFn = ( ) => {
           textAlign: "center",
           text: "\ue867",
           fontSize: 50,
-          fill: "#7E48F6",
-          cursor:'pointer'
+          fill: isDark ? '#68699a' : color,
+          // stroke:"#fff",
+          cursor: "pointer",
         },
         name: "root-shape",
       });
@@ -45,14 +48,22 @@ export const registerFn = ( ) => {
     // 响应状态变化
     setState(name, value, item) {
       const group = item.getContainer();
-      const shape = group.get('children')[1]; // 顺序根据 draw 时确定
-      if (name === 'hover') {
+      const shape = group.get("children")[1]; // 顺序根据 draw 时确定
+      if (name === "hover") {
         if (value) {
-          shape.attr('fill', '#F5C146');
+          if(isDark){
+            shape.attr("fill", "#7b7cbd");
+          }else{
+            shape.attr("fill", "#F5C146");
+          }
         } else {
-          shape.attr('fill', '#7E48F6');
+          if(isDark){
+            shape.attr("fill", "#68699a");
+          }else{
+            shape.attr("fill", color);
+          }
         }
-      } 
+      }
     },
   });
   /**
@@ -84,9 +95,9 @@ export const registerFn = ( ) => {
           height,
           lineWidth: 1,
           fontSize,
-          fill: "#F2EBFD",
+          fill: isDark ? "#262736" : color + "20",
           radius: 4,
-          stroke: "#7D3EE8",
+          stroke: color,
           opacity: 1,
         };
 
@@ -117,8 +128,7 @@ export const registerFn = ( ) => {
             text: entriesStr,
             fontSize: fontSize,
             lineHeight: lineHeight,
-            opacity: 0.85,
-            fill: "#000",
+            fill: isDark ? "#D6D7D8" : "#333",
             cursor: "pointer",
           },
         });
@@ -131,9 +141,9 @@ export const registerFn = ( ) => {
               y: -5.6,
               width: 12,
               height: 12,
-              stroke: "rgba(0, 0, 0, 0.25)",
+              stroke: isDark ? "#3D4F66" : "rgba(0, 0, 0, 0.25)",
               cursor: "pointer",
-              fill: "#fff",
+              fill: isDark ? "#222330" : "#fff",
               radius: 2,
             },
             name: "collapse-back",
@@ -150,7 +160,7 @@ export const registerFn = ( ) => {
               text: collapsed ? "+" : "-",
               fontSize: 16,
               cursor: "pointer",
-              fill: "rgba(0, 0, 0, 0.25)",
+              fill: isDark ? "#aaa" : "rgba(0, 0, 0, 0.25)",
             },
             name: "collapse-text",
             modelId: cfg.id,
@@ -181,37 +191,61 @@ export const registerFn = ( ) => {
               });
             }
           }
-        }else if(name === 'hover'){
+        } else if (name === "hover") {
           const group = item.getContainer();
-          const shape = group.get('children')[0]; // 顺序根据 draw 时确定
-          if (value) {
-            shape.attr('stroke', '#F4BE50');
-            shape.attr('fill', '#FFFCE8');
-          } else {
-            // const states = item.getStates();
-            const isFocus = item.hasState('focus');
-            if(isFocus){
-              shape.attr('stroke', '#65B687');
-              shape.attr('fill', '#E8FFEA');
-              return;
+          const shape = group.get("children")[0];
+          if (isDark) {
+            if (value) {
+              shape.attr("stroke", "#9AA1DB");
+            } else {
+              // const states = item.getStates();
+              const isFocus = item.hasState("focus");
+              if (isFocus) {
+                shape.attr("stroke", "#33BB69");
+                return;
+              }
+              shape.attr("stroke", hcolor);
             }
-            shape.attr('stroke', '#7D3EE8');
-            shape.attr('fill', '#F2EBFD');
-          }
-        }else if(name === 'focus'){
-          const group = item.getContainer();
-          const shape = group.get('children')[0];
-          if (value) {
-            shape.attr('stroke', '#65B687');
-            shape.attr('fill', '#E8FFEA');
           } else {
-            shape.attr('stroke', '#7D3EE8');
-            shape.attr('fill', '#F2EBFD');
+            if (value) {
+              shape.attr("stroke", "#F4BE50");
+              shape.attr("fill", "#FFFCE8");
+            } else {
+              // const states = item.getStates();
+              const isFocus = item.hasState("focus");
+              if (isFocus) {
+                shape.attr("stroke", "#65B687");
+                shape.attr("fill", "#E8FFEA");
+                return;
+              }
+              shape.attr("stroke", hcolor);
+              shape.attr("fill", color + "20");
+            }
           }
+        } else if (name === "focus") {
+          if(isDark){
+            const group = item.getContainer();
+            const shape = group.get("children")[0];
+            if (value) {
+              shape.attr("stroke", "#33BB69");
+            } else {
+              shape.attr("stroke", hcolor);
+            }
+          }else{
+            const group = item.getContainer();
+            const shape = group.get("children")[0];
+            if (value) {
+              shape.attr("stroke", "#65B687");
+              shape.attr("fill", "#E8FFEA");
+            } else {
+              shape.attr("stroke", hcolor);
+              shape.attr("fill", color + "20");
+            }
+          }
+         
         }
       },
       getAnchorPoints(d) {
-
         return [
           [0, 0.5],
           [1, 0.5],
@@ -220,7 +254,6 @@ export const registerFn = ( ) => {
     },
     "rect"
   );
- 
 };
 //节点文本溢出省略
 export function fittingString(str, maxWidth, fontSize) {
@@ -243,65 +276,67 @@ export function fittingString(str, maxWidth, fontSize) {
   return res;
 }
 
-  //计算字符长度
-  export const getTextWidth = (longestText, fontSize, fontWeight = 400) => {
-    // 创建临时元素
-    const ele = document.createElement("div");
-    ele.style.position = "absolute";
-    ele.style.whiteSpace = "nowrap";
-    ele.style.fontSize = fontSize + "px";
-    ele.style.fontWeight = fontWeight;
-    ele.innerText = longestText;
-    document.body.append(ele);
-    // 获取span的宽度
-    const width = ele.getBoundingClientRect().width;
-    // 从body中删除该span
-    document.body.removeChild(ele);
-    // 返回span宽度
-    return Math.ceil(width);
-  };
+//计算字符长度
+export const getTextWidth = (longestText, fontSize, fontWeight = 400) => {
+  // 创建临时元素
+  const ele = document.createElement("div");
+  ele.style.position = "absolute";
+  ele.style.whiteSpace = "nowrap";
+  ele.style.fontSize = fontSize + "px";
+  ele.style.fontWeight = fontWeight;
+  ele.innerText = longestText;
+  document.body.append(ele);
+  // 获取span的宽度
+  const width = ele.getBoundingClientRect().width;
+  // 从body中删除该span
+  document.body.removeChild(ele);
+  // 返回span宽度
+  return Math.ceil(width);
+};
 //计算节点大小
-  export const computeNodeSize = (cfg, base) => {
-    const { entries, keyName } = cfg;
-    let hasKeyName = !["", undefined, null].includes(keyName);
-    const { fontSize, lineHeight, padding, bsheight } = base;
-    let width = 40;
-    let maxWidth = 400;
-    let height = bsheight;
-    if (hasKeyName) {
-      width = getTextWidth(keyName, fontSize) + padding
-      let knstr =   width > maxWidth ? fittingString(keyName, maxWidth, fontSize) : keyName;
-      let w = Math.min(width,maxWidth + padding)
-      return [ w , height, knstr];
-    }
-    let entriesStr = "";
-    if (entries) {
-      let longestEntry = "";
-      let keyNum = Object.keys(entries).length;
-      height = padding + keyNum * lineHeight - 10;
-      if (keyNum) {
-        let entriesArr = Object.entries(entries).map((item, index) => {
-          if (typeof item[1] === "string") {
-            return `${item[0]}: "${item[1]}"`;
-          } else {
-            //boolean/number不加引号
-            return `${item[0]}: ${item[1]}`;
-          }
-        });
+export const computeNodeSize = (cfg, base) => {
+  const { entries, keyName } = cfg;
+  let hasKeyName = !["", undefined, null].includes(keyName);
+  const { fontSize, lineHeight, padding, bsheight } = base;
+  let width = 40;
+  let maxWidth = 400;
+  let height = bsheight;
+  if (hasKeyName) {
+    width = getTextWidth(keyName, fontSize) + padding;
+    let knstr =
+      width > maxWidth ? fittingString(keyName, maxWidth, fontSize) : keyName;
+    let w = Math.min(width, maxWidth + padding);
+    return [w, height, knstr];
+  }
+  let entriesStr = "";
+  if (entries) {
+    let longestEntry = "";
+    let keyNum = Object.keys(entries).length;
+    height = padding + keyNum * lineHeight - 10;
+    if (keyNum) {
+      let entriesArr = Object.entries(entries).map((item, index) => {
+        if (typeof item[1] === "string") {
+          return `${item[0]}: "${item[1]}"`;
+        } else {
+          //boolean/number不加引号
+          return `${item[0]}: ${item[1]}`;
+        }
+      });
 
-        entriesStr =  entriesArr.map((item, index) => fittingString(item, maxWidth, fontSize)).join("\n");
-        longestEntry = entriesArr.reduce((pre, cur) => {
-          //找到最长的字符串
-          return pre.length > cur.length ? pre : cur;
-        });
-      }
-      let strw = Math.min(getTextWidth(longestEntry, fontSize) + padding,maxWidth + padding )
-      return [
-        strw,
-        height,
-        entriesStr,
-      ];
+      entriesStr = entriesArr
+        .map((item, index) => fittingString(item, maxWidth, fontSize))
+        .join("\n");
+      longestEntry = entriesArr.reduce((pre, cur) => {
+        //找到最长的字符串
+        return pre.length > cur.length ? pre : cur;
+      });
     }
+    let strw = Math.min(
+      getTextWidth(longestEntry, fontSize) + padding,
+      maxWidth + padding
+    );
+    return [strw, height, entriesStr];
+  }
 
-    return [width, height, entriesStr];
-  };
+  return [width, height, entriesStr];
+};

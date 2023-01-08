@@ -15,7 +15,7 @@
             v-for="(field, index) in fieldsTemp"
             :key="index"
             class="mx-1"
-            :type="['success', 'info', 'warning'][index % 3]"
+            :type="handleType(index)"
             closable
             :disable-transitions="false"
             @close="handleClose(index)"
@@ -58,7 +58,6 @@
 
 <script lang="ts" setup>
 import { nextTick, ref, computed, watch, reactive } from "vue";
-import { ElInput } from "element-plus";
 const props = defineProps({
   value: {
     type: Boolean,
@@ -69,10 +68,14 @@ const props = defineProps({
     default: () => [],
   },
 });
+
 const emit = defineEmits({
   "update:value": (val: boolean) => true,
   "update:fields": (fields: any,isStorage:boolean) => true,
 });
+const handleType = (index: number) => {
+  return ['success', 'info', 'warning'][index % 3] as any
+};
 const visible = computed({
   get() {
     return props.value;
@@ -98,7 +101,7 @@ const confirm = () => {
 //标签
 const inputValue = ref("");
 const inputVisible = ref(false);
-const InputRef = ref<InstanceType<typeof ElInput>>();
+const InputRef = ref(null);
 
 const handleClose = (index: number) => {
   fieldsTemp.value.splice(index, 1);
@@ -146,4 +149,8 @@ const isStorage = ref(false);
     color: #fbb32e;
   }
 }
+html.dark .fields-info {
+  background-color: #363636;
+}
+
 </style>

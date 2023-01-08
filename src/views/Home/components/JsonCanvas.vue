@@ -7,10 +7,13 @@ import G6, { TreeGraph } from "@antv/g6";
 import { LayoutConfig } from "@/store/module/type";
 import { onMounted, reactive, ref, watch } from "vue";
 import { registerFn } from "./registerFn";
+import   registerBehaviors from "./registerBehaviors";
 import useStore from "@/store";
 import { toRefs } from "vue";
-const { layout } = useStore();
+const { layout,theme } = useStore();
 const { type, config, setType, setConfig } = toRefs(layout);
+const { themeActive } = toRefs(theme);
+const { currentTheme } =  theme 
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -54,7 +57,6 @@ const propsDefalut = {
 watch(
   () => props.modelValue,
   (newVal) => {
-    // initGraph(newVal);
     drawGraph(newVal);
   }
 );
@@ -65,6 +67,12 @@ watch(
     drawGraph(props.modelValue);
   }
 );
+watch(()=> themeActive.value,(val)=>{
+  if(graph.value){
+    //  刷新
+    window.location.reload()
+  }
+})
 //处理数据结构
 const dealData = (data, customKeys: Array<string> = []) => {
   let result = {
@@ -105,6 +113,7 @@ const dealData = (data, customKeys: Array<string> = []) => {
   return result;
 };
 // 默认配置
+let edgeStroke = themeActive.value == 'dark' ? "#596f8a" : "#CED4D9"
 const defaultConfig = reactive({
   modes: {
     default: ["zoom-canvas", "drag-canvas"],
@@ -117,7 +126,7 @@ const defaultConfig = reactive({
   defaultEdge: {
     type: "cubic-horizontal",
     style: {
-      stroke: "#CED4D9",
+      stroke:  edgeStroke
     },
   },
   layout: config,
@@ -172,7 +181,6 @@ const nodeDetail = ref({});
 const initGraph = () => {
   //去除id不存在的元素
   const { config } = propsDefalut;
-
   graph.value = new G6.TreeGraph({
     container: jsonCanvas.value as HTMLElement,
     width: width.value, // Number，必须，图的宽度
@@ -181,48 +189,19 @@ const initGraph = () => {
     ...config,
     plugins: [toolbar],
   });
-  registerFn();
 
-  const handleCollapse = (e) => {
-    const target = e.target;
-    const id = target.get("modelId");
-    const item = graph.value?.findById(id) as any;
-    const nodeModel = item.getModel();
-    nodeModel.collapsed = !nodeModel.collapsed;
-    graph.value?.layout();
-    graph.value?.setItemState(item, "collapse", nodeModel.collapsed as boolean);
-  };
+  registerFn(currentTheme); //注册节点
 
   const handleNodeClick = (e) => {
     const node = e.item;
     nodeDetail.value = node.getModel();
     emit("nodeClick", nodeDetail.value);
-    // 点击时选中，再点击时取消
-    // graph.value?.setItemState(node, 'selected', !node.hasState('selected')); // 切换选中
   };
-  const handleNodeMouseEnter = (e) => {
-    const node = e.item;
-    graph.value?.setItemState(node, "hover", !node.hasState("hover")); // 切换选中
-  };
-  graph.value.on("collapse-text:click", (e) => {
-    e.stopPropagation();
-    handleCollapse(e);
-  });
-  graph.value.on("collapse-back:click", (e) => {
-    e.stopPropagation();
-    handleCollapse(e);
-  });
   graph.value.on("node:click", (e) => {
     handleNodeClick(e);
   });
-  graph.value.on("node:mouseover", (e) => {
-    e.stopPropagation();
-    handleNodeMouseEnter(e);
-  });
-  graph.value.on("node:mouseout", (e) => {
-    e.stopPropagation();
-    handleNodeMouseEnter(e);
-  });
+  registerBehaviors(graph.value);
+ 
 };
 const drawGraph = (data) => {
   if (!data) {
@@ -278,14 +257,6 @@ watch(
     graph.value?.changeSize(newWidth, height.value);
   }
 );
-// const exitFullscreen = () =>{
-//   nextTick(() =>{
-//     width.value = jsonCanvas.value?.clientWidth || 860;
-//     height.value = jsonCanvas.value?.clientHeight || 745;
-
-//     graph.value?.changeSize(width.value, height.value);
-//   })
-// }
 //展开/收起
 watch(
   () => props.isExpand,
@@ -316,6 +287,7 @@ const focusNode = (keyword) => {
   graph.value?.findAll("node", (node) => {
     graph.value?.setItemState(node, "focus", false); // 切换选中
     graph.value?.setItemState(node, "hover", false); // 切换选中
+    return false
   });
   if (!keyword || keyword === "root") {
     const node = graph.value?.findById("root");

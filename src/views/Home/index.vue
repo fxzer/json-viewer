@@ -1,12 +1,12 @@
 <template>
-  <div class="json-home">
+  <div class="json-home" :class="themeMode">
     <!-- 左侧工具导航栏 -->
     <div class="nav-tools">
       <div class="jv-icon">
         <span class="char-j">J</span><span class="char-v">V</span>
       </div>
       <div class="tool-btns">
-        <el-tooltip :content="(isExpandEditor ? '收起':'展开') +'编辑'" placement="right" effect="light">
+        <el-tooltip :content="(isExpandEditor ? '收起':'展开') +'编辑'" placement="right" >
           <span
             class="iconfont icon-editor-expand"
             :style="{ transform: `rotate(${editorIconAngle})` }"
@@ -14,24 +14,16 @@
           ></span>
         </el-tooltip>
 
-        <el-tooltip content="布局配置" placement="right" effect="light">
+        <el-tooltip content="布局配置" placement="right"  >
           <span
             class="iconfont icon-node-layout"
             @click="openLayoutConfig"
           ></span>
         </el-tooltip>
-        <!-- <el-tooltip content="旋转布局" placement="right" effect="light">
-          <span
-            class="iconfont icon-node-layout"
-            :style="{ transform: `rotate(${rotateAngle})` }"
-            @click="onRotate"
-          ></span>
-        </el-tooltip> -->
-
         <el-tooltip
           :content="(isExpand ? '收起' : '展开')+ '节点'"
           placement="right"
-          effect="light"
+          
         >
           <span
             class="iconfont"
@@ -41,8 +33,7 @@
         </el-tooltip>
         <el-tooltip
           :content="(isFullScreen ? '退出' : '进入')+ '全屏'"
-          placement="right"
-          effect="light"
+          placement="right" 
         >
           <span
             class="iconfont"
@@ -50,15 +41,38 @@
             @click="onFullScreen"
           ></span>
         </el-tooltip>
-        <el-tooltip content="导入JSON" placement="right" effect="light">
+        <el-tooltip content="导入JSON" placement="right" >
           <span class="iconfont icon-import-json" @click="onImport"></span>
         </el-tooltip>
-        <el-tooltip content="导出JSON" placement="right" effect="light">
+        <el-tooltip content="导出JSON" placement="right" >
           <span class="iconfont icon-export-json" @click="onExport"></span>
         </el-tooltip>
-        <el-tooltip content="解析字段" placement="right" effect="light">
+        <el-tooltip content="解析字段" placement="right" >
           <span class="iconfont icon-zidingyi" @click="openFieldsDialog"></span>
         </el-tooltip>
+        <el-popover
+            ref="popover"
+            placement="right"
+            title="主题配色"
+            popper-class="theme-popover"
+            trigger="click"
+            
+          >
+            <template #reference>
+              <span class="iconfont icon-theme"  ></span>
+            </template>
+            <el-select v-model="themeActive"  style="width:124px">
+              <el-option
+                v-for="theme in themeList"
+                :key="theme.key"
+                :label="theme.label"
+                :value="theme.key"
+                :style="{ color: theme.color }"
+              />
+              </el-select>
+            
+          </el-popover>
+          
         <el-popconfirm
           title="确定清空JSON?"
           confirm-button-type="warning"
@@ -68,7 +82,7 @@
           @cancel="cancelClear"
         >
           <template #reference>
-            <!-- <el-tooltip content="清空JSON" placement="right" effect="light"> -->
+            <!-- <el-tooltip content="清空JSON" placement="right" > -->
             <span class="iconfont icon-clear-json"  ></span>
             <!-- </el-tooltip> -->  
           </template>
@@ -99,28 +113,28 @@
             <el-tooltip
               content="放大"
               placement="bottom"
-              effect="light"
+              
             >
             <span class="iconfont icon-plus" @click="onZoomOut"></span>
             </el-tooltip>
             <el-tooltip
               content="缩小"
               placement="bottom"
-              effect="light"
+              
             >
             <span class="iconfont icon-minus" @click="onZoomIn"></span>
             </el-tooltip>
             <el-tooltip
               content="居中"
               placement="bottom"
-              effect="light"
+               
             >
             <span class="iconfont icon-auto-zoom" @click="onAutoZoom"></span>
             </el-tooltip>
             <el-tooltip
               content="存为图片"
               placement="bottom"
-              effect="light"
+              
             >
             <span class="iconfont icon-save-image" @click="showExportImage"></span>
             </el-tooltip>
@@ -162,16 +176,30 @@ import ExportImage from "@/views/Home/components/ExportImage.vue";
 import NodeDialog from '@/views/Home/components/NodeDialog.vue'
 import FieldsCustom from '@/views/Home/components/FieldsCustom.vue'
 import LayoutCustom from '@/views/Home/components/LayoutCustom.vue'
-import { ElNotification} from "element-plus";
-import { reactive, ref, watch } from "vue";
-import example from "./example.json";
+import { computed, ref, toRefs } from "vue";
+import useStore from "@/store";
+const { theme } = useStore();
+const { themeActive, themeList,currentTheme } = toRefs(theme);
+
+//
+// import { useDark, useToggle } from '@vueuse/core'
+// const isDark = useDark()
+// const toggleDark = useToggle(isDark)
+
+const themeMode = computed(() => {
+  // if(themeActive.value === "dark"){
+  //   toggleDark(true)
+  // }else{
+  //   toggleDark(false)
+  // }
+  return themeActive.value === "dark" ? "dark" : "light";
+});
 let jsonData = ref({
   "state": "Done",
   "createdDate": "Jan 5, 2023 1:13:21 PM",
   "finishedDate": "Jan 5, 2023 1:13:21 PM",
   "name":["list","wangwu"]
 });
-
 //布局配置抽屉
 const drawerVisible = ref(false)
 const layoutConfig = ref({
@@ -304,21 +332,21 @@ const onAutoZoom = () => {
 //关键词搜索
 const searchKeyWord = ref("");
 //防抖函数
-const debounce = (fn:any, delay: number) => {
-  let timer: any = null;
-  return function () {
-    let context = this;
-    let args = arguments;
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      fn.apply(context, args);
-    }, delay);
-  };
-};
+const debounce = (func, deply = 500) => {
+  // 缓存一个定时器id
+  let timer = 0
+  return function(...args) {
+    if (timer) {}
+    timer = setTimeout(() => {
+      func.apply(this, args)
+    }, deply)
+  }
+}
+
 //TODO:防抖没有生效
 const onSearch = (e) => {
   if (jsonCanvasRef?.value) {
-   debounce((jsonCanvasRef?.value as any).focusNode, 600)(e.target.value) 
+   debounce(jsonCanvasRef?.value.focusNode, 600)(e.target.value) 
   }
 };
 
@@ -347,11 +375,10 @@ const openFieldsDialog = () => {
 }
 </script>
 <style scoped lang="scss">
-$json-edit-bgc: #f1f4f5;
-$json-edit-primary: #7b6fdd;
-$nav-bgc: #ebebeb;
-$nav-color: #a278dc;
-$hover-color: #7b6fdd;
+$bg-color: v-bind('currentTheme.bgcolor');
+$color: v-bind('currentTheme.color');
+$hover-color: v-bind('currentTheme.hcolor');
+$hb-color: v-bind('currentTheme.hbcolor');
 .json-home {
   width: 100%;
   height: 100%;
@@ -362,7 +389,8 @@ $hover-color: #7b6fdd;
     min-width: 50px;
     height: 100%;
     z-index: 2;
-    background-color: $nav-bgc;
+    background-color: $bg-color;
+
     .jv-icon {
       width: 100%;
       height: 50px;
@@ -374,7 +402,7 @@ $hover-color: #7b6fdd;
       //斜体
       font-style: italic;
       //字体阴影
-      text-shadow: 0 0px 2px $nav-bgc;
+      text-shadow: 0 0px 2px $bg-color;
       letter-spacing: 4px;
       position: relative;
       .char-j {
@@ -392,7 +420,7 @@ $hover-color: #7b6fdd;
         bottom: 1px;
         width: 80%;
         height: 1px;
-        background-color: $nav-bgc;
+        background-color: $bg-color;
       }
     }
     //  工具按钮
@@ -405,7 +433,7 @@ $hover-color: #7b6fdd;
         height: 30px;
         line-height: 30px;
         text-align: center;
-        color: $nav-color;
+        color: $color;
         font-size: 20px;
         margin: 5px 0;
         cursor: pointer;
@@ -414,9 +442,10 @@ $hover-color: #7b6fdd;
         &:hover {
           transform: scale(1.1);
           color: $hover-color;
-          background-color: #fff;
+          background-color: $hb-color;
         }
       }
+     
     }
   }
   .opt-wrap {
@@ -426,9 +455,10 @@ $hover-color: #7b6fdd;
       height: 40px;
       line-height: 40px;
       padding: 0 20px;
-      background-color: $nav-bgc;
-      color: $nav-color;
+      background-color: $bg-color;
+      color: $color;
       z-index: 2;
+      box-shadow:4px 0px  8px $hb-color;
     }
     //json编辑区域
     .json-wrap {
@@ -443,79 +473,18 @@ $hover-color: #7b6fdd;
           height: 100%;
           //自定义编辑器主题
           & div.jsoneditor {
-            border-color: $json-edit-primary;
+            border-color: $color;
             .jsoneditor-outer {
+              height: calc(100% + 35px)!important;
               .ace_gutter {
-                background-color: $json-edit-bgc;
+                background-color:#ebebeb20;
               }
               & .ace_folding-enabled   .ace_gutter-cell {
-                background-color: $json-edit-bgc;
+                background-color:#ebebeb20;
               }
             }
             .jsoneditor-menu {
-              color: $json-edit-primary;
-              background-color: $json-edit-bgc;
-              border-bottom: 1px solid $json-edit-bgc;
-              & > button {
-                background-color: $json-edit-primary;
-                opacity: 0.7;
-                cursor: pointer;
-                &:hover {
-                  opacity: 1;
-                }
-              }
-              & > button.jsoneditor-undo,
-              button.jsoneditor-redo {
-                opacity: 1;
-                background-color: transparent !important;
-              }
-              & > div.jsoneditor-modes {
-                & > button {
-                  color: #333 !important;
-                }
-                .jsoneditor-contextmenu {
-                  left: 9px !important;
-                  top: 30px !important;
-                  width: 58px !important;
-                  ul {
-                    width: 100% !important;
-                    .jsoneditor-type-modes {
-                      width: 58px !important;
-                      text-align: center;
-                      .jsoneditor-icon {
-                        display: none;
-                      }
-                    }
-                  }
-                }
-              }
-
-              & > div.jsoneditor-modes .jsoneditor-separator {
-                background: #fff;
-                border-radius: 3px;
-                display: inline-block;
-                width: 58px !important;
-                height: 26px !important;
-                padding: 0 !important;
-                cursor: pointer;
-                &:hover {
-                  color: #222;
-                }
-              }
-              & a.jsoneditor-poweredBy {
-                display: none !important;
-              }
-              &.jsoneditor-menu .jsoneditor-selected {
-                background-color: $json-edit-primary;
-                color: #fff;
-              }
-              & table.jsoneditor-search div.jsoneditor-results {
-                color: $json-edit-primary;
-              }
-              & table.jsoneditor-search input {
-                color: #444;
-                padding-left: 3px;
-              }
+              display: none;
             }
           }
         }
@@ -541,7 +510,7 @@ $hover-color: #7b6fdd;
             height: 30px;
             padding: 0 5px;
             text-align: center;
-            color: $nav-color;
+            color: $color;
             font-size: 20px;
             cursor: pointer;
             transition: all 0.2s;
@@ -549,7 +518,7 @@ $hover-color: #7b6fdd;
             &:hover {
               transform: scale(1.06);
               color: $hover-color;
-              background-color: #fff;
+              background-color: $hb-color;
             }
           }
         }
@@ -568,11 +537,13 @@ $hover-color: #7b6fdd;
             outline: none;
             padding: 2px 6px;
             padding-right:26px;
-            background-color: #fff;
+            background-color: $hb-color;
             border-radius: 4px;
             border: none;
+            color:v-bind('currentTheme.color');
             &::placeholder {
-              color: #aaa;
+              color:v-bind('currentTheme.color');
+              opacity: 0.6;
             }
           }
           .icon-search {
@@ -595,5 +566,7 @@ $hover-color: #7b6fdd;
       }
     }
   }
+ 
 }
+@import './dark.scss';
 </style>

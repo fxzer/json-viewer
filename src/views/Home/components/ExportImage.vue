@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" title="将画布导出为图片" width="376">
+  <el-dialog v-model="visible" title="将画布导出为图片" width="378">
     <el-form label-width="72px">
       <el-form-item label="图片名称">
         <el-input
@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed,  } from "vue";
+import { ref, reactive, computed,} from "vue";
 const props = defineProps({
   value: {
     type: Boolean,
@@ -87,8 +87,9 @@ const exportConfig = ref({
 
 const confirm = () => {
   emit("confirm", exportConfig.value);
-  console.log(exportConfig.value);
   visible.value = false;
 };
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+
+</style>
