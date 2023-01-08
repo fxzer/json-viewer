@@ -181,17 +181,17 @@ import useStore from "@/store";
 const { theme } = useStore();
 const { themeActive, themeList,currentTheme } = toRefs(theme);
 
-//
-// import { useDark, useToggle } from '@vueuse/core'
-// const isDark = useDark()
-// const toggleDark = useToggle(isDark)
+import { useDark, useToggle } from '@vueuse/core'
+const isDark = useDark()
+const toggleDark = useToggle(isDark)
 
 const themeMode = computed(() => {
-  // if(themeActive.value === "dark"){
-  //   toggleDark(true)
-  // }else{
-  //   toggleDark(false)
-  // }
+  if(themeActive.value === "dark"){
+    toggleDark(true)
+    console.log("%c [ toggleDark(true) ]-192", "font-size:14px; background:#2b6415; color:#6fa859;", toggleDark(true));
+  }else{
+    toggleDark(false)
+  }
   return themeActive.value === "dark" ? "dark" : "light";
 });
 let jsonData = ref({
