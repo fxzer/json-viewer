@@ -6,7 +6,7 @@
         <span class="char-j">J</span><span class="char-v">V</span>
       </div>
       <div class="tool-btns">
-        <el-tooltip :content="(isExpandEditor ? '收起':'展开') +'编辑'" placement="right" >
+        <el-tooltip :content="(isExpandEditor ? '收起':'展开') +'编辑'" placement="right"  >
           <span
             class="iconfont icon-editor-expand"
             :style="{ transform: `rotate(${editorIconAngle})` }"
@@ -14,7 +14,7 @@
           ></span>
         </el-tooltip>
 
-        <el-tooltip content="布局配置" placement="right"  >
+        <el-tooltip content="布局配置" placement="right"   >
           <span
             class="iconfont icon-node-layout"
             @click="openLayoutConfig"
@@ -33,7 +33,7 @@
         </el-tooltip>
         <el-tooltip
           :content="(isFullScreen ? '退出' : '进入')+ '全屏'"
-          placement="right" 
+          placement="right"  
         >
           <span
             class="iconfont"
@@ -41,13 +41,13 @@
             @click="onFullScreen"
           ></span>
         </el-tooltip>
-        <el-tooltip content="导入JSON" placement="right" >
+        <el-tooltip content="导入JSON" placement="right"  >
           <span class="iconfont icon-import-json" @click="onImport"></span>
         </el-tooltip>
-        <el-tooltip content="导出JSON" placement="right" >
+        <el-tooltip content="导出JSON" placement="right"  >
           <span class="iconfont icon-export-json" @click="onExport"></span>
         </el-tooltip>
-        <el-tooltip content="解析字段" placement="right" >
+        <el-tooltip content="解析字段" placement="right"  >
           <span class="iconfont icon-zidingyi" @click="openFieldsDialog"></span>
         </el-tooltip>
         <el-popover
@@ -79,7 +79,7 @@
           confirm-button-text="确定"
           cancel-button-text="取消"
           @confirm="confirmClear"
-          @cancel="cancelClear"
+          @cancel="cancelClear"  
         >
           <template #reference>
             <!-- <el-tooltip content="清空JSON" placement="right" > -->
@@ -127,7 +127,7 @@
             <el-tooltip
               content="居中"
               placement="bottom"
-               
+              
             >
             <span class="iconfont icon-auto-zoom" @click="onAutoZoom"></span>
             </el-tooltip>
@@ -177,9 +177,8 @@ import NodeDialog from '@/views/Home/components/NodeDialog.vue'
 import FieldsCustom from '@/views/Home/components/FieldsCustom.vue'
 import LayoutCustom from '@/views/Home/components/LayoutCustom.vue'
 import { computed, ref, toRefs } from "vue";
-import useStore from "@/store";
-const { theme } = useStore();
-const { themeActive, themeList,currentTheme } = toRefs(theme);
+import { useThemeStore } from "@/store";
+const { themeActive, themeList,currentTheme } = toRefs(useThemeStore());
 
 import { useDark, useToggle } from '@vueuse/core'
 const isDark = useDark()
@@ -188,7 +187,6 @@ const toggleDark = useToggle(isDark)
 const themeMode = computed(() => {
   if(themeActive.value === "dark"){
     toggleDark(true)
-    console.log("%c [ toggleDark(true) ]-192", "font-size:14px; background:#2b6415; color:#6fa859;", toggleDark(true));
   }else{
     toggleDark(false)
   }
@@ -458,7 +456,7 @@ $hb-color: v-bind('currentTheme.hbcolor');
       background-color: $bg-color;
       color: $color;
       z-index: 2;
-      box-shadow:4px 0px  8px $hb-color;
+      box-shadow:3px 3px  3px $hb-color;
     }
     //json编辑区域
     .json-wrap {

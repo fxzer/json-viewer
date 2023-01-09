@@ -15,7 +15,10 @@
 </template>
 
 <script lang="ts" setup>
-import {   computed  } from "vue";
+import {   computed, toRefs  } from "vue";
+import useStore from "@/store";
+const { theme } = useStore();
+const {  currentTheme } = toRefs(theme);
 const props = defineProps({
   value: {
     type: Boolean,
@@ -65,7 +68,8 @@ const node = computed({
     height: 435px !important;
   }
   div.jsoneditor {
-    border-color: #7b6fdd !important;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
 }
 </style>

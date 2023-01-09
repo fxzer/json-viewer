@@ -24,21 +24,14 @@
           </el-tag>
           <el-input
             v-if="inputVisible"
-            ref="InputRef"
+            ref="inputRef"
             v-model="inputValue"
             placeholder="回车确认"
             size="small"
             @keyup.enter="handleInputConfirm"
             @blur="handleInputConfirm"
           />
-          <el-button
-            v-else
-            class="button-new-tag ml-1"
-            size="small"
-            @click="showInput"
-          >
-            + 添加
-          </el-button>
+          <el-button v-else size="small" @click="showInput"> + 添加 </el-button>
         </div>
       </el-form-item>
     </el-form>
@@ -49,8 +42,8 @@
     </p>
     <template #footer>
       <span>
-        <el-button @click="visible = false">取消</el-button>
-        <el-button type="primary" @click="confirm">应用</el-button>
+        <el-button  @click="visible = false">取消</el-button>
+        <el-button  type="primary" @click="confirm">应用</el-button>
       </span>
     </template>
   </el-dialog>
@@ -71,10 +64,10 @@ const props = defineProps({
 
 const emit = defineEmits({
   "update:value": (val: boolean) => true,
-  "update:fields": (fields: any,isStorage:boolean) => true,
+  "update:fields": (fields: any, isStorage: boolean) => true,
 });
 const handleType = (index: number) => {
-  return ['success', 'info', 'warning'][index % 3] as any
+  return ["success", "info", "warning"][index % 3] as any;
 };
 const visible = computed({
   get() {
@@ -84,24 +77,27 @@ const visible = computed({
     emit("update:value", val);
   },
 });
-watch(()=> visible.value,(val) =>{
-  if(val){
-    let fstr = localStorage.getItem('extraFields')
-    fieldsTemp.value = fstr ? JSON.parse(fstr) :[] ;
-    isStorage.value = localStorage.getItem('isStorage') === 'true' ? true : false;
+watch(
+  () => visible.value,
+  (val) => {
+    if (val) {
+      let fstr = localStorage.getItem("extraFields");
+      fieldsTemp.value = fstr ? JSON.parse(fstr) : [];
+      isStorage.value = !!localStorage.getItem("isStorage")  
+    }
   }
-})
+);
 
 const fieldsTemp = ref(JSON.parse(JSON.stringify(props.fields)));
 const confirm = () => {
-  emit("update:fields", fieldsTemp.value,isStorage.value);
+  emit("update:fields", fieldsTemp.value, isStorage.value);
   emit("update:value", false);
 };
 
 //标签
 const inputValue = ref("");
 const inputVisible = ref(false);
-const InputRef = ref(null);
+const inputRef = ref(null);
 
 const handleClose = (index: number) => {
   fieldsTemp.value.splice(index, 1);
@@ -110,7 +106,7 @@ const handleClose = (index: number) => {
 const showInput = () => {
   inputVisible.value = true;
   nextTick(() => {
-    InputRef.value!.input!.focus();
+    inputRef.value?.input?.focus();
   });
 };
 
@@ -152,5 +148,4 @@ const isStorage = ref(false);
 html.dark .fields-info {
   background-color: #363636;
 }
-
 </style>

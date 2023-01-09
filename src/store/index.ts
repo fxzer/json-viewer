@@ -1,9 +1,12 @@
-import { UseLayoutStore } from './module/layout'
-import { UseThemeStore } from './module/theme'
+// import { useLayoutStore } from './module/layout'
+// import { useThemeStore } from './module/theme'
+// import use
 //定义一个全局的store
-const useStore = () =>({
-  layout: UseLayoutStore(),
-  theme: UseThemeStore(),
-})
+// const useStore = () =>({
+//   layout: useLayoutStore(),
+//   theme: useThemeStore(),
+// })
 //导出全局的store
-export default useStore
+// export default useStore
+
+export * from './module'

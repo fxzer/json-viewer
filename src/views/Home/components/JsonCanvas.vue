@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import G6, { TreeGraph } from "@antv/g6";
-import { LayoutConfig } from "@/store/module/type";
+import { LayoutConfig } from "@/store/module/theme";
 import { onMounted, reactive, ref, watch } from "vue";
 import { registerFn } from "./registerFn";
 import   registerBehaviors from "./registerBehaviors";

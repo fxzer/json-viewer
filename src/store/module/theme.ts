@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
-import { ThemeConfig } from "./type";
-export const UseThemeStore = defineStore({
+import { State } from "../types/theme";
+export const useThemeStore = defineStore({
   id: "theme",
-  state: ():ThemeConfig => ({
+  state: ():State => ({
     themeActive: localStorage.getItem('themeActive') || 'purple',
     themeList: [
       {

@@ -1,21 +1,21 @@
 import { defineStore } from "pinia";
-import { LayoutConfig } from "./type.d";
-export const UseLayoutStore = defineStore({
+import { State, LayoutConfig } from "../types/layout"
+export const useLayoutStore = defineStore({
   id: "layout",
-  state: () => ({
+  state: (): State => ({
     type: "indented",
-    config: { } as LayoutConfig,
-    layoutList : {
+    config: {} as LayoutConfig,
+    layoutList: {
       indented: {
         type: "indented",
-        direction: "H", // 'LR' | 'RL'  | 'H'
+        direction: "H",
         directions: ["LR", "RL", "H"],
         indent: 240,
         dropCap: false,
       },
       dendrogram: {
         type: "dendrogram",
-        direction: "LR",  
+        direction: "LR",
         directions: ["LR", "RL", "H"],
         rankSep: 240,
         nodeSep: 240,
@@ -36,26 +36,26 @@ export const UseLayoutStore = defineStore({
       compactBox: {
         type: "compactBox",
         direction: "LR",
-        directions: ["LR", "RL",  "H"],
+        directions: ["LR", "RL", "H"],
         hgap: 150,
         vgap: 100,
         getHGap: () => {
           return 150;
         },
-        getVGap: (d) => {
+        getVGap: () => {
           return 100;
         },
       },
     },
   }),
-  actions:{
-    setType(type: string){
+  actions: {
+    setType(type: string) {
       this.type = type;
       this.config = this.layoutList[type];
     },
-    setConfig(config: LayoutConfig){
+    setConfig(config: LayoutConfig) {
       this.type = config.type;
       this.config = config;
     },
-  }
+  },
 });

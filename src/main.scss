@@ -25,12 +25,12 @@ body {
     box-shadow: 3px 0px 3px #f0f0f0;
   }
 }
-// .dark .layout-modal .el-drawer.ltr {
-//   border-right: 1px solid rgb(56, 56, 56);
-//   box-shadow: 3px 0px 3px rgb(56, 56, 56);
-// }
+.dark .layout-modal .el-drawer.ltr {
+  border-right: 1px solid rgb(56, 56, 56);
+  box-shadow: 3px 0px 3px rgb(56, 56, 56);
+}
 .el-popover.theme-popover .el-popover__title  {
   text-align: center;
 }
 /* 引入iconfont */
-@import "//at.alicdn.com/t/c/font_3847355_7j2v6y2fzgp.css";
+@import "./assets/iconfont/iconfont.css";

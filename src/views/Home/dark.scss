@@ -1,32 +1,31 @@
 .json-home.dark {
-  // $bg-color: #292B2F;
   .canvas-area {
     background-color: #292b2f;
   }
-  .opt-wrap .json-wrap {
-    &:deep(.jsoneditor-vue) {
-      .jsoneditor.jsoneditor-mode-code{
-        background-color: #1c1c1c;
-      }
-      .ace-jsoneditor .ace_variable{
-        color: #66b1d3 !important;
-      }
-      .ace_string{
-        color: #ce9178 !important;
-      }
-      div.jsoneditor {
-        .jsoneditor-outer {
-          .ace_gutter {
-            background-color: #252525;
-            color:#ccc;
-            height: 100% !important;
-          }
-          & .ace_folding-enabled .ace_gutter-cell {
-            background-color: #252525;
-          }
-          .ace_content {
-            background-color: #1c1c1c;
-          }
+  &:deep(.jsoneditor-vue) {
+    .jsoneditor.jsoneditor-mode-code {
+      background-color: #1c1c1c !important;
+    }
+    .ace-jsoneditor .ace_variable {
+      color: #66b1d3 !important;
+    }
+    .ace_string {
+      color: #ce9178 !important;
+    }
+    div.jsoneditor {
+      border: 1px solid rgb(85, 85, 85);
+      border-radius: 4px;
+      .jsoneditor-outer {
+        .ace_gutter {
+          background-color: #252525 !important;
+          color: #ccc !important;
+          height: 100% !important;
+        }
+        & .ace_folding-enabled .ace_gutter-cell {
+          background-color: #252525 !important;
+        }
+        .ace_content {
+          background-color: #1c1c1c !important;
         }
       }
     }
