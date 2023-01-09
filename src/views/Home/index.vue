@@ -469,4 +469,5 @@ $hb-color: v-bind("currentTheme.hbcolor");
   }
 }
 @import "./dark.scss";
+@import './phone.scss';
 </style>

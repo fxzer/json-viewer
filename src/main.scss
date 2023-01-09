@@ -32,5 +32,10 @@ body {
 .el-popover.theme-popover .el-popover__title  {
   text-align: center;
 }
+@media screen and (max-width:768px) {
+  .layout-modal .el-drawer.ltr {
+    width: calc(100vw - 50px) !important;
+}
+}
 /* 引入iconfont */
 @import "./assets/iconfont/iconfont.css";

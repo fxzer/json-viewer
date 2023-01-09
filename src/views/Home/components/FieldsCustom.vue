@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="指定额外解析字段" v-model="visible" width="480">
+  <el-dialog title="指定额外解析字段" v-model="visible" width="400">
     <el-form label-width="72px">
       <el-form-item label="本地保存">
         <el-switch
