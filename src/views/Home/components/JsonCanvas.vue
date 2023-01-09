@@ -5,20 +5,17 @@
 <script lang="ts" setup>
 import G6, { TreeGraph } from "@antv/g6";
 import { LayoutConfig } from "@/store/types/layout";
-import { onMounted, reactive, ref, watch,toRefs } from "vue";
-import { registerFn } from "./registerFn";
-import   registerBehaviors from "./registerBehaviors";
-import { useLayoutStore,useThemeStore } from "@/store";
-const { themeActive ,currentTheme} = toRefs(useThemeStore())
+import { onMounted, reactive, ref, watch, toRefs } from "vue";
+import registerNodes from "@/utils/registerNodes";
+import registerBehaviors from "@/utils/registerBehaviors";
+import { useLayoutStore, useThemeStore, useFieldsStore } from "@/store";
+const { themeActive, currentTheme } = toRefs(useThemeStore());
 const { type, config, setType, setConfig } = toRefs(useLayoutStore());
+const { isStorage, fields } = toRefs(useFieldsStore());
 const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({}),
-  },
-  layoutDirection: {
-    type: String,
-    default: "LR",
   },
   isExpand: {
     type: Boolean,
@@ -28,10 +25,6 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  extraFields: {
-    type: Array,
-    default: () => [],
-  },
 });
 
 const emit = defineEmits(["nodeClick"]);
@@ -39,16 +32,6 @@ const emit = defineEmits(["nodeClick"]);
 const width = ref(0);
 const height = ref(0);
 const jsonCanvas = ref<HTMLElement | null>(null);
-
-//  组件props
-const propsDefalut = {
-  config: {
-    padding: [20, 50],
-    defaultLevel: 3,
-    defaultZoom: 0.8,
-    modes: { default: ["zoom-canvas", "drag-canvas"] },
-  },
-};
 
 //监听modelValue变化
 watch(
@@ -59,17 +42,29 @@ watch(
 );
 //监听extraFields变化,重新处理数据画图
 watch(
-  () => props.extraFields,
-  (newVal) => {
-    drawGraph(props.modelValue);
+  () => isStorage.value,
+  (val) => {
+    localStorage.setItem("isStorage", val + "");
   }
 );
-watch(()=> themeActive.value,(val)=>{
-  if(graph.value){
-    //  刷新
-    window.location.reload()
+watch(
+  () => fields.value,
+  (val) => {
+    drawGraph(props.modelValue);
+    localStorage.setItem("extraFields", JSON.stringify(val));
+  },
+  { deep: true }
+);
+
+watch(
+  () => themeActive.value,
+  (val) => {
+    if (graph.value) {
+      //  刷新
+      window.location.reload();
+    }
   }
-})
+);
 //处理数据结构
 const dealData = (data, customKeys: Array<string> = []) => {
   let result = {
@@ -110,7 +105,7 @@ const dealData = (data, customKeys: Array<string> = []) => {
   return result;
 };
 // 默认配置
-let edgeStroke = themeActive.value == 'dark' ? "#596f8a" : "#CED4D9"
+let edgeStroke = themeActive.value == "dark" ? "#596f8a" : "#CED4D9";
 const defaultConfig = reactive({
   modes: {
     default: ["zoom-canvas", "drag-canvas"],
@@ -123,7 +118,7 @@ const defaultConfig = reactive({
   defaultEdge: {
     type: "cubic-horizontal",
     style: {
-      stroke:  edgeStroke
+      stroke: edgeStroke,
     },
   },
   layout: config,
@@ -132,19 +127,19 @@ const defaultConfig = reactive({
 //监听到布局配置变化,重新布局
 watch(
   () => config.value,
-  (val) => {
+  (val: any) => {
     if (!graph.value) return;
     const hvgapLayout = ["mindmap", "compactBox"];
     if (hvgapLayout.includes(val.type)) {
-        const gap = {
-          getVGap: () => {
-            return val.vgap;
-          },
-          getHGap: () => {
-            return val.hgap;
-          },
-        };
-        val = { ...val, ...gap };
+      const gap = {
+        getVGap: () => {
+          return val.vgap;
+        },
+        getHGap: () => {
+          return val.hgap;
+        },
+      };
+      val = { ...val, ...gap };
     }
 
     graph.value.updateLayout(val);
@@ -156,7 +151,7 @@ watch(
 
 //获取缓存布局配置
 const layoutConfig: LayoutConfig = JSON.parse(
-  localStorage.getItem("layoutConfig")
+  localStorage.getItem("layoutConfig") || "{}"
 );
 const layoutType = localStorage.getItem("layoutType");
 if (layoutConfig && Object.keys(layoutConfig).length) {
@@ -175,41 +170,34 @@ const toolbar = new G6.ToolBar({
   },
 });
 const nodeDetail = ref({});
+const openNodeDetail = (node) => {
+  nodeDetail.value = node.getModel();
+  emit("nodeClick", nodeDetail.value);
+};
 const initGraph = () => {
-  //去除id不存在的元素
-  const { config } = propsDefalut;
+  const config = {
+    padding: [20],
+    defaultLevel: 3,
+    defaultZoom: 0.8,
+    modes: { default: ["zoom-canvas", "drag-canvas"] },
+  }
   graph.value = new G6.TreeGraph({
     container: jsonCanvas.value as HTMLElement,
-    width: width.value, // Number，必须，图的宽度
-    height: height.value, // Number，必须，图的高度
+    width: width.value,
+    height: height.value,
     ...defaultConfig,
     ...config,
     plugins: [toolbar],
   });
-
-  registerFn(currentTheme.value); //注册节点
-
-  const handleNodeClick = (e) => {
-    const node = e.item;
-    nodeDetail.value = node.getModel();
-    emit("nodeClick", nodeDetail.value);
-  };
-  graph.value.on("node:click", (e) => {
-    handleNodeClick(e);
-  });
-  registerBehaviors(graph.value);
- 
+  registerNodes(currentTheme.value); //注册节点
+  registerBehaviors(graph.value, openNodeDetail); //注册行为
 };
 const drawGraph = (data) => {
-  if (!data) {
-    return;
-  }
-  let extraKeyStr = localStorage.getItem("extraFields");
-  if (extraKeyStr) {
-    data = dealData(data, JSON.parse(extraKeyStr));
-  } else {
-    data = dealData(data, props.extraFields as Array<string>);
-  }
+  if (!data) return;
+  data = dealData(data, fields.value);
+  //若不缓存,画图后清空
+  if (!isStorage.value) localStorage.setItem("extraFields", "");
+  //判断是否为空对象
   let isEmpty = Object.keys(data).length === 0;
   const rootConfig = {
     id: isEmpty ? "{ }" : "root",
@@ -218,7 +206,6 @@ const drawGraph = (data) => {
 
   let graphData = Object.assign({}, data, rootConfig);
   graph.value?.read(graphData);
-  //判断是否为空对象
   if (isEmpty) {
     graph.value?.fitView(200);
   } else {
@@ -232,20 +219,6 @@ onMounted(() => {
   drawGraph(props.modelValue);
 });
 
-//旋转布局
-watch(
-  () => props.layoutDirection,
-  (newVal) => {
-    if (graph.value) {
-      graph.value.changeLayout({
-        type: "indented",
-        direction: newVal,
-        dropCap: true,
-        indent: 300,
-      });
-    }
-  }
-);
 //监听编辑区展开/收起
 watch(
   () => props.isExpandEditor,
@@ -280,42 +253,45 @@ window.onresize = () => {
   graph.value?.changeSize(width.value, height.value);
 };
 //搜索聚焦节点
-const focusNode = (keyword) => {
+const focusNode = (keyword: string) => {
   graph.value?.findAll("node", (node) => {
     graph.value?.setItemState(node, "focus", false); // 切换选中
     graph.value?.setItemState(node, "hover", false); // 切换选中
-    return false
+    return false;
   });
-  if (!keyword || keyword === "root") {
+  if (!keyword.trim()) {
+    graph.value?.fitView(20);
+  } else if (keyword === "root") {
     const node = graph.value?.findById("root");
     if (node) {
       graph.value?.setItemState(node, "hover", !node.hasState("hover")); // 切换选中
     }
-    // graph.value?.fitView(20);
-    // graph.value?.focusItem("root");
+    graph.value?.focusItem("root", true, {
+      easing: "easeCubic",
+      duration: 400,
+    });
     // 获取所有节点
   } else {
-    const findNodes =
-      graph.value?.findAll("node", (node) => {
-        //查找规则
-        //entries键值对包含 或 keyName 包含
-        let isInclude = false;
-        let keyName = node.get("model").keyName || "";
-        let entries = node.get("model").entries;
-        if (keyName?.includes(keyword)) {
-          isInclude = true;
-          return isInclude;
-        }
-        for (let key in entries) {
-          let keyStr = key.toString();
-          let valStr = entries[key].toString();
-          if (keyStr?.includes(keyword) || valStr?.includes(keyword)) {
-            isInclude = true;
-            break;
-          }
-        }
+    const findHandle = (node) => {
+      //查找规则:entries键值对包含 或 keyName 包含keywork
+      let isInclude = false;
+      let keyName = node.get("model").keyName || "";
+      let entries = node.get("model").entries;
+      if (keyName?.includes(keyword)) {
+        isInclude = true;
         return isInclude;
-      }) || [];
+      }
+      for (let key in entries) {
+        let keyStr = key.toString();
+        let valStr = entries[key].toString();
+        if (keyStr?.includes(keyword) || valStr?.includes(keyword)) {
+          isInclude = true;
+          break;
+        }
+      }
+      return isInclude;
+    };
+    const findNodes = graph.value?.findAll("node", findHandle) || [];
     // 动画地移动，并配置动画
     if (findNodes.length > 0) {
       graph.value?.focusItem(findNodes[0], true, {
@@ -326,6 +302,8 @@ const focusNode = (keyword) => {
       findNodes.forEach((node) => {
         graph.value?.setItemState(node, "focus", true); // 切换选中
       });
+    } else {
+      graph.value?.fitView(20);
     }
   }
 };

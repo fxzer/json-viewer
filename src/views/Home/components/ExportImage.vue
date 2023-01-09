@@ -38,6 +38,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed,} from "vue";
+import { ImageConfig } from '@/types/export/image'
 const props = defineProps({
   value: {
     type: Boolean,
@@ -78,7 +79,7 @@ const predefineColors = ref([
   "hsla(209, 100%, 56%, 0.73)",
   "#c7158577",
 ]);
-const exportConfig = ref({
+const exportConfig = ref<ImageConfig> ({
   name: "json-viewer",
   type: "image/png",
   padding: 20,

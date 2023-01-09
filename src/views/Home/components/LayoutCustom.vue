@@ -10,7 +10,7 @@
     size="450"
     close-on-press-escape
   >
-    <LayoutOptions   />
+    <LayoutOptions />
     <div class="layout-custom">
       <el-form label-width="80px" :inline="false">
         <!-- 共有方向 -->
@@ -35,7 +35,10 @@
               active-text="是"
               inactive-text="否"
             >
-            </el-switch> <span class="text-info">开启后子节点从父节点下一行开始依次渲染</span>
+            </el-switch>
+            <span class="text-info"
+              >开启后子节点从父节点下一行开始依次渲染</span
+            >
           </el-form-item>
           <el-form-item label="缩进距离">
             <el-input v-model.number="config.indent">
@@ -58,7 +61,7 @@
         </div>
         <!--  mindmap脑图树-->
         <div class="mindmap" v-if="type == 'mindmap'">
-          <div class="custom-mode"  >
+          <div class="custom-mode">
             <el-form-item label="水平间距">
               <el-input v-model.number="config.hgap">
                 <template #append>px</template>
@@ -90,10 +93,10 @@
 </template>
 
 <script lang="ts" setup>
-import {  toRefs, computed } from "vue";
+import { toRefs, computed } from "vue";
 import LayoutOptions from "./LayoutOptions.vue";
-import { useLayoutStore  } from "@/store";
-const { type,config} = toRefs(useLayoutStore())
+import { useLayoutStore } from "@/store";
+const { type, config } = toRefs(useLayoutStore());
 const props = defineProps({
   value: {
     type: Boolean,
@@ -110,26 +113,24 @@ const visible = computed({
     emit("update:value", val);
   },
 });
-
 </script>
 <style scoped lang="scss">
-
-.layout-custom  {
-  .text-info{
+.layout-custom {
+  .text-info {
     color: #909399;
     font-size: 13px;
-    margin-left:10px;
+    margin-left: 10px;
   }
   .el-form-item {
     margin-bottom: 10px;
   }
-  :deep(.el-radio-group){
+  :deep(.el-radio-group) {
     display: flex;
     width: 100%;
     .el-radio-button {
-      flex:1 !important;
+      flex: 1 !important;
     }
-    .el-radio-button__inner{
+    .el-radio-button__inner {
       width: 100%;
     }
   }

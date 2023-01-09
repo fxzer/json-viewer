@@ -12,7 +12,7 @@
       <el-form-item label="字段名称">
         <div class="fields-edit">
           <el-tag
-            v-for="(field, index) in fieldsTemp"
+            v-for="(field, index) in fields"
             :key="index"
             class="mx-1"
             :type="handleType(index)"
@@ -28,8 +28,8 @@
             v-model="inputValue"
             placeholder="回车确认"
             size="small"
-            @keyup.enter="handleInputConfirm"
-            @blur="handleInputConfirm"
+            @keyup.enter="addField"
+            @blur="addField"
           />
           <el-button v-else size="small" @click="showInput"> + 添加 </el-button>
         </div>
@@ -42,29 +42,25 @@
     </p>
     <template #footer>
       <span>
-        <el-button  @click="visible = false">取消</el-button>
-        <el-button  type="primary" @click="confirm">应用</el-button>
+        <el-button  @click="visible = false">关闭</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { nextTick, ref, computed, watch  } from "vue";
+import { nextTick, ref,toRefs, computed,watch } from "vue";
+import { useFieldsStore  } from "@/store";
+const { isStorage,fields } = toRefs(useFieldsStore())
 const props = defineProps({
   value: {
     type: Boolean,
     default: false,
   },
-  fields: {
-    type: Array,
-    default: () => [],
-  },
 });
 
 const emit = defineEmits({
   "update:value": (val: boolean) => true,
-  "update:fields": (fields: any, isStorage: boolean) => true,
 });
 const handleType = (index: number) => {
   return ["success", "info", "warning"][index % 3] as any;
@@ -77,48 +73,31 @@ const visible = computed({
     emit("update:value", val);
   },
 });
-watch(
-  () => visible.value,
-  (val) => {
-    if (val) {
-      let fstr = localStorage.getItem("extraFields");
-      fieldsTemp.value = fstr ? JSON.parse(fstr) : [];
-      isStorage.value = !!localStorage.getItem("isStorage")  
-    }
-  }
-);
-
-const fieldsTemp = ref(JSON.parse(JSON.stringify(props.fields)));
-const confirm = () => {
-  emit("update:fields", fieldsTemp.value, isStorage.value);
-  emit("update:value", false);
-};
-
 //标签
 const inputValue = ref("");
 const inputVisible = ref(false);
-const inputRef = ref(null);
+
+const inputRef =  ref<InstanceType<typeof ElInput>>()
 
 const handleClose = (index: number) => {
-  fieldsTemp.value.splice(index, 1);
+  fields.value.splice(index, 1);
 };
 
 const showInput = () => {
   inputVisible.value = true;
   nextTick(() => {
-    inputRef.value?.input?.focus();
+    inputRef.value!.input!.focus()
   });
 };
 
-const handleInputConfirm = () => {
+const addField = () => {
   if (inputValue.value) {
-    fieldsTemp.value.push(inputValue.value);
+    fields.value.push(inputValue.value);
   }
   inputVisible.value = false;
   inputValue.value = "";
 };
 //是否本地保存
-const isStorage = ref(false);
 </script>
 <style scoped lang="scss">
 .fields-edit {

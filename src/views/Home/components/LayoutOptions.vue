@@ -15,10 +15,10 @@
 
 <script lang="ts" setup>
 import { TypeOption } from "@/types/layout/option";
-import  { useThemeStore,useLayoutStore } from '@/store'
-const { type ,setType}  =  useLayoutStore() 
-console.log("%c [ setType ]-25", "font-size:14px; background:#2b07c0; color:#6f4bff;", setType);
-const { currentTheme } = useThemeStore()
+import { useThemeStore, useLayoutStore } from "@/store";
+import { toRefs } from "vue";
+const { type, setType } = toRefs(useLayoutStore());
+const { currentTheme } = useThemeStore();
 const typeList: Array<TypeOption> = [
   {
     type: "indented",
@@ -45,8 +45,8 @@ const typeList: Array<TypeOption> = [
       "https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*ffD6S74MXw4AAAAAAAAAAABkARQnAQ",
   },
 ];
-const onTypeSelect = (ltype) => {
-   setType(ltype.type);
+const onTypeSelect = (ltype: TypeOption) => {
+  setType.value(ltype.type);
 };
 </script>
 <style scoped lang="scss">
@@ -64,7 +64,7 @@ const onTypeSelect = (ltype) => {
     margin-right: 10px;
     transition: all 0.3s ease-in-out;
     //第四个去除右边距
-   
+
     &:nth-child(4n) {
       margin-right: 0;
     }

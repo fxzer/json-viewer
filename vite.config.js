@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [
     vue(),
     AutoImport({
-      dts: "src/auto-imports.d.ts", //方案二:解决 '找不到名称“Elxxx”' 报错  
+      // dts: "src/auto-imports.d.ts", //方案二:解决 '找不到名称“Elxxx”' 报错  
       resolvers: [ElementPlusResolver()],
     }),
     Components({

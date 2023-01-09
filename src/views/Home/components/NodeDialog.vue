@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import {   computed } from "vue";
+import { computed } from "vue";
 const props = defineProps({
   value: {
     type: Boolean,
@@ -30,9 +30,6 @@ const emit = defineEmits({
   "update:value": (val: boolean) => true,
   "update:nodeDetail": (val: any) => true,
 });
-const close = () => {
-  visible.value = false;
-};
 const visible = computed({
   get() {
     return props.value;
@@ -41,6 +38,9 @@ const visible = computed({
     emit("update:value", val);
   },
 });
+const close = () => {
+  visible.value = false;
+};
 const node = computed({
   get() {
     let { keyName, entries, id } = props.nodeDetail;
