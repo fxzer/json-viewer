@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, ref, computed, watch, reactive } from "vue";
+import { nextTick, ref, computed, watch  } from "vue";
 const props = defineProps({
   value: {
     type: Boolean,

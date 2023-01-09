@@ -15,10 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import {   computed, toRefs  } from "vue";
-import useStore from "@/store";
-const { theme } = useStore();
-const {  currentTheme } = toRefs(theme);
+import {   computed } from "vue";
 const props = defineProps({
   value: {
     type: Boolean,
@@ -34,7 +31,6 @@ const emit = defineEmits({
   "update:nodeDetail": (val: any) => true,
 });
 const close = () => {
-  // emit('update:value', false)
   visible.value = false;
 };
 const visible = computed({

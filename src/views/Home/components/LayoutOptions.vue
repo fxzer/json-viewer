@@ -14,13 +14,11 @@
 </template>
 
 <script lang="ts" setup>
-import useStore from "@/store/index";
-import { toRefs, watch } from "vue";
 import { TypeOption } from "@/types/layout/option";
-const { layout, theme } = useStore();
-const { type } = toRefs(layout);
-const { currentTheme } =  theme 
-
+import  { useThemeStore,useLayoutStore } from '@/store'
+const { type ,setType}  =  useLayoutStore() 
+console.log("%c [ setType ]-25", "font-size:14px; background:#2b07c0; color:#6f4bff;", setType);
+const { currentTheme } = useThemeStore()
 const typeList: Array<TypeOption> = [
   {
     type: "indented",
@@ -48,7 +46,7 @@ const typeList: Array<TypeOption> = [
   },
 ];
 const onTypeSelect = (ltype) => {
-  layout.setType(ltype.type);
+   setType(ltype.type);
 };
 </script>
 <style scoped lang="scss">

@@ -4,16 +4,13 @@
 
 <script lang="ts" setup>
 import G6, { TreeGraph } from "@antv/g6";
-import { LayoutConfig } from "@/store/module/theme";
-import { onMounted, reactive, ref, watch } from "vue";
+import { LayoutConfig } from "@/store/types/layout";
+import { onMounted, reactive, ref, watch,toRefs } from "vue";
 import { registerFn } from "./registerFn";
 import   registerBehaviors from "./registerBehaviors";
-import useStore from "@/store";
-import { toRefs } from "vue";
-const { layout,theme } = useStore();
-const { type, config, setType, setConfig } = toRefs(layout);
-const { themeActive } = toRefs(theme);
-const { currentTheme } =  theme 
+import { useLayoutStore,useThemeStore } from "@/store";
+const { themeActive ,currentTheme} = toRefs(useThemeStore())
+const { type, config, setType, setConfig } = toRefs(useLayoutStore());
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -190,7 +187,7 @@ const initGraph = () => {
     plugins: [toolbar],
   });
 
-  registerFn(currentTheme); //注册节点
+  registerFn(currentTheme.value); //注册节点
 
   const handleNodeClick = (e) => {
     const node = e.item;

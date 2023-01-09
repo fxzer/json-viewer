@@ -90,12 +90,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref,toRefs, computed, reactive, watch } from "vue";
+import {  toRefs, computed } from "vue";
 import LayoutOptions from "./LayoutOptions.vue";
-import useStore from "@/store/index";
-const { layout } = useStore();
-//toRefs将对象转换为响应式的ref对象
-const { type, config } = toRefs(layout);
+import { useLayoutStore  } from "@/store";
+const { type,config} = toRefs(useLayoutStore())
 const props = defineProps({
   value: {
     type: Boolean,
