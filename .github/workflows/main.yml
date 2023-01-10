@@ -16,11 +16,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Setup Node.js environment 🎬
+      - name: Setup Node  🎬
         uses: actions/setup-node@main
         with:
           node-version: "lts/*"
-      - name: Build 📚
+      - name: Build 🔧 
         run: |
           npm install
           npm run build
@@ -30,4 +30,4 @@ jobs:
         with:
           token: ${{ secrets.ACCESS_TOKEN }}
           branch: master
-          folder: dist
+          folder: /
