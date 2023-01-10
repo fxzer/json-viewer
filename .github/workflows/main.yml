@@ -1,0 +1,36 @@
+name: Deploy GitHub Pages
+
+# 触发条件：在 push 到 master 分支后
+on:
+  push:
+    branches:
+      - master
+
+# 任务
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Setup Node.js environment
+        uses: actions/setup-node@main
+        with:
+          node-version: "lts/*"
+      - name: Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          branch: gh-pages
+          folder: public
+
+
+          
