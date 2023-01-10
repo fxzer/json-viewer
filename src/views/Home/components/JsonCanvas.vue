@@ -122,28 +122,6 @@ const convertLayoutConfig = (config:LayoutConfig) =>{
   return  config
 }
 
-// 默认配置
-let edgeStroke = themeActive.value == "dark" ? "#596f8a" : "#CED4D9";
-const defaultConfig = reactive({
-  modes: {
-    default: ["zoom-canvas", "drag-canvas"],
-  },
-  fitView: true,
-  animate: true,
-  defaultNode: {
-    type: "flow-rect",
-  },
-  defaultEdge: {
-    type: "cubic-horizontal",
-    style: {
-      stroke: edgeStroke,
-    },
-  },
-  layout: convertLayoutConfig(config.value)
-});
-console.log("%c [ defaultConfig ]-111", "font-size:14px; background:#c2feaf; color:#fffff3;", defaultConfig);
-
-
 //监听到布局配置变化,重新布局
 watch(
   () => config.value,
@@ -166,9 +144,28 @@ const layoutType = localStorage.getItem("layoutType");
 if (layoutConfig && Object.keys(layoutConfig).length) {
   setConfig.value(layoutConfig);
 } else {
-  setType.value(layoutType ? layoutType : "indented");
+  setType.value(layoutType ? layoutType : "mindmap");
 }
-
+// 默认配置
+let edgeStroke = themeActive.value == "dark" ? "#596f8a" : "#CED4D9";
+const defaultConfig = reactive({
+  modes: {
+    default: ["zoom-canvas", "drag-canvas"],
+  },
+  fitView: true,
+  animate: true,
+  defaultNode: {
+    type: "flow-rect",
+  },
+  defaultEdge: {
+    type: "cubic-horizontal",
+    style: {
+      stroke: edgeStroke,
+    },
+  },
+  layout: convertLayoutConfig(config.value)
+  
+});
 const graph = ref<TreeGraph>();
 const toolbar = new G6.ToolBar({
   getContent: () => {
