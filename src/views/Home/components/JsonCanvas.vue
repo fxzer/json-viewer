@@ -104,6 +104,24 @@ const dealData = (data, customKeys: Array<string> = []) => {
   result.children = result.children.filter((item) => item.id);
   return result;
 };
+
+//转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
+const convertLayoutConfig = (config:LayoutConfig) =>{
+  const hvgapLayout = ["mindmap", "compactBox"];
+    if (hvgapLayout.includes(config.type)) {
+      const gap = {
+        getVGap: () => {
+          return config.vgap;
+        },
+        getHGap: () => {
+          return config.hgap;
+        },
+      };
+      config = { ...config, ...gap };
+    }
+  return  config
+}
+
 // 默认配置
 let edgeStroke = themeActive.value == "dark" ? "#596f8a" : "#CED4D9";
 const defaultConfig = reactive({
@@ -121,30 +139,21 @@ const defaultConfig = reactive({
       stroke: edgeStroke,
     },
   },
-  layout: config,
+  layout: convertLayoutConfig(config.value)
 });
+console.log("%c [ defaultConfig ]-111", "font-size:14px; background:#c2feaf; color:#fffff3;", defaultConfig);
+
 
 //监听到布局配置变化,重新布局
 watch(
   () => config.value,
   (val: any) => {
+    console.log("%c [ val ]-151", "font-size:14px; background:#dc303a; color:#ff747e;", val);
     if (!graph.value) return;
-    const hvgapLayout = ["mindmap", "compactBox"];
-    if (hvgapLayout.includes(val.type)) {
-      const gap = {
-        getVGap: () => {
-          return val.vgap;
-        },
-        getHGap: () => {
-          return val.hgap;
-        },
-      };
-      val = { ...val, ...gap };
-    }
-
-    graph.value.updateLayout(val);
+    const layoutConfig = convertLayoutConfig(val)
+    graph.value.updateLayout(layoutConfig);
     localStorage.setItem("layoutType", type.value);
-    localStorage.setItem("layoutConfig", JSON.stringify(val));
+    localStorage.setItem("layoutConfig", JSON.stringify(layoutConfig));
   },
   { deep: true }
 );
