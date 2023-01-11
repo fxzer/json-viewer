@@ -4,19 +4,20 @@
 
 <script lang="ts" setup>
 import { LayoutConfig } from "@/store/types/layout";
-import { onMounted, reactive, ref, watch, toRefs, Ref } from "vue";
 import registerNodes from "@/utils/registerNodes";
 import registerBehaviors from "@/utils/registerBehaviors";
 import { dealDataToTree } from "@/utils/dealDataToTree";
-import { useLayoutStore, useThemeStore, useFieldsStore } from "@/store";
+import {
+  useLayoutStore,
+  useThemeStore,
+  useFieldsStore,
+  useJsonStore,
+} from "@/store";
 const { themeActive, currentTheme } = toRefs(useThemeStore());
+const { formatJson } = toRefs(useJsonStore());
 const { type, config, setType, setConfig } = toRefs(useLayoutStore());
 const { isStorage, fields } = toRefs(useFieldsStore());
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({}),
-  },
   isExpand: {
     type: Boolean,
     default: false,
@@ -33,26 +34,15 @@ const width = ref(0);
 const height = ref(0);
 const jsonCanvas = ref<HTMLElement | null>(null);
 
-//监听modelValue变化
+//监听formatJson变化
 watch(
-  () => props.modelValue,
-  (newVal) => {
-    drawGraph(newVal);
-  }
-);
-//监听extraFields变化,重新处理数据画图
-watch(
-  () => fields.value,
-  (val) => {
-    drawGraph(props.modelValue);
-    localStorage.setItem("extraFields", JSON.stringify(val));
-  },
-  { deep: true }
+  () => formatJson.value,
+  (newVal) =>  drawGraph(newVal) 
 );
 
 watch(
   () => themeActive.value,
-  (val) => window.location.reload() //  刷新
+  () => window.location.reload() //  刷新
 );
 
 //转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
@@ -76,14 +66,11 @@ const convertLayoutConfig = (config: LayoutConfig) => {
 watch(
   () => config.value,
   (val: any) => {
-    console.log(
-      "%c [ val ]-151",
-      "font-size:14px; background:#dc303a; color:#ff747e;",
-      val
-    );
     if (!graph.value) return;
     const layoutConfig = convertLayoutConfig(val);
+    //重新布局后居中展示
     graph.value.updateLayout(layoutConfig);
+    graph.value.fitView(20);
     localStorage.setItem("layoutType", type.value);
     localStorage.setItem("layoutConfig", JSON.stringify(layoutConfig));
   },
@@ -153,7 +140,7 @@ const initGraph = () => {
 };
 const drawGraph = (data) => {
   if (!data) return;
-  data = dealDataToTree(data, fields.value);
+  data = dealDataToTree(data);
   //若不缓存,画图后清空
   if (!isStorage.value) localStorage.setItem("extraFields", "");
   //判断是否为空对象
@@ -175,7 +162,7 @@ onMounted(() => {
   width.value = jsonCanvas.value?.clientWidth || 860;
   height.value = jsonCanvas.value?.clientHeight || 745;
   initGraph();
-  drawGraph(props.modelValue);
+  drawGraph(formatJson.value);
 });
 
 //监听编辑区展开/收起

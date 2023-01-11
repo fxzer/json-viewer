@@ -2,7 +2,7 @@
   <div class="json-home" :class="themeMode">
     <!-- 左侧工具导航栏 -->
     <div class="nav-tools">
-      <img class="jv-logo" src="../../../public/jvlogo.svg">
+      <img class="jv-logo" src="/public/jvlogo.svg" />
       <div class="tool-btns">
         <el-tooltip
           :content="(isExpandEditor ? '收起' : '展开') + '编辑'"
@@ -101,7 +101,7 @@
         <div class="wrap-title top-title">JSON内容</div>
         <VueJsonEditor
           class="edit-area"
-          v-model="jsonData"
+          v-model="formatJson"
           :mode="'code'"
           :show-btns="false"
           @json-change="onJsonChange"
@@ -131,7 +131,6 @@
           <SearchInput v-model="searchKeyWord" @input="onSearch" />
         </div>
         <JsonCanvas
-          v-model="jsonData"
           :isExpand="isExpand"
           :isExpandEditor="isExpandEditor"
           ref="jsonCanvasRef"
@@ -154,13 +153,15 @@ import NodeDialog from "@/views/Home/components/NodeDialog.vue";
 import FieldsCustom from "@/views/Home/components/FieldsCustom.vue";
 import LayoutCustom from "@/views/Home/components/LayoutCustom.vue";
 import SearchInput from "@/views/Home/components/SearchInput.vue";
-import { useThemeStore } from "@/store";
+import { useThemeStore, useFieldsStore, useJsonStore } from "@/store";
 
 import { ImageConfig } from "@/types/export/image";
 import { debounce } from "@/utils/debounce";
-import json from "./example.json";
+import { deepFormat } from "@/utils/deepFormat";
 
 const { themeActive, themeList, currentTheme } = toRefs(useThemeStore());
+const { fields } = toRefs(useFieldsStore());
+const { formatJson, originJson } = toRefs(useJsonStore());
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
@@ -172,7 +173,7 @@ const themeMode = computed(() => {
   }
   return themeActive.value === "dark" ? "dark" : "light";
 });
-let jsonData = ref(json);
+
 //布局配置抽屉
 const drawerVisible = ref(false);
 const layoutConfig = ref({
@@ -185,7 +186,7 @@ const openLayoutConfig = () => {
   drawerVisible.value = !drawerVisible.value;
 };
 const onJsonChange = (json: any) => {
-  jsonData.value = json;
+  originJson.value = formatJson.value = json;
 };
 const onJsonError = (err: any) => {
   ElNotification({
@@ -193,7 +194,6 @@ const onJsonError = (err: any) => {
     title: "JSON语法错误",
     dangerouslyUseHTMLString: true,
     message: `<pre style="white-space: normal;">${err.message}</pre>`,
-    // message: err.message,
     duration: 5000,
   });
 };
@@ -215,9 +215,9 @@ const onExpand = () => {
 const onExport = () => {
   const filename = `json-viewer.json`;
   const jsonStr =
-    typeof jsonData.value === "object"
-      ? JSON.stringify(jsonData.value, undefined, 2)
-      : jsonData.value;
+    typeof formatJson.value === "object"
+      ? JSON.stringify(formatJson.value, undefined, 2)
+      : formatJson.value;
   const blob = new Blob([jsonStr as any], { type: "text/plain" });
   const link = document.createElement("a");
   link.setAttribute("style", "display: none");
@@ -238,13 +238,18 @@ const onImport = () => {
     reader.readAsText(file);
     reader.onload = () => {
       const json = reader.result;
-      jsonData.value = JSON.parse(json as string);
+      originJson.value = JSON.parse(json as string);
+      if (fields.value.length) {
+        formatJson.value = deepFormat(JSON.parse(json as string), fields.value);
+      } else {
+        formatJson.value = JSON.parse(json as string);
+      }
     };
   };
 };
 //清空json
 const confirmClear = () => {
-  jsonData.value = {} as any;
+  formatJson.value = {} as any;
 };
 
 const jsonCanvasRef = ref<InstanceType<typeof JsonCanvas>>();
@@ -302,11 +307,19 @@ const onFullScreen = () => {
 };
 
 //自定义需要额外解析的字段
-// const extraFields = ref([]);
 const fieldsVisible = ref(false);
 const openFieldsDialog = () => {
   fieldsVisible.value = true;
 };
+//监听extraFields变化,重新处理数据画图
+watch(
+  () => fields.value,
+  (fields) => {
+    formatJson.value = deepFormat(originJson.value, fields);
+    localStorage.setItem("extraFields", JSON.stringify(fields));
+  },
+  { deep: true }
+);
 </script>
 <style scoped lang="scss">
 $bg-color: v-bind("currentTheme.bgcolor");
@@ -435,5 +448,5 @@ $hb-color: v-bind("currentTheme.hbcolor");
   }
 }
 @import "./dark.scss";
-@import './phone.scss';
+@import "./phone.scss";
 </style>

@@ -1,4 +1,3 @@
-// import { defineStore } from "pinia";
 import { State } from '../types/fields'
 export const useFieldsStore =  defineStore({
   id:'fields',

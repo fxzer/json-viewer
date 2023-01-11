@@ -13,10 +13,6 @@ export const dealDataToTree = (data, customKeys: Array<string> = []) => {
   };
   for (let key in data) {
     let value = data[key];
-    //转化自定义key
-    if (customKeys.includes(key)) {
-      value = JSON.parse(data[key]);
-    }
     if (typeof value === "object" && value !== null) {
       if (Object.keys(value).length) {
         let len = result.children.length;
