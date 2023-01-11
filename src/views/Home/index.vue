@@ -2,9 +2,7 @@
   <div class="json-home" :class="themeMode">
     <!-- 左侧工具导航栏 -->
     <div class="nav-tools">
-      <div class="jv-icon">
-        <span class="char-j">J</span><span class="char-v">V</span>
-      </div>
+      <img class="jv-logo" src="../../../public/jvlogo.svg">
       <div class="tool-btns">
         <el-tooltip
           :content="(isExpandEditor ? '收起' : '展开') + '编辑'"
@@ -246,7 +244,7 @@ const onImport = () => {
 };
 //清空json
 const confirmClear = () => {
-  jsonData.value = {};
+  jsonData.value = {} as any;
 };
 
 const jsonCanvasRef = ref<InstanceType<typeof JsonCanvas>>();
@@ -327,43 +325,15 @@ $hb-color: v-bind("currentTheme.hbcolor");
     z-index: 2;
     background-color: $bg-color;
 
-    .jv-icon {
-      width: 100%;
-      height: 50px;
-      line-height: 50px;
-      text-align: center;
-      color: #c09af7;
-      font-size: 20px;
-      font-weight: 600;
-      //斜体
-      font-style: italic;
-      //字体阴影
-      text-shadow: 0 0px 2px $bg-color;
-      letter-spacing: 4px;
-      position: relative;
-      .char-j {
-        color: #a845f5;
-      }
-      .char-v {
-        color: #f5c146;
-      }
-      &::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        margin: auto;
-        bottom: 1px;
-        width: 80%;
-        height: 1px;
-        background-color: $bg-color;
-      }
+    .jv-logo {
+      width: 50px;
+      height: 40px;
     }
     //  工具按钮
     .tool-btns {
       display: flex;
       flex-direction: column;
-      padding: 10px;
+      padding: 0 10px;
       .iconfont {
         width: 100%;
         height: 30px;
