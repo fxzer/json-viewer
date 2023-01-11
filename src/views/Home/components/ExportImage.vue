@@ -37,7 +37,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed,} from "vue";
 import { ImageConfig } from '@/types/export/image'
 const props = defineProps({
   value: {

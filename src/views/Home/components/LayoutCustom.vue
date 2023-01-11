@@ -93,7 +93,6 @@
 </template>
 
 <script lang="ts" setup>
-import { toRefs, computed } from "vue";
 import LayoutOptions from "./LayoutOptions.vue";
 import { useLayoutStore } from "@/store";
 const { type, config } = toRefs(useLayoutStore());

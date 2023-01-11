@@ -3,11 +3,11 @@
 </template>
 
 <script lang="ts" setup>
-import G6, { TreeGraph } from "@antv/g6";
 import { LayoutConfig } from "@/store/types/layout";
-import { onMounted, reactive, ref, watch, toRefs } from "vue";
+import { onMounted, reactive, ref, watch, toRefs, Ref } from "vue";
 import registerNodes from "@/utils/registerNodes";
 import registerBehaviors from "@/utils/registerBehaviors";
+import { dealDataToTree } from "@/utils/dealDataToTree";
 import { useLayoutStore, useThemeStore, useFieldsStore } from "@/store";
 const { themeActive, currentTheme } = toRefs(useThemeStore());
 const { type, config, setType, setConfig } = toRefs(useLayoutStore());
@@ -42,12 +42,6 @@ watch(
 );
 //监听extraFields变化,重新处理数据画图
 watch(
-  () => isStorage.value,
-  (val) => {
-    localStorage.setItem("isStorage", val + "");
-  }
-);
-watch(
   () => fields.value,
   (val) => {
     drawGraph(props.modelValue);
@@ -58,77 +52,37 @@ watch(
 
 watch(
   () => themeActive.value,
-  (val) => {
-    if (graph.value) {
-      //  刷新
-      window.location.reload();
-    }
-  }
+  (val) => window.location.reload() //  刷新
 );
-//处理数据结构
-const dealData = (data, customKeys: Array<string> = []) => {
-  let result = {
-    id: "",
-    children: [
-      {
-        id: "",
-        keyName: "",
-        entries: {},
-        children: [],
-      },
-    ],
-  };
-  for (let key in data) {
-    let value = data[key];
-    //转化自定义key
-    if (customKeys.includes(key)) {
-      value = JSON.parse(data[key]);
-    }
-    if (typeof value === "object" && value !== null) {
-      if (Object.keys(value).length) {
-        let len = result.children.length;
-        //生成随机id
-        let id = Math.random().toString(36).substring(2, 10);
-        result.children[len] = { ...dealData(value), id, keyName: key } as any;
-      }
-    } else {
-      let level1 = result.children[0];
-      if (!level1.id) {
-        let id = Math.random().toString(36).substring(2, 10);
-        level1.id = id;
-      }
-      level1.entries[key] = value;
-    }
-  }
-  //去除id不存在的元素
-  result.children = result.children.filter((item) => item.id);
-  return result;
-};
 
 //转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
-const convertLayoutConfig = (config:LayoutConfig) =>{
+const convertLayoutConfig = (config: LayoutConfig) => {
   const hvgapLayout = ["mindmap", "compactBox"];
-    if (hvgapLayout.includes(config.type)) {
-      const gap = {
-        getVGap: () => {
-          return config.vgap;
-        },
-        getHGap: () => {
-          return config.hgap;
-        },
-      };
-      config = { ...config, ...gap };
-    }
-  return  config
-}
+  if (hvgapLayout.includes(config.type)) {
+    const gap = {
+      getVGap: () => {
+        return config.vgap;
+      },
+      getHGap: () => {
+        return config.hgap;
+      },
+    };
+    config = { ...config, ...gap };
+  }
+  return config;
+};
 
 //监听到布局配置变化,重新布局
 watch(
   () => config.value,
   (val: any) => {
-    console.log("%c [ val ]-151", "font-size:14px; background:#dc303a; color:#ff747e;", val);
+    console.log(
+      "%c [ val ]-151",
+      "font-size:14px; background:#dc303a; color:#ff747e;",
+      val
+    );
     if (!graph.value) return;
-    const layoutConfig = convertLayoutConfig(val)
+    const layoutConfig = convertLayoutConfig(val);
     graph.value.updateLayout(layoutConfig);
     localStorage.setItem("layoutType", type.value);
     localStorage.setItem("layoutConfig", JSON.stringify(layoutConfig));
@@ -163,10 +117,9 @@ const defaultConfig = reactive({
       stroke: edgeStroke,
     },
   },
-  layout: convertLayoutConfig(config.value)
-  
+  layout: convertLayoutConfig(config.value),
 });
-const graph = ref<TreeGraph>();
+const graph = ref();
 const toolbar = new G6.ToolBar({
   getContent: () => {
     const outDiv = document.createElement("div");
@@ -186,7 +139,7 @@ const initGraph = () => {
     defaultLevel: 3,
     defaultZoom: 0.8,
     modes: { default: ["zoom-canvas", "drag-canvas"] },
-  }
+  };
   graph.value = new G6.TreeGraph({
     container: jsonCanvas.value as HTMLElement,
     width: width.value,
@@ -200,7 +153,7 @@ const initGraph = () => {
 };
 const drawGraph = (data) => {
   if (!data) return;
-  data = dealData(data, fields.value);
+  data = dealDataToTree(data, fields.value);
   //若不缓存,画图后清空
   if (!isStorage.value) localStorage.setItem("extraFields", "");
   //判断是否为空对象

@@ -16,7 +16,6 @@
 <script lang="ts" setup>
 import { TypeOption } from "@/types/layout/option";
 import { useThemeStore, useLayoutStore } from "@/store";
-import { toRefs } from "vue";
 const { type, setType } = toRefs(useLayoutStore());
 const { currentTheme } = useThemeStore();
 const typeList: Array<TypeOption> = [

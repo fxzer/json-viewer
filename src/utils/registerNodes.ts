@@ -1,4 +1,4 @@
-import G6  from "@antv/g6";
+// import G6  from "@antv/g6";
 import { GraphOptionsPlus } from "@/types/graph";
 import { computeNodeSize } from "./computeNodeSize";
 import { ThemeItem } from "@/store/types/theme";

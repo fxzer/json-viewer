@@ -49,7 +49,6 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, ref,toRefs, computed,watch } from "vue";
 import { useFieldsStore  } from "@/store";
 const { isStorage,fields } = toRefs(useFieldsStore())
 const props = defineProps({

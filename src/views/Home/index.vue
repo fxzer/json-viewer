@@ -150,23 +150,19 @@
 </template>
 
 <script lang="ts" setup>
-//TODO:导入路径问题
 import JsonCanvas from "@/views/Home/components/JsonCanvas.vue";
 import ExportImage from "@/views/Home/components/ExportImage.vue";
 import NodeDialog from "@/views/Home/components/NodeDialog.vue";
 import FieldsCustom from "@/views/Home/components/FieldsCustom.vue";
 import LayoutCustom from "@/views/Home/components/LayoutCustom.vue";
 import SearchInput from "@/views/Home/components/SearchInput.vue";
-
-import { computed, ref, toRefs } from "vue";
 import { useThemeStore } from "@/store";
-const { themeActive, themeList, currentTheme } = toRefs(useThemeStore());
 
 import { ImageConfig } from "@/types/export/image";
 import { debounce } from "@/utils/debounce";
-import { useDark, useToggle } from "@vueuse/core";
-import json from "./2.json";
+import json from "./example.json";
 
+const { themeActive, themeList, currentTheme } = toRefs(useThemeStore());
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
