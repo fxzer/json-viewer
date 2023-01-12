@@ -37,7 +37,7 @@ const jsonCanvas = ref<HTMLElement | null>(null);
 //监听formatJson变化
 watch(
   () => formatJson.value,
-  (newVal) =>  drawGraph(newVal) 
+  (newVal) => drawGraph(newVal)
 );
 
 watch(
@@ -69,13 +69,19 @@ watch(
     if (!graph.value) return;
     const layoutConfig = convertLayoutConfig(val);
     //重新布局后居中展示
-    graph.value.updateLayout(layoutConfig);
+    graph.value.updateLayout(val);
     graph.value.fitView(20);
     localStorage.setItem("layoutType", type.value);
     localStorage.setItem("layoutConfig", JSON.stringify(layoutConfig));
   },
   { deep: true }
 );
+
+const nodeDetail = ref({});
+const openNodeDetail = (node) => {
+  nodeDetail.value = node.getModel();
+  emit("nodeClick", nodeDetail.value);
+};
 
 //获取缓存布局配置
 const layoutConfig: LayoutConfig = JSON.parse(
@@ -87,25 +93,7 @@ if (layoutConfig && Object.keys(layoutConfig).length) {
 } else {
   setType.value(layoutType ? layoutType : "mindmap");
 }
-// 默认配置
-let edgeStroke = themeActive.value == "dark" ? "#596f8a" : "#CED4D9";
-const defaultConfig = reactive({
-  modes: {
-    default: ["zoom-canvas", "drag-canvas"],
-  },
-  fitView: true,
-  animate: true,
-  defaultNode: {
-    type: "flow-rect",
-  },
-  defaultEdge: {
-    type: "cubic-horizontal",
-    style: {
-      stroke: edgeStroke,
-    },
-  },
-  layout: convertLayoutConfig(config.value),
-});
+// 初始化
 const graph = ref();
 const toolbar = new G6.ToolBar({
   getContent: () => {
@@ -115,25 +103,22 @@ const toolbar = new G6.ToolBar({
     return outDiv;
   },
 });
-const nodeDetail = ref({});
-const openNodeDetail = (node) => {
-  nodeDetail.value = node.getModel();
-  emit("nodeClick", nodeDetail.value);
-};
 const initGraph = () => {
-  const config = {
-    padding: [20],
-    defaultLevel: 3,
-    defaultZoom: 0.8,
-    modes: { default: ["zoom-canvas", "drag-canvas"] },
-  };
   graph.value = new G6.TreeGraph({
     container: jsonCanvas.value as HTMLElement,
     width: width.value,
     height: height.value,
-    ...defaultConfig,
-    ...config,
+    fitView: true,
+    animate: true,
+    defaultNode: {
+      type: "flow-rect",
+    },
+    defaultEdge: {
+      type: "cubic-horizontal",
+    },
+    modes: { default: ["zoom-canvas", "drag-canvas"] },
     plugins: [toolbar],
+    layout: convertLayoutConfig(config.value) ,
   });
   registerNodes(currentTheme.value); //注册节点
   registerBehaviors(graph.value, openNodeDetail); //注册行为

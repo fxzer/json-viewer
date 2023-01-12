@@ -26,7 +26,8 @@ export const useLayoutStore = defineStore({
           type: "mindmap",
           direction: "LR",
           directions: ["LR", "RL", "H"],
-          hgap: 150,
+          // getHGap: 150,//官网写了可以是Number或function,但是改为数字后一直报错Uncaught TypeError: options.getHGap is not a function
+          hgap: 100,
           vgap: 100,
           getHGap: () => {
             return 150;

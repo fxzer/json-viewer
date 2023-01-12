@@ -18,6 +18,5 @@ export interface LayoutConfig{
   vgap?: number;
   getHGap?: () => number;
   getVGap?: (d: any) => number;
-  atuoGetVGap?: (d: any) => number;
   [propName:string]:any
 }
