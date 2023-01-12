@@ -37,3 +37,5 @@
 
 ![image.png](https://cdn.nlark.com/yuque/0/2023/png/23029928/1673416180614-05d77d3f-20f8-45a8-a956-ee5e4cdaf2fc.png#averageHue=%23fcfcfc&clientId=u0a59ab2e-59eb-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=1000&id=udc017b24&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1000&originWidth=1915&originalType=binary&ratio=1&rotation=0&showTitle=false&size=213668&status=done&style=none&taskId=ufdf67833-87ac-4493-b646-acf7d44edbd&title=&width=1915)
 
+## 灵感来源
+[JSON Crack](https://github.com/AykutSarac/jsoncrack.com): 一个丝滑且大气的React+TypeScript项目JSON可视化项目。
