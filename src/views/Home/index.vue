@@ -128,7 +128,10 @@
               ></span>
             </el-tooltip>
           </div>
-          <SearchInput v-model="searchKeyWord" @input="onSearch" />
+          <SearchInput
+            v-model="searchKeyWord"
+            @input="onSearch(searchKeyWord)"
+          />
         </div>
         <JsonCanvas
           :isExpand="isExpand"
@@ -185,10 +188,12 @@ const layoutConfig = ref({
 const openLayoutConfig = () => {
   drawerVisible.value = !drawerVisible.value;
 };
-const onJsonChange = (json: any) => {
-  originJson.value = formatJson.value = json;
-};
-const onJsonError = (err: any) => {
+const onJsonChange = debounce((json) => (originJson.value = json), 600);
+const onJsonError = debounce((err: Error) => {
+  if (!searchKeyWord.value) {
+    originJson.value = {} as any;
+    return;
+  }
   ElNotification({
     type: "error",
     title: "JSON语法错误",
@@ -196,7 +201,7 @@ const onJsonError = (err: any) => {
     message: `<pre style="white-space: normal;">${err.message}</pre>`,
     duration: 5000,
   });
-};
+}, 600);
 //编辑区展开/收起
 const isExpandEditor = ref(true);
 const editorIconAngle = ref("0deg");
@@ -282,19 +287,17 @@ const onAutoZoom = () => {
 };
 //关键词搜索
 const searchKeyWord = ref("");
-
-const onSearch = () => {
-  if (jsonCanvasRef?.value) {
-    debounce(jsonCanvasRef.value.focusNode, 600)(searchKeyWord.value);
-  }
-};
-
 const showNodeDetail = ref(false);
 const nodeDetail = ref({});
 const nodeClickHandler = (node: any) => {
   nodeDetail.value = node;
   showNodeDetail.value = true;
 };
+let onSearch = () => {};
+onMounted(() => {
+  //挂载后才能绑定上另一个组件暴露事件
+  onSearch = debounce(jsonCanvasRef?.value?.focusNode, 600);
+});
 //全屏/退出全屏
 const isFullScreen = ref(false);
 const onFullScreen = () => {
@@ -317,6 +320,13 @@ watch(
   (fields) => {
     formatJson.value = deepFormat(originJson.value, fields);
     localStorage.setItem("extraFields", JSON.stringify(fields));
+  },
+  { deep: true }
+);
+watch(
+  () => originJson.value,
+  (val) => {
+    formatJson.value = deepFormat(val, fields.value);
   },
   { deep: true }
 );

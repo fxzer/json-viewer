@@ -2,9 +2,11 @@
 export const debounce = (func:Function, deply = 500) => {
   let timer = 0
   return function(...args:any) {
-    if (timer) {}
+    if (timer) {
+      clearTimeout(timer)
+    }
     timer = setTimeout(() => {
-      func.apply(this, args)
+      func?.apply(this, args)
     }, deply)
   }
 }

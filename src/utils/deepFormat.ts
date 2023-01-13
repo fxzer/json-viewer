@@ -1,6 +1,7 @@
 
 //深度格式化
 export const deepFormat = (obj: any,fields:string[]) => {
+  if(fields.length === 0) return obj;
   if (typeof obj !== "object" || obj === null) {
     return obj;
   }

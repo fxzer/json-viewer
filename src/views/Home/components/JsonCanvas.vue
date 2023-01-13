@@ -16,7 +16,7 @@ import {
 const { themeActive, currentTheme } = toRefs(useThemeStore());
 const { formatJson } = toRefs(useJsonStore());
 const { type, config, setType, setConfig } = toRefs(useLayoutStore());
-const { isStorage, fields } = toRefs(useFieldsStore());
+const { isStorage } = toRefs(useFieldsStore());
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -37,7 +37,8 @@ const jsonCanvas = ref<HTMLElement | null>(null);
 //监听formatJson变化
 watch(
   () => formatJson.value,
-  (newVal) => drawGraph(newVal)
+  (newVal) => drawGraph(newVal),
+  { deep: true }
 );
 
 watch(
@@ -118,7 +119,7 @@ const initGraph = () => {
     },
     modes: { default: ["zoom-canvas", "drag-canvas"] },
     plugins: [toolbar],
-    layout: convertLayoutConfig(config.value) ,
+    layout: convertLayoutConfig(config.value),
   });
   registerNodes(currentTheme.value); //注册节点
   registerBehaviors(graph.value, openNodeDetail); //注册行为
