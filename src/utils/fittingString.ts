@@ -1,6 +1,6 @@
 //节点文本溢出省略
 // import G6 from "@antv/g6";
-export function fittingString(str:string, maxWidth:number, fontSize:number) {
+export function fittingString(str:string, maxWidth:number, fontSize:number=12) {
   const ellipsis = "...";
   const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)[0];
   let currentWidth = 0;

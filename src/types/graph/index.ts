@@ -6,11 +6,5 @@ export interface GraphOptionsPlus extends GraphOptions{
   collapsed?:boolean,
   [propName:string]:any
 }
-export interface BsConfig{
-  fontSize:number,
-  lineHeight:number,
-  padding:number,
-  bsheight:number,
-}
 export type WhConfig = [number,number,string]
     

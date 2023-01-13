@@ -87,21 +87,13 @@ const registerNodes = (theme: ThemeItem) => {
         let hasKeyName = !["", undefined, null].includes(keyName);
         //计算矩形节点高度
         let fontSize = 12;
-        let padding = fontSize * 2;
-        let lineHeight = parseFloat((fontSize * 1.4).toFixed(1));
-        let bsheight = lineHeight * 2;
-        const [width, height, entriesStr] = computeNodeSize(cfg, {
-          fontSize,
-          lineHeight,
-          padding,
-          bsheight,
-        });
+        const [width, height, entriesStr] = computeNodeSize(cfg );
 
         const grey = "#CED4D9";
         // 矩形框配置
         const rectConfig = {
-          width,
-          height,
+          width:width+20,
+          height:height+20,
           lineWidth: 1,
           fontSize,
           fill: isDark ? "#262736" : color + "20",
@@ -132,13 +124,14 @@ const registerNodes = (theme: ThemeItem) => {
         group.addShape("text", {
           attrs: {
             ...textConfig,
-            x: nodeOrigin.x + 10,
-            y: -nodeOrigin.y - 10,
+            x: nodeOrigin.x + 8,
+            y: -nodeOrigin.y  - 12,
             text: entriesStr,
             fontSize: fontSize,
-            lineHeight: lineHeight,
+            lineHeight: fontSize * 1.5,
             fill: isDark ? "#D6D7D8" : "#333",
             cursor: "pointer",
+            fontFamily:"Arial",
           } as any ,
         });
 
