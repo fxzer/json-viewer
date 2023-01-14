@@ -130,7 +130,7 @@
               ></span>
             </el-tooltip>
           </div>
-          <SearchInput  @search="onSearch"/>
+          <SearchInput @search="onSearch" />
         </div>
         <JsonCanvas
           :isExpand="isExpand"
@@ -155,7 +155,12 @@ import NodeDialog from "@/views/Home/components/NodeDialog.vue";
 import FieldsCustom from "@/views/Home/components/FieldsCustom.vue";
 import LayoutCustom from "@/views/Home/components/LayoutCustom.vue";
 import SearchInput from "@/views/Home/components/SearchInput.vue";
-import { useThemeStore, useFieldsStore, useJsonStore  ,useSearchStore} from "@/store";
+import {
+  useThemeStore,
+  useFieldsStore,
+  useJsonStore,
+  useSearchStore,
+} from "@/store";
 
 import { ImageConfig } from "@/types/export/image";
 import { debounce } from "@/utils/debounce";
@@ -163,9 +168,8 @@ import { deepFormat } from "@/utils/deepFormat";
 const { keyword } = toRefs(useSearchStore());
 
 const { themeActive, themeList, currentTheme } = toRefs(useThemeStore());
-const { fields ,isStorage} = toRefs(useFieldsStore());
+const { fields, isStorage } = toRefs(useFieldsStore());
 const { formatJson, originJson } = toRefs(useJsonStore());
-
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
@@ -191,13 +195,17 @@ const openLayoutConfig = () => {
   drawerVisible.value = !drawerVisible.value;
 };
 const onJsonChange = debounce((json) => {
-  originJson.value = json 
+  originJson.value = json;
   nextTick(() => {
-    onSearch.value(keyword.value)
+    onSearch.value(keyword.value);
   });
 }, 600);
-
-const onJsonError = debounce((err: Error ) => {
+const onJsonError = debounce((err: Error) => {
+  //如果是粘贴的json格式通过，不提示
+  if (jsonValid.value && isPaste.value) {
+    isPaste.value = false;
+    return;
+  }
   ElNotification({
     type: "error",
     title: "JSON语法错误",
@@ -206,6 +214,23 @@ const onJsonError = debounce((err: Error ) => {
     duration: 2000,
   });
 }, 600);
+//监听剪切板粘贴事件
+const jsonValid = ref(true);
+const isPaste = ref(false);
+const onPaste = (e: ClipboardEvent) => {
+  const text = e.clipboardData.getData("text");
+  //验证json格式是否正确
+  jsonValid.value = true;
+  try {
+    JSON.parse(text);
+    isPaste.value = true;
+  } catch (err) {
+    jsonValid.value = false;
+    return;
+  }
+};
+window.addEventListener("paste", onPaste);
+
 //编辑区展开/收起
 const isExpandEditor = ref(true);
 const editorIconAngle = ref("0deg");
@@ -296,7 +321,7 @@ const nodeClickHandler = (node: any) => {
   nodeDetail.value = node;
   showNodeDetail.value = true;
 };
-const  onSearch = ref(null);
+const onSearch = ref(null);
 onMounted(() => {
   //挂载后才能绑定上另一个组件暴露事件
   onSearch.value = debounce(jsonCanvasRef?.value?.focusNode, 600);
@@ -323,9 +348,9 @@ watch(
   (fields) => {
     //重新处理数据
     formatJson.value = deepFormat(originJson.value, fields);
-    if(isStorage.value){
+    if (isStorage.value) {
       localStorage.setItem("extraFields", JSON.stringify(fields));
-    }else{
+    } else {
       localStorage.removeItem("extraFields");
     }
   },
@@ -336,6 +361,11 @@ watch(
   (val) => {
     formatJson.value = deepFormat(val, fields.value);
   },
+  { deep: true }
+);
+watch(
+  () => formatJson.value,
+  (val) => {},
   { deep: true }
 );
 </script>
