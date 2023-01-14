@@ -4,28 +4,21 @@
       class="search-input"
       type="text"
       placeholder="请输入节点名称"
-      v-model="props.modelValue"
-      @input="onSearch"
+      v-model="keyword"
     />
     <span class="iconfont icon-search"></span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useThemeStore } from "@/store";
+import { useThemeStore ,useSearchStore} from "@/store";
 const { currentTheme } = useThemeStore();
-const props = defineProps({
-  modelValue: {
-    type: String,
-    default: () => ({}),
-  },
-});
-const emit = defineEmits({
-  "update:modelValue": (val) => true,
-});
-const onSearch = (e) => {
-  emit("update:modelValue", e.target.value);
-};
+const { keyword } = toRefs(useSearchStore());
+const emit = defineEmits(["search"]);
+watch(
+  () => keyword.value,
+  (val) => emit('search',val) 
+);
 </script>
 <style scoped lang="scss">
 .search-wrap {

@@ -84,7 +84,6 @@ const registerNodes = (theme: ThemeItem) => {
           id,
           keyName,
         } = cfg as GraphOptionsPlus;
-        let hasKeyName = !["", undefined, null].includes(keyName);
         //计算矩形节点高度
         let fontSize = 12;
         const [width, height, entriesStr] = computeNodeSize(cfg );

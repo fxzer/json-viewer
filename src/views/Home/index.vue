@@ -99,6 +99,8 @@
         }"
       >
         <div class="wrap-title top-title">JSON内容</div>
+
+        <!-- JSON编辑组件 -->
         <VueJsonEditor
           class="edit-area"
           v-model="formatJson"
@@ -128,10 +130,7 @@
               ></span>
             </el-tooltip>
           </div>
-          <SearchInput
-            v-model="searchKeyWord"
-            @input="onSearch(searchKeyWord)"
-          />
+          <SearchInput  @search="onSearch"/>
         </div>
         <JsonCanvas
           :isExpand="isExpand"
@@ -156,15 +155,18 @@ import NodeDialog from "@/views/Home/components/NodeDialog.vue";
 import FieldsCustom from "@/views/Home/components/FieldsCustom.vue";
 import LayoutCustom from "@/views/Home/components/LayoutCustom.vue";
 import SearchInput from "@/views/Home/components/SearchInput.vue";
-import { useThemeStore, useFieldsStore, useJsonStore } from "@/store";
+import { useThemeStore, useFieldsStore, useJsonStore  ,useSearchStore} from "@/store";
 
 import { ImageConfig } from "@/types/export/image";
 import { debounce } from "@/utils/debounce";
 import { deepFormat } from "@/utils/deepFormat";
+const { keyword } = toRefs(useSearchStore());
 
 const { themeActive, themeList, currentTheme } = toRefs(useThemeStore());
-const { fields } = toRefs(useFieldsStore());
+const { fields ,isStorage} = toRefs(useFieldsStore());
 const { formatJson, originJson } = toRefs(useJsonStore());
+
+
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
@@ -188,18 +190,20 @@ const layoutConfig = ref({
 const openLayoutConfig = () => {
   drawerVisible.value = !drawerVisible.value;
 };
-const onJsonChange = debounce((json) => (originJson.value = json), 600);
-const onJsonError = debounce((err: Error) => {
-  if (!searchKeyWord.value) {
-    originJson.value = {} as any;
-    return;
-  }
+const onJsonChange = debounce((json) => {
+  originJson.value = json 
+  nextTick(() => {
+    onSearch.value(keyword.value)
+  });
+}, 600);
+
+const onJsonError = debounce((err: Error ) => {
   ElNotification({
     type: "error",
     title: "JSON语法错误",
     dangerouslyUseHTMLString: true,
     message: `<pre style="white-space: normal;">${err.message}</pre>`,
-    duration: 5000,
+    duration: 2000,
   });
 }, 600);
 //编辑区展开/收起
@@ -286,17 +290,16 @@ const onAutoZoom = () => {
   }
 };
 //关键词搜索
-const searchKeyWord = ref("");
 const showNodeDetail = ref(false);
 const nodeDetail = ref({});
 const nodeClickHandler = (node: any) => {
   nodeDetail.value = node;
   showNodeDetail.value = true;
 };
-let onSearch = () => {};
+const  onSearch = ref(null);
 onMounted(() => {
   //挂载后才能绑定上另一个组件暴露事件
-  onSearch = debounce(jsonCanvasRef?.value?.focusNode, 600);
+  onSearch.value = debounce(jsonCanvasRef?.value?.focusNode, 600);
 });
 //全屏/退出全屏
 const isFullScreen = ref(false);
@@ -314,12 +317,17 @@ const fieldsVisible = ref(false);
 const openFieldsDialog = () => {
   fieldsVisible.value = true;
 };
-//监听extraFields变化,重新处理数据画图
+//监听fields变化,重新处理数据画图
 watch(
   () => fields.value,
   (fields) => {
+    //重新处理数据
     formatJson.value = deepFormat(originJson.value, fields);
-    localStorage.setItem("extraFields", JSON.stringify(fields));
+    if(isStorage.value){
+      localStorage.setItem("extraFields", JSON.stringify(fields));
+    }else{
+      localStorage.removeItem("extraFields");
+    }
   },
   { deep: true }
 );

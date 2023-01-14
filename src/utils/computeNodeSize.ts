@@ -1,7 +1,6 @@
 //计算节点大小
 import { GraphOptionsPlus, WhConfig } from "@/types/graph";
 import { fittingString } from "./fittingString";
-import { getTextWidth } from "./getTextWidth";
 //将对象每个键值对 格式化为 字符串数组
 const formatObj = (obj: any) => {
   return Object.entries(obj).map((entriy) => {
@@ -21,7 +20,6 @@ const getLongestStr = (strArr: string[]) => {
 };
 
 //获取节点宽度
-
 const getWidth = (text, font = "normal 12px Arial") => {
   //复用canvas提升性能
   let canvas = getWidth.canvas  || (getWidth.canvas = document.createElement("canvas"));

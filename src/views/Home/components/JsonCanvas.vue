@@ -10,13 +10,12 @@ import { dealDataToTree } from "@/utils/dealDataToTree";
 import {
   useLayoutStore,
   useThemeStore,
-  useFieldsStore,
   useJsonStore,
 } from "@/store";
 const { themeActive, currentTheme } = toRefs(useThemeStore());
 const { formatJson } = toRefs(useJsonStore());
 const { type, config, setType, setConfig } = toRefs(useLayoutStore());
-const { isStorage } = toRefs(useFieldsStore());
+
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -70,7 +69,7 @@ watch(
     if (!graph.value) return;
     const layoutConfig = convertLayoutConfig(val);
     //重新布局后居中展示
-    graph.value.updateLayout(val);
+    graph.value.updateLayout(layoutConfig);
     graph.value.fitView(20);
     localStorage.setItem("layoutType", type.value);
     localStorage.setItem("layoutConfig", JSON.stringify(layoutConfig));
@@ -127,8 +126,6 @@ const initGraph = () => {
 const drawGraph = (data) => {
   if (!data) return;
   data = dealDataToTree(data);
-  //若不缓存,画图后清空
-  if (!isStorage.value) localStorage.setItem("extraFields", "");
   //判断是否为空对象
   let isEmpty = Object.keys(data).length === 0;
   const rootConfig = {
@@ -243,8 +240,8 @@ const focusNode = (keyword: string) => {
 defineExpose({
   saveImage,
   toolbar,
-  focusNode,
   graph,
+  focusNode
 });
 </script>
 <style scoped lang="scss"></style>
