@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --mode production",
-    "build:local": "vite build --mode buildlocal",
+    "build:remote": "vite build --mode prod_remote",
     "report": "rimraf dist && vite build",  
     "preview": "vite preview"
   },
