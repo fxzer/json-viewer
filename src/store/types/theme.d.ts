@@ -9,4 +9,6 @@ export interface ThemeItem{
   bgcolor: string;
   hbcolor: string;
   hcolor: string;
+  nodeLabelColor?: string;
+  nodeHoverColor?: string;
 }

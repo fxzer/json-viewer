@@ -2,100 +2,99 @@
 import { GraphOptionsPlus } from "@/types/graph";
 import { computeNodeSize } from "./computeNodeSize";
 import { ThemeItem } from "@/store/types/theme";
+let focusColor = "#33BB69";
+
 const registerNodes = (theme: ThemeItem) => {
-  const { color, hcolor, key } = theme;
-  let isDark = key === "dark";
+  const { color, hcolor, hbcolor, nodeLabelColor, nodeHoverColor } = theme;
+  //不同状态下的颜色映射表
+  let rootRolorMap = {
+    true: hcolor,
+    false: color,
+  };
+  let rectFocusColorMap = {
+    true: {
+      stroke: focusColor,
+      fill: focusColor + "20",
+    },
+    //如果hover前是focus状态，hover后颜色恢复聚焦颜色
+    false: {
+      stroke: color,
+      fill: color + "20",
+    },
+  };
   //注册根节点
-  G6.registerNode("root-icon", {
-    draw(cfg, group) {
-      if (!group) return;
-      group.addShape("circle", {
-        attrs: {
-          x: 0,
-          y: 0,
-          r: 30,
-        },
-        name: "root-bg-shape",
-      });
-      //添加图标
-      const keyShape = group.addShape("text", {
-        attrs: {
-          x: 0,
-          y: 20,
-          fontFamily: "iconfont",
-          textAlign: "center",
-          text: "\ue867",
-          fontSize: 50,
-          fill: isDark ? "#68699a" : color,
-          // stroke:"#fff",
-          cursor: "pointer",
-        },
-        name: "root-shape",
-      });
-      //添加label
-      group.addShape("text", {
-        attrs: {
-          x: 0,
-          y: -4,
-          textAlign: "center",
-          textBaseline: "middle",
-          text: cfg?.id,
-          fontSize: 12,
-          fill: "#fff",
-          fontWeight: "bold",
-        },
-        name: "root-label",
-      });
-      return keyShape;
-    },
-    // 响应状态变化
-    setState(name, value, item) {
-      const group = item?.getContainer();
-      const shape = group?.get("children")[1]; // 顺序根据 draw 时确定
-      if (name === "hover") {
-        if (value) {
-          if (isDark) {
-            shape.attr("fill", "#7b7cbd");
-          } else {
-            shape.attr("fill", "#F5C146");
-          }
-        } else {
-          if (isDark) {
-            shape.attr("fill", "#68699a");
-          } else {
-            shape.attr("fill", color);
-          }
+  G6.registerNode(
+    "root-icon",
+    {
+      draw(cfg, group) {
+        if (!group) return;
+        group.addShape("circle", {
+          attrs: {
+            x: 0,
+            y: 0,
+            r: 30,
+            visible: false, //看不见元素隐藏,提升性能
+          },
+          name: "root-bg-shape",
+        });
+        //添加图标
+        const keyShape = group.addShape("text", {
+          attrs: {
+            x: 0,
+            y: 20,
+            fontFamily: "iconfont",
+            textAlign: "center",
+            text: "\ue867",
+            fontSize: 50,
+            fill: color, //字体图标颜色
+            cursor: "pointer",
+          },
+          name: "root-shape",
+        });
+        //添加label
+        group.addShape("text", {
+          attrs: {
+            x: 0,
+            y: -4,
+            textAlign: "center",
+            textBaseline: "middle",
+            text: cfg?.id,
+            fontSize: 14,
+            fill: "#fff",
+            fontWeight: "bold",
+          },
+          name: "root-label",
+        });
+        return keyShape;
+      },
+      // 响应状态变化
+      setState(name, value, item) {
+        const group = item?.getContainer();
+        const shape = group?.get("children")[1]; // 顺序根据 draw 时确定
+        if (name === "hover") {
+          shape.attr("fill", rootRolorMap[value + ""]);
         }
-      }
+      },
     },
-  });
-  /**
-   * 自定义节点
-   */
+    "circle"
+  );
+  //自定义矩形文本节点
   G6.registerNode(
     "flow-rect",
     {
       shapeType: "flow-rect",
       draw(cfg: any, group) {
         if (!group) return;
-        const {
-          collapsed = true,
-          entries,
-          id,
-          keyName,
-        } = cfg as GraphOptionsPlus;
+        const { collapsed = true } = cfg as GraphOptionsPlus;
         //计算矩形节点高度
-        let fontSize = 12;
         const [width, height, entriesStr] = computeNodeSize(cfg);
-
-        const grey = "#CED4D9";
         // 矩形框配置
         const rectConfig = {
           width: width + 20,
           height: height + 20,
           lineWidth: 1,
-          fontSize,
-          fill: isDark ? "#262736" : color + "20",
+          fontSize: 12,
+          fill: color + "20", //设置透明度
           radius: 4,
           stroke: color,
           opacity: 1,
@@ -104,11 +103,6 @@ const registerNodes = (theme: ThemeItem) => {
         const nodeOrigin = {
           x: -rectConfig.width / 2,
           y: -rectConfig.height / 2,
-        };
-
-        const textConfig = {
-          textAlign: "left",
-          textBaseline: "bottom",
         };
 
         const rect = group.addShape("rect", {
@@ -122,36 +116,38 @@ const registerNodes = (theme: ThemeItem) => {
         // 文本
         group.addShape("text", {
           attrs: {
-            ...textConfig,
+            textAlign: "left",
+            textBaseline: "bottom",
             x: nodeOrigin.x + 8,
             y: -nodeOrigin.y - 12,
             text: entriesStr,
-            fontSize: fontSize,
-            lineHeight: fontSize * 1.5,
-            fill: isDark ? "#D6D7D8" : "#333",
+            fontSize: 12,
+            lineHeight: 12 * 1.5,
+            fill: nodeLabelColor,
             cursor: "pointer",
             fontFamily: "Arial",
           } as any,
         });
 
-        // collapse rect
-        if (cfg.children && cfg.children.length) {
+        // 折叠按钮
+        let { id, children = [] } = cfg;
+        if (children.length) {
           group.addShape("rect", {
             attrs: {
               x: rectConfig.width / 2 - 6,
-              y: -5.6,
+              y: -6,
               width: 12,
               height: 12,
-              stroke: isDark ? "#3D4F66" : "rgba(0, 0, 0, 0.25)",
+              stroke: hcolor + "80",
               cursor: "pointer",
-              fill: isDark ? "#222330" : "#fff",
+              fill: hbcolor,
               radius: 2,
             },
             name: "collapse-back",
-            modelId: cfg.id,
+            modelId: id,
           });
 
-          // collpase text
+          // 折叠按钮上的文字
           group.addShape("text", {
             attrs: {
               x: rectConfig.width / 2,
@@ -161,17 +157,13 @@ const registerNodes = (theme: ThemeItem) => {
               text: collapsed ? "+" : "-",
               fontSize: 16,
               cursor: "pointer",
-              fill: isDark ? "#aaa" : "rgba(0, 0, 0, 0.25)",
+              fill: hcolor + "80",
             },
             name: "collapse-text",
-            modelId: cfg.id,
+            modelId: id,
           });
         }
         return rect;
-      },
-      update(cfg, item) {
-        const group = item.getContainer();
-        this.updateLinkPoints(cfg, group);
       },
       setState(name, value, item) {
         if (name === "collapse") {
@@ -181,67 +173,37 @@ const registerNodes = (theme: ThemeItem) => {
           );
           if (collapseText) {
             if (!value) {
-              collapseText.attr({
-                text: "-",
-              });
+              collapseText.attr({ text: "-" });
             } else {
-              collapseText.attr({
-                text: "+",
-              });
+              collapseText.attr({ text: "+" });
             }
           }
         } else if (name === "hover") {
           const group = item.getContainer();
           const shape = group.get("children")[0];
-          if (isDark) {
-            if (value) {
-              shape.attr("stroke", "#9AA1DB");
-            } else {
-              const isFocus = item.hasState("focus");
-              if (isFocus) {
-                shape.attr("stroke", "#33BB69");
-                return;
-              }
-              shape.attr("stroke", hcolor);
-            }
-          } else {
-            if (value) {
-              shape.attr("stroke", "#F4BE50");
-              shape.attr("fill", "#FFFCE8");
-            } else {
-              const isFocus = item.hasState("focus");
-              if (isFocus) {
-                shape.attr("stroke", "#65B687");
-                shape.attr("fill", "#E8FFEA");
-                return;
-              }
-              shape.attr("stroke", hcolor);
-              shape.attr("fill", color + "20");
-            }
-          }
+          shape.attr("stroke", "#9AA1DB");
+          const isFocus = item.hasState("focus");
+          let rectHoverColorMap = {
+            true: {
+              stroke: nodeHoverColor,
+              fill: nodeHoverColor + "20",
+            },
+            //如果hover前是focus状态，hover后颜色恢复聚焦颜色
+            false: {
+              stroke: isFocus ? focusColor : color,
+              fill: isFocus ? focusColor + "20" : color + "20",
+            },
+          };
+          shape.attr("stroke", rectHoverColorMap[value + ""]["stroke"]);
+          shape.attr("fill", rectHoverColorMap[value + ""]["fill"]);
         } else if (name === "focus") {
-          if (isDark) {
-            const group = item.getContainer();
-            const shape = group.get("children")[0];
-            if (value) {
-              shape.attr("stroke", "#33BB69");
-            } else {
-              shape.attr("stroke", hcolor);
-            }
-          } else {
-            const group = item.getContainer();
-            const shape = group.get("children")[0];
-            if (value) {
-              shape.attr("stroke", "#65B687");
-              shape.attr("fill", "#E8FFEA");
-            } else {
-              shape.attr("stroke", hcolor);
-              shape.attr("fill", color + "20");
-            }
-          }
+          const group = item.getContainer();
+          const shape = group.get("children")[0];
+          shape.attr("stroke", rectFocusColorMap[value + ""]["stroke"]);
+          shape.attr("fill", rectFocusColorMap[value + ""]["fill"]);
         }
       },
-      getAnchorPoints(d) {
+      getAnchorPoints() {
         return [
           [0, 0.5],
           [1, 0.5],

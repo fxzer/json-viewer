@@ -26,7 +26,7 @@ const getWidth = (text, font = "normal 12px Arial") => {
   var context = canvas.getContext("2d"); 
   context.font = font;
   let metrics = context.measureText(text);
-  return parseFloat(metrics.width.toFixed(2))
+  return  Math.ceil(metrics.width);
 };
 
 export const computeNodeSize = (cfg: GraphOptionsPlus): WhConfig => {

@@ -123,15 +123,23 @@ const initGraph = () => {
     },
     defaultEdge: {
       type: "cubic-horizontal",
+      style:{
+        stroke:themeActive.value =='dark' ? "#424660": '#ccc',
+      }
     },
-    modes: { default: ["zoom-canvas", "drag-canvas"] },
+    modes: {
+      default: [
+        { type: "zoom-canvas", enableOptimize: true },
+        { type: "drag-canvas",},
+      ],
+    },
     plugins: [toolbar],
     layout: convertLayoutConfig(config.value),
   });
   registerNodes(currentTheme.value); //注册节点
   registerBehaviors(graph.value, openNodeDetail); //注册行为
 };
-const drawGraph = (data) => {
+const drawGraph = (data,isUpdate=true) => {
   if (!data) return;
   data = dealDataToTree(data);
   //判断是否为空对象
@@ -142,18 +150,27 @@ const drawGraph = (data) => {
   };
 
   let graphData = Object.assign({}, data, rootConfig);
-  graph.value?.read(graphData);
+
+  //优化性能
+  if(isUpdate){
+    graph.value?.changeData(graphData);
+  }else{
+    graph.value?.read(graphData);
+  }
+ 
   if (isEmpty) {
     graph.value?.fitView(200);
   } else {
     graph.value?.zoom(0.85);
   }
 };
+
+
 onMounted(() => {
   width.value = jsonCanvas.value?.clientWidth || 860;
   height.value = jsonCanvas.value?.clientHeight || 745;
   initGraph();
-  drawGraph(formatJson.value);
+  drawGraph(formatJson.value,false);
 });
 
 //监听编辑区展开/收起
@@ -180,6 +197,7 @@ watch(
   }
 );
 //保存为图片
+//TODO:大图模糊问题,保存为svg待实现
 const saveImage = () => {
   graph.value?.downloadFullImage("json-viewer");
 };
@@ -191,20 +209,20 @@ window.onresize = () => {
 };
 
 //清除节点聚焦状态
-const clearState = (graph ) =>{
-  if(!graph) return;
-    const selectedNodes = graph.findAllByState('node', 'focus');
-    selectedNodes.forEach((node) => {
-      graph.setItemState(node, "focus", false);  
-    });
-}
+const clearState = (graph) => {
+  if (!graph) return;
+  const selectedNodes = graph.findAllByState("node", "focus");
+  selectedNodes.forEach((node) => {
+    graph.setItemState(node, "focus", false);
+  });
+};
 //搜索聚焦节点
 const focusNode = (keyword: string) => {
-  clearState(graph.value );
+  clearState(graph.value);
   const kw = keyword.trim();
   if (!kw) {
     graph.value?.fitView(20);
-  } else if ('root'.includes(kw) ) {
+  } else if ("root".includes(kw)) {
     const node = graph.value?.findById("root");
     if (node) {
       graph.value?.setItemState(node, "focus", !node.hasState("hover")); // 切换选中
