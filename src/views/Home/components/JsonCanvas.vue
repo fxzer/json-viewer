@@ -17,7 +17,7 @@ import {
 const { themeActive, currentTheme } = toRefs(useThemeStore());
 const { formatJson } = toRefs(useJsonStore());
 const { type, config, setType, setConfig } = toRefs(useLayoutStore());
-const { keyword } = toRefs(useSearchStore());
+const { keyword ,focusCount} = toRefs(useSearchStore());
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -230,7 +230,8 @@ const focusNode = (keyword: string) => {
   } else if ("root".includes(kw)) {
     const node = graph.value?.findById("root");
     if (node) {
-      graph.value?.setItemState(node, "focus", !node.hasState("focus")); // 切换选中
+      graph.value?.setItemState(node, "focus", true); // 切换选中
+      focusCount.value = 1
     }
     graph.value?.focusItem("root", true, {
       easing: "easeCubic",
@@ -258,6 +259,7 @@ const focusNode = (keyword: string) => {
       return isInclude;
     };
     const findNodes = graph.value?.findAll("node", findHandle) || [];
+    focusCount.value = findNodes.length
     // 动画地移动，并配置动画
     if (findNodes.length > 0) {
       graph.value?.focusItem(findNodes[0], true, {

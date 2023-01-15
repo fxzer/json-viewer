@@ -7,30 +7,30 @@
       v-model.trim="keyword"
     />
     <span class="iconfont icon-search"></span>
+    <span class="search-count" v-show="focusCount">{{ focusCount }} 个</span>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useThemeStore ,useSearchStore} from "@/store";
 const { currentTheme } = useThemeStore();
-const { keyword } = toRefs(useSearchStore());
+const { keyword ,focusCount} = toRefs(useSearchStore());
 </script>
 <style scoped lang="scss">
 .search-wrap {
   display: flex;
   align-items: center;
-  width: 180px;
+  width: 200px;
   height: 30px;
   position: absolute;
-  right: 20px;
+  right: 60px;
   top: 5px;
   .search-input {
     display: inline-block;
     height: 100%;
     width: 100%;
     outline: none;
-    padding: 2px 6px;
-    padding-right: 26px;
+    padding: 2px  6px 2px 26px;
     background-color: v-bind("currentTheme.hbcolor");
     border-radius: 4px;
     border: none;
@@ -42,7 +42,7 @@ const { keyword } = toRefs(useSearchStore());
   }
   .icon-search {
     position: absolute;
-    right: 8px;
+    left: 4px;
     color: v-bind("currentTheme.hcolor");
     opacity: 0.8;
     font-size: 18px;
@@ -52,6 +52,13 @@ const { keyword } = toRefs(useSearchStore());
       transform: scale(1.1);
       opacity: 1;
     }
+  }
+  .search-count{
+    color:#33BB69;
+    position: absolute;
+    left:206px;
+    font-size: 12px;
+    white-space: nowrap;
   }
 }
 </style>
