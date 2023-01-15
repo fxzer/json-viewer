@@ -1,0 +1,99 @@
+Date : 2023-01-11 18:01:40
+Directory : ./
+Total : 49 files,  4510 codes, 6120 comments, 469 blanks, all 11099 lines, 57.57% comment rate
+
+Languages
++------------+------------+------------+------------+------------+------------+--------------+
+| language   | files      | code       | comment    | blank      | total      | comment rate |
++------------+------------+------------+------------+------------+------------+--------------+
+| YAML       |          2 |      1,459 |          2 |        228 |      1,689 |        0.14% |
+| vue        |          9 |      1,271 |         11 |         54 |      1,336 |        0.86% |
+| TypeScript |         23 |        768 |         35 |         27 |        830 |        4.36% |
+| CSS        |          2 |        505 |         19 |        108 |        632 |        3.63% |
+| JSON       |          4 |        192 |         14 |          9 |        215 |        6.80% |
+| HTML       |          2 |        148 |      6,024 |         20 |      6,192 |       97.60% |
+| SCSS       |          3 |         77 |          2 |          1 |         80 |        2.53% |
+| JavaScript |          2 |         68 |         13 |          3 |         84 |       16.05% |
+| Markdown   |          1 |         21 |          0 |         19 |         40 |        0.00% |
+| XML        |          1 |          1 |          0 |          0 |          1 |        0.00% |
++------------+------------+------------+------------+------------+------------+--------------+
+
+Directories
++---------------------------------------------+------------+------------+------------+------------+------------+--------------+
+| path                                        | files      | code       | comment    | blank      | total      | comment rate |
++---------------------------------------------+------------+------------+------------+------------+------------+--------------+
+| .                                           |         49 |      4,510 |      6,120 |        469 |     11,099 |       57.57% |
+| src                                         |         38 |      2,583 |         69 |        190 |      2,842 |        2.60% |
+| src/views/Home                              |         10 |      1,301 |         11 |         52 |      1,364 |        0.84% |
+| src/views                                   |         10 |      1,301 |         11 |         52 |      1,364 |        0.84% |
+| src/views/Home/components                   |          7 |        832 |          5 |         35 |        872 |        0.60% |
+| src/assets/iconfont                         |          2 |        505 |         19 |        108 |        632 |        3.63% |
+| src/assets                                  |          2 |        505 |         19 |        108 |        632 |        3.63% |
+| src/utils                                   |          8 |        401 |         30 |         18 |        449 |        6.96% |
+| src/store                                   |          9 |        195 |          3 |          4 |        202 |        1.52% |
+| src/store/module                            |          5 |        155 |          3 |          4 |        162 |        1.90% |
+| src/store/types                             |          3 |         39 |          0 |          0 |         39 |        0.00% |
+| .github/workflows                           |          1 |         29 |          2 |          2 |         33 |        6.45% |
+| .github                                     |          1 |         29 |          2 |          2 |         33 |        6.45% |
+| src/types                                   |          3 |         26 |          0 |          1 |         27 |        0.00% |
+| src/types/graph                             |          1 |         15 |          0 |          1 |         16 |        0.00% |
+| src/types/export                            |          1 |          6 |          0 |          0 |          6 |        0.00% |
+| src/types/layout                            |          1 |          5 |          0 |          0 |          5 |        0.00% |
+| public                                      |          1 |          1 |          0 |          0 |          1 |        0.00% |
++---------------------------------------------+------------+------------+------------+------------+------------+--------------+
+
+Files
++---------------------------------------------+------------+------------+------------+------------+------------+--------------+
+| filename                                    | language   | code       | comment    | blank      | total      | comment rate |
++---------------------------------------------+------------+------------+------------+------------+------------+--------------+
+| .github/workflows/main.yml                  | YAML       |         29 |          2 |          2 |         33 |        6.45% |
+| README.md                                   | Markdown   |         21 |          0 |         19 |         40 |        0.00% |
+| auto-imports.d.ts                           | TypeScript |         71 |          1 |          1 |         73 |        1.39% |
+| index.html                                  | HTML       |         13 |          0 |          1 |         14 |        0.00% |
+| json_examples.json                          | JSON       |        118 |          0 |          9 |        127 |        0.00% |
+| package.json                                | JSON       |         29 |          0 |          0 |         29 |        0.00% |
+| pnpm-lock.yaml                              | YAML       |      1,430 |          0 |        226 |      1,656 |        0.00% |
+| public/jvlogo.svg                           | XML        |          1 |          0 |          0 |          1 |        0.00% |
+| report.html                                 | HTML       |        135 |      6,024 |         19 |      6,178 |       97.81% |
+| src/App.vue                                 | vue        |          8 |          0 |          3 |         11 |        0.00% |
+| src/assets/iconfont/demo.css                | CSS        |        435 |         19 |         86 |        540 |        4.19% |
+| src/assets/iconfont/iconfont.css            | CSS        |         70 |          0 |         22 |         92 |        0.00% |
+| src/auto-imports.d.ts                       | TypeScript |         70 |          1 |          1 |         72 |        1.41% |
+| src/env.d.ts                                | TypeScript |          5 |          0 |          2 |          7 |        0.00% |
+| src/example.json                            | JSON       |         22 |          0 |          0 |         22 |        0.00% |
+| src/main.js                                 | JavaScript |         11 |          3 |          1 |         15 |       21.43% |
+| src/main.scss                               | SCSS       |         39 |          2 |          0 |         41 |        4.88% |
+| src/store/index.ts                          | TypeScript |          1 |          0 |          0 |          1 |        0.00% |
+| src/store/module/fields.ts                  | TypeScript |         20 |          1 |          1 |         22 |        4.76% |
+| src/store/module/index.ts                   | TypeScript |          4 |          0 |          0 |          4 |        0.00% |
+| src/store/module/json.ts                    | TypeScript |         19 |          1 |          1 |         21 |        5.00% |
+| src/store/module/layout.ts                  | TypeScript |         63 |          1 |          1 |         65 |        1.56% |
+| src/store/module/theme.ts                   | TypeScript |         49 |          0 |          1 |         50 |        0.00% |
+| src/store/types/fields.d.ts                 | TypeScript |          4 |          0 |          0 |          4 |        0.00% |
+| src/store/types/layout.d.ts                 | TypeScript |         23 |          0 |          0 |         23 |        0.00% |
+| src/store/types/theme.d.ts                  | TypeScript |         12 |          0 |          0 |         12 |        0.00% |
+| src/types/export/image.ts                   | TypeScript |          6 |          0 |          0 |          6 |        0.00% |
+| src/types/graph/index.ts                    | TypeScript |         15 |          0 |          1 |         16 |        0.00% |
+| src/types/layout/option.d.ts                | TypeScript |          5 |          0 |          0 |          5 |        0.00% |
+| src/utils/computeNodeSize.ts                | TypeScript |         48 |          3 |          3 |         54 |        5.88% |
+| src/utils/dealDataToTree.ts                 | TypeScript |         32 |          3 |          0 |         35 |        8.57% |
+| src/utils/debounce.ts                       | TypeScript |          9 |          1 |          0 |         10 |       10.00% |
+| src/utils/deepFormat.ts                     | TypeScript |         13 |          1 |          1 |         15 |        7.14% |
+| src/utils/fittingString.ts                  | TypeScript |         19 |          2 |          1 |         22 |        9.52% |
+| src/utils/getTextWidth.ts                   | TypeScript |         12 |          5 |          0 |         17 |       29.41% |
+| src/utils/registerBehaviors.ts              | TypeScript |         27 |          1 |          4 |         32 |        3.57% |
+| src/utils/registerNodes.ts                  | TypeScript |        241 |         14 |          9 |        264 |        5.49% |
+| src/views/Home/components/ExportImage.vue   | vue        |         91 |          0 |          5 |         96 |        0.00% |
+| src/views/Home/components/FieldsCustom.vue  | vue        |        122 |          0 |          8 |        130 |        0.00% |
+| src/views/Home/components/JsonCanvas.vue    | vue        |        253 |          0 |         12 |        265 |        0.00% |
+| src/views/Home/components/LayoutCustom.vue  | vue        |        131 |          5 |          3 |        139 |        3.68% |
+| src/views/Home/components/LayoutOptions.vue | vue        |         98 |          0 |          3 |        101 |        0.00% |
+| src/views/Home/components/NodeDialog.vue    | vue        |         69 |          0 |          2 |         71 |        0.00% |
+| src/views/Home/components/SearchInput.vue   | vue        |         68 |          0 |          2 |         70 |        0.00% |
+| src/views/Home/dark.scss                    | SCSS       |         33 |          0 |          1 |         34 |        0.00% |
+| src/views/Home/index.vue                    | vue        |        431 |          6 |         16 |        453 |        1.37% |
+| src/views/Home/phone.scss                   | SCSS       |          5 |          0 |          0 |          5 |        0.00% |
+| tsconfig.json                               | JSON       |         23 |         14 |          0 |         37 |       37.84% |
+| vite.config.js                              | JavaScript |         57 |         10 |          2 |         69 |       14.93% |
+| Total                                       |            |      4,510 |      6,120 |        469 |     11,099 |       57.57% |
++---------------------------------------------+------------+------------+------------+------------+------------+--------------+
