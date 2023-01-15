@@ -1,0 +1,33 @@
+name: Deploy GitHub Pages
+
+# 触发条件：在 push 到 master 分支后
+on:
+  push:
+    branches:
+      - master
+
+# 任务
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest #部署运行环境搭建
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0 #github代码拉取深度
+      - name: Setup Node  🎬
+        uses: actions/setup-node@main
+        with:
+          node-version: "lts/*"
+      - name: Build 🔧 
+        run: |
+          npm install
+          npm run build
+          ls -lrth
+      - name: Deploy 🚀 #把打包后的dist文件部署到master分支
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          token: ${{ secrets.TOKEN_JV }} #github setting分配相应权限并生成TOKEN秘钥,在本项目-->设置-->secrets添加 TOKEN_JV 变量 值为生成的秘钥
+          branch: gh-pages
+          folder: dist
