@@ -371,7 +371,6 @@ $hb-color: v-bind("currentTheme.hbcolor");
     height: 100%;
     z-index: 2;
     background-color: $bg-color;
-
     .jv-logo {
       width: 50px;
       height: 40px;

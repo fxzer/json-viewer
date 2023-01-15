@@ -1,6 +1,7 @@
 .json-home.dark {
   .canvas-area {
     background-color: #191A1F;
+    box-shadow: 1px 0 3px inset #000;
   }
   &:deep(.jsoneditor-vue) {
     .jsoneditor.jsoneditor-mode-code {
