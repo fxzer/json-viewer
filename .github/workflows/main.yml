@@ -4,7 +4,7 @@ name: Deploy GitHub Pages
 on:
   push:
     branches:
-      - dev
+      - master
 
 # 任务
 jobs:
@@ -29,5 +29,5 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
           token: ${{ secrets.TOKEN_JV }} #github setting分配相应权限并生成TOKEN秘钥,在本项目-->设置-->secrets添加 TOKEN_JV 变量 值为生成的秘钥
-          branch: master
+          branch: gh-pages
           folder: dist

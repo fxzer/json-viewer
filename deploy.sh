@@ -14,4 +14,6 @@ git commit -m '🚀Deploy Page'
 
 # 打包后的文件推送到gitee的gh-pages分支
 
- git push -f git@gitee.com:GiteeFXJ/json-viewer.git master:master
+#  git push -f git@gitee.com:GiteeFXJ/json-viewer.git master:master
+ git push -f git@gitee.com:GiteeFXJ/json-viewer.git master:gh-pages
+ git push -f git@github.com:CoderFXJ/json-viewer.git master:gh-pages
