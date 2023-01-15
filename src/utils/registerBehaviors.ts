@@ -20,11 +20,27 @@ const registerBehaviors = (graph,nodeClickCb:Function) =>{
     const node = e.item;
     nodeClickCb(node)
   };
+  const handleEdgeMouseOver = (e) => {
+      const edge = e.item;
+      graph?.setItemState(edge, "hover", true);
+    }
+  const handleEdgeMouseOut = (e) => {
+      const edge = e.item;
+      graph?.setItemState(edge, "hover", false);
+    }
   graph.on("collapse-text:click",handleCollapse);
   graph.on("collapse-back:click", handleCollapse);
   
   graph.on("node:mouseover", handleNodeMouseEnter);
   graph.on("node:mouseout", handleNodeMouseEnter);
+  //边
+  graph.on("edge:mouseover",handleEdgeMouseOver);
+  graph.on("edge:mouseout",handleEdgeMouseOut);
+ 
+  graph.on("edge:mouseout", (e) => {
+    const edge = e.item;
+    graph?.setItemState(edge, "hover", false);
+  });
  
   graph.on("node:click", handleNodeClick);
 

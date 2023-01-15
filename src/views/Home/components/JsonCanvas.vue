@@ -123,14 +123,20 @@ const initGraph = () => {
     },
     defaultEdge: {
       type: "cubic-horizontal",
-      style:{
-        stroke:themeActive.value =='dark' ? "#424660": '#ccc',
-      }
+      style: {
+        stroke: themeActive.value == "dark" ? "#424660" : "#ccc",
+      },
+    },
+    edgeStateStyles: {
+      hover: {
+        stroke: themeActive.value == "dark" ? "#5a5e78" : "#b4b4b4",
+        lineWidth: 2,
+      },
     },
     modes: {
       default: [
         { type: "zoom-canvas", enableOptimize: true },
-        { type: "drag-canvas",},
+        { type: "drag-canvas" },
       ],
     },
     plugins: [toolbar],
@@ -139,7 +145,7 @@ const initGraph = () => {
   registerNodes(currentTheme.value); //注册节点
   registerBehaviors(graph.value, openNodeDetail); //注册行为
 };
-const drawGraph = (data,isUpdate=true) => {
+const drawGraph = (data, isUpdate = true) => {
   if (!data) return;
   data = dealDataToTree(data);
   //判断是否为空对象
@@ -152,12 +158,12 @@ const drawGraph = (data,isUpdate=true) => {
   let graphData = Object.assign({}, data, rootConfig);
 
   //优化性能
-  if(isUpdate){
+  if (isUpdate) {
     graph.value?.changeData(graphData);
-  }else{
+  } else {
     graph.value?.read(graphData);
   }
- 
+
   if (isEmpty) {
     graph.value?.fitView(200);
   } else {
@@ -165,12 +171,11 @@ const drawGraph = (data,isUpdate=true) => {
   }
 };
 
-
 onMounted(() => {
   width.value = jsonCanvas.value?.clientWidth || 860;
   height.value = jsonCanvas.value?.clientHeight || 745;
   initGraph();
-  drawGraph(formatJson.value,false);
+  drawGraph(formatJson.value, false);
 });
 
 //监听编辑区展开/收起
