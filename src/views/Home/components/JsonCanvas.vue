@@ -225,7 +225,7 @@ const focusNode = (keyword: string) => {
   } else if ("root".includes(kw)) {
     const node = graph.value?.findById("root");
     if (node) {
-      graph.value?.setItemState(node, "focus", !node.hasState("hover")); // 切换选中
+      graph.value?.setItemState(node, "focus", !node.hasState("focus")); // 切换选中
     }
     graph.value?.focusItem("root", true, {
       easing: "easeCubic",

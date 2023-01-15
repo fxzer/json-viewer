@@ -71,8 +71,23 @@ const registerNodes = (theme: ThemeItem) => {
       setState(name, value, item) {
         const group = item?.getContainer();
         const shape = group?.get("children")[1]; // 顺序根据 draw 时确定
+        const isFocus = item.hasState("focus");
         if (name === "hover") {
-          shape.attr("fill", rootRolorMap[value + ""]);
+          if(value){
+            shape.attr("fill", rootRolorMap[value + ""]);
+          }else{
+            if(isFocus) {
+              shape.attr("fill", focusColor );
+              return;
+            };
+            shape.attr("fill", color);
+          }
+        }else if(name === "focus"){
+          if(value){
+            shape.attr("fill", focusColor );
+          }else{
+            shape.attr("fill", color);
+          }
         }
       },
     },
