@@ -495,6 +495,6 @@ $hb-color: v-bind("currentTheme.hbcolor");
     }
   }
 }
-@import "./dark.scss";
-@import "./phone.scss";
+@import "./styles/dark.scss";
+@import "./styles/phone.scss";
 </style>

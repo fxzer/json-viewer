@@ -1,3 +1,9 @@
+//生成随机id
+const generateRandomId = (count = 8):string => {
+  return Math.random()
+    .toString(36)
+    .substring(2, 2 + count);
+};
 //处理数据结构
 export const dealDataToTree = (data, customKeys: Array<string> = []) => {
   let result = {
@@ -16,15 +22,16 @@ export const dealDataToTree = (data, customKeys: Array<string> = []) => {
     if (typeof value === "object" && value !== null) {
       if (Object.keys(value).length) {
         let len = result.children.length;
-        //生成随机id
-        let id = Math.random().toString(36).substring(2, 10);
-        result.children[len] = { ...dealDataToTree(value), id, keyName: key } as any;
+        result.children[len] = {
+          ...dealDataToTree(value),
+          id: generateRandomId(),
+          keyName: key,
+        } as any;
       }
     } else {
       let level1 = result.children[0];
       if (!level1.id) {
-        let id = Math.random().toString(36).substring(2, 10);
-        level1.id = id;
+        level1.id = generateRandomId();
       }
       level1.entries[key] = value;
     }
