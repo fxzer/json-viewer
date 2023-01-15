@@ -86,13 +86,13 @@ const registerNodes = (theme: ThemeItem) => {
         } = cfg as GraphOptionsPlus;
         //计算矩形节点高度
         let fontSize = 12;
-        const [width, height, entriesStr] = computeNodeSize(cfg );
+        const [width, height, entriesStr] = computeNodeSize(cfg);
 
         const grey = "#CED4D9";
         // 矩形框配置
         const rectConfig = {
-          width:width+20,
-          height:height+20,
+          width: width + 20,
+          height: height + 20,
           lineWidth: 1,
           fontSize,
           fill: isDark ? "#262736" : color + "20",
@@ -124,14 +124,14 @@ const registerNodes = (theme: ThemeItem) => {
           attrs: {
             ...textConfig,
             x: nodeOrigin.x + 8,
-            y: -nodeOrigin.y  - 12,
+            y: -nodeOrigin.y - 12,
             text: entriesStr,
             fontSize: fontSize,
             lineHeight: fontSize * 1.5,
             fill: isDark ? "#D6D7D8" : "#333",
             cursor: "pointer",
-            fontFamily:"Arial",
-          } as any ,
+            fontFamily: "Arial",
+          } as any,
         });
 
         // collapse rect

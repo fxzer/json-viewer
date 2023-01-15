@@ -11,11 +11,13 @@ import {
   useLayoutStore,
   useThemeStore,
   useJsonStore,
+  useSearchStore,
 } from "@/store";
+
 const { themeActive, currentTheme } = toRefs(useThemeStore());
 const { formatJson } = toRefs(useJsonStore());
 const { type, config, setType, setConfig } = toRefs(useLayoutStore());
-
+const { keyword } = toRefs(useSearchStore());
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -36,7 +38,13 @@ const jsonCanvas = ref<HTMLElement | null>(null);
 //监听formatJson变化
 watch(
   () => formatJson.value,
-  (newVal) => drawGraph(newVal),
+  (newVal) => {
+    drawGraph(newVal);
+    //触发聚焦搜索
+    setTimeout(() => {
+      focusNode(keyword.value);
+    }, 500);
+  },
   { deep: true }
 );
 
@@ -181,19 +189,25 @@ window.onresize = () => {
   height.value = jsonCanvas.value?.clientHeight || 880;
   graph.value?.changeSize(width.value, height.value);
 };
+
+//清除节点聚焦状态
+const clearState = (graph ) =>{
+  if(!graph) return;
+    const selectedNodes = graph.findAllByState('node', 'focus');
+    selectedNodes.forEach((node) => {
+      graph.setItemState(node, "focus", false);  
+    });
+}
 //搜索聚焦节点
 const focusNode = (keyword: string) => {
-  graph.value?.findAll("node", (node) => {
-    graph.value?.setItemState(node, "focus", false); // 切换选中
-    graph.value?.setItemState(node, "hover", false); // 切换选中
-    return false;
-  });
-  if (!keyword.trim()) {
+  clearState(graph.value );
+  const kw = keyword.trim();
+  if (!kw) {
     graph.value?.fitView(20);
-  } else if (keyword === "root") {
+  } else if ('root'.includes(kw) ) {
     const node = graph.value?.findById("root");
     if (node) {
-      graph.value?.setItemState(node, "hover", !node.hasState("hover")); // 切换选中
+      graph.value?.setItemState(node, "focus", !node.hasState("hover")); // 切换选中
     }
     graph.value?.focusItem("root", true, {
       easing: "easeCubic",
@@ -206,14 +220,14 @@ const focusNode = (keyword: string) => {
       let isInclude = false;
       let keyName = node.get("model").keyName || "";
       let entries = node.get("model").entries;
-      if (keyName?.includes(keyword)) {
+      if (keyName?.includes(kw)) {
         isInclude = true;
         return isInclude;
       }
       for (let key in entries) {
-        let keyStr = key.toString();
-        let valStr = entries[key].toString();
-        if (keyStr?.includes(keyword) || valStr?.includes(keyword)) {
+        let keyStr = key + "";
+        let valStr = entries[key] + "";
+        if (keyStr?.includes(kw) || valStr?.includes(kw)) {
           isInclude = true;
           break;
         }
@@ -236,12 +250,14 @@ const focusNode = (keyword: string) => {
     }
   }
 };
-
+watch(
+  () => keyword.value,
+  (val) => focusNode(val)
+);
 defineExpose({
   saveImage,
   toolbar,
   graph,
-  focusNode
 });
 </script>
 <style scoped lang="scss"></style>

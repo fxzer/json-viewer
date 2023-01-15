@@ -4,7 +4,7 @@
       class="search-input"
       type="text"
       placeholder="请输入节点名称"
-      v-model="keyword"
+      v-model.trim="keyword"
     />
     <span class="iconfont icon-search"></span>
   </div>
@@ -14,11 +14,6 @@
 import { useThemeStore ,useSearchStore} from "@/store";
 const { currentTheme } = useThemeStore();
 const { keyword } = toRefs(useSearchStore());
-const emit = defineEmits(["search"]);
-watch(
-  () => keyword.value,
-  (val) => emit('search',val) 
-);
 </script>
 <style scoped lang="scss">
 .search-wrap {

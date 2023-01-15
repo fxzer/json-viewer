@@ -81,7 +81,7 @@
           @confirm="confirmClear"
         >
           <template #reference>
-            <!-- <el-tooltip content="清空JSON" placement="right" > -->
+            <!-- <el-tooltip content="清空JSON" placement="right" >   -->
             <span class="iconfont icon-clear-json"></span>
             <!-- </el-tooltip> -->
           </template>
@@ -130,7 +130,7 @@
               ></span>
             </el-tooltip>
           </div>
-          <SearchInput @search="onSearch" />
+          <SearchInput  />
         </div>
         <JsonCanvas
           :isExpand="isExpand"
@@ -155,17 +155,11 @@ import NodeDialog from "@/views/Home/components/NodeDialog.vue";
 import FieldsCustom from "@/views/Home/components/FieldsCustom.vue";
 import LayoutCustom from "@/views/Home/components/LayoutCustom.vue";
 import SearchInput from "@/views/Home/components/SearchInput.vue";
-import {
-  useThemeStore,
-  useFieldsStore,
-  useJsonStore,
-  useSearchStore,
-} from "@/store";
+import { useThemeStore, useFieldsStore, useJsonStore} from "@/store";
 
 import { ImageConfig } from "@/types/export/image";
 import { debounce } from "@/utils/debounce";
 import { deepFormat } from "@/utils/deepFormat";
-const { keyword } = toRefs(useSearchStore());
 
 const { themeActive, themeList, currentTheme } = toRefs(useThemeStore());
 const { fields, isStorage } = toRefs(useFieldsStore());
@@ -196,9 +190,6 @@ const openLayoutConfig = () => {
 };
 const onJsonChange = debounce((json) => {
   originJson.value = json;
-  nextTick(() => {
-    onSearch.value(keyword.value);
-  });
 }, 600);
 const onJsonError = debounce((err: Error) => {
   //如果是粘贴的json格式通过，不提示
@@ -321,11 +312,6 @@ const nodeClickHandler = (node: any) => {
   nodeDetail.value = node;
   showNodeDetail.value = true;
 };
-const onSearch = ref(null);
-onMounted(() => {
-  //挂载后才能绑定上另一个组件暴露事件
-  onSearch.value = debounce(jsonCanvasRef?.value?.focusNode, 600);
-});
 //全屏/退出全屏
 const isFullScreen = ref(false);
 const onFullScreen = () => {
