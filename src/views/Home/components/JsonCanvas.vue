@@ -226,6 +226,7 @@ const focusNode = (keyword: string) => {
   clearState(graph.value);
   const kw = keyword.trim();
   if (!kw) {
+    focusCount.value = 0
     graph.value?.fitView(20);
   } else if ("root".includes(kw)) {
     const node = graph.value?.findById("root");

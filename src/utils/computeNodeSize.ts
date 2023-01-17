@@ -57,7 +57,8 @@ export const computeNodeSize = (cfg: GraphOptionsPlus): WhConfig => {
       width = widthest;
     } else {//超出最大宽度
       width = maxWidth;
-      entriesArr.forEach(item => fittingString(item,maxWidth))
+      //新增处理换行
+      entriesArr = entriesArr.map(item =>  fittingString(item.replace(/\n|\t/g,''),maxWidth) )
     }
     //把对象键值对格式化为字符串
     entriesStr = entriesArr.map(item => fittingString(item, maxWidth )).join("\n");
