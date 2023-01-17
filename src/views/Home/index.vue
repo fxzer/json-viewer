@@ -89,7 +89,7 @@
       </div>
     </div>
     <!-- 右侧操作区 -->
-    <div class="opt-wrap">
+    <div class="main-wrap">
       <!-- json编辑区域 -->
       <div
         class="json-wrap"
@@ -364,42 +364,9 @@ $hb-color: v-bind("currentTheme.hbcolor");
   width: 100%;
   height: 100%;
   display: flex;
+  @import "./styles/nav.scss";
 
-  //左侧工具导航栏
-  .nav-tools {
-    min-width: 50px;
-    height: 100%;
-    z-index: 2;
-    background-color: $bg-color;
-    .jv-logo {
-      width: 50px;
-      height: 40px;
-    }
-    //  工具按钮
-    .tool-btns {
-      display: flex;
-      flex-direction: column;
-      padding: 0 10px;
-      .iconfont {
-        width: 100%;
-        height: 30px;
-        line-height: 30px;
-        text-align: center;
-        color: $color;
-        font-size: 20px;
-        margin: 5px 0;
-        cursor: pointer;
-        transition: all 0.2s;
-        border-radius: 4px;
-        &:hover {
-          transform: scale(1.1);
-          color: $hover-color;
-          background-color: $hb-color;
-        }
-      }
-    }
-  }
-  .opt-wrap {
+  .main-wrap {
     flex: 1;
     display: flex;
     .top-title {
@@ -411,73 +378,9 @@ $hb-color: v-bind("currentTheme.hbcolor");
       z-index: 2;
       box-shadow: 3px 3px 3px $hb-color;
     }
-    //json编辑区域
-    .json-wrap {
-      width: 450px;
-      display: flex;
-      flex-direction: column;
-      transition: all 0.3s ease-in-out;
-      .edit-area {
-        flex: 1;
-        //样式穿透
-        &:deep(.jsoneditor-vue) {
-          height: 100%;
-          //自定义编辑器主题
-          & div.jsoneditor {
-            border-color: $color;
-            .jsoneditor-outer {
-              height: calc(100% + 35px) !important;
-              .ace_gutter {
-                background-color: #ebebeb20;
-              }
-              & .ace_folding-enabled .ace_gutter-cell {
-                background-color: #ebebeb20;
-              }
-            }
-            .jsoneditor-menu {
-              display: none;
-            }
-          }
-        }
-      }
-    }
-    // json画布区域
-    .json-canvas {
-      flex: 1;
-      height: 100%;
-      font-size: 0; //去除空白
-      background-color: #fff;
-      display: flex;
-      flex-direction: column;
-      .canvas-tools {
-        display: flex;
-        line-height: 40px;
-        min-height: 40px !important;
-        .opt-btns {
-          display: flex;
-          align-items: center;
-          .iconfont {
-            line-height: 30px;
-            height: 30px;
-            padding: 0 5px;
-            text-align: center;
-            color: $color;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 4px;
-            &:hover {
-              transform: scale(1.06);
-              color: $hover-color;
-              background-color: $hb-color;
-            }
-          }
-        }
-      }
-      .canvas-area {
-        flex: 1;
-      }
-    }
+    @import "./styles/editor.scss";
+    @import "./styles/canvas.scss";
+  
   }
 }
 @import "./styles/dark.scss";

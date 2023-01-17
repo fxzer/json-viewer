@@ -1,0 +1,31 @@
+
+ //json编辑区域
+ .json-wrap {
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease-in-out;
+  .edit-area {
+    flex: 1;
+    //样式穿透
+    &:deep(.jsoneditor-vue) {
+      height: 100%;
+      //自定义编辑器主题
+      & div.jsoneditor {
+        border-color: $color;
+        .jsoneditor-outer {
+          height: calc(100% + 35px) !important;
+          .ace_gutter {
+            background-color: #ebebeb20;
+          }
+          & .ace_folding-enabled .ace_gutter-cell {
+            background-color: #ebebeb20;
+          }
+        }
+        .jsoneditor-menu {
+          display: none;
+        }
+      }
+    }
+  }
+}

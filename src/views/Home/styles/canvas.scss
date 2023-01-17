@@ -1,0 +1,37 @@
+  // json画布区域
+  .json-canvas {
+    flex: 1;
+    height: 100%;
+    font-size: 0; //去除空白
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    .canvas-tools {
+      display: flex;
+      line-height: 40px;
+      min-height: 40px !important;
+      .opt-btns {
+        display: flex;
+        align-items: center;
+        .iconfont {
+          line-height: 30px;
+          height: 30px;
+          padding: 0 5px;
+          text-align: center;
+          color: $color;
+          font-size: 20px;
+          cursor: pointer;
+          transition: all 0.2s;
+          border-radius: 4px;
+          &:hover {
+            transform: scale(1.06);
+            color: $hover-color;
+            background-color: $hb-color;
+          }
+        }
+      }
+    }
+    .canvas-area {
+      flex: 1;
+    }
+  }
