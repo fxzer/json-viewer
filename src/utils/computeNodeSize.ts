@@ -20,50 +20,49 @@ const getLongestStr = (strArr: string[]) => {
 };
 
 //获取节点宽度
-const getWidth = (text, font = "normal 12px Arial") => {
-  //复用canvas提升性能
-  let canvas = getWidth.canvas  || (getWidth.canvas = document.createElement("canvas"));
-  var context = canvas.getContext("2d"); 
-  context.font = font;
-  let metrics = context.measureText(text);
-  return  Math.ceil(metrics.width);
-};
+const getWidth = (() => {
+  let canvas = document.createElement('canvas');
+  let context = canvas.getContext('2d');
+  return (text, font = 'normal 12px Arial') => {
+    context.font = font;
+    let metrics = context.measureText(text);
+    return Math.ceil(metrics.width);
+  };
+})();
 
-export const computeNodeSize = (cfg: GraphOptionsPlus): WhConfig => {
-  const { entries, keyName } = cfg;
-  let hasKeyName = !["", undefined, null].includes(keyName);
-  let width = 40, maxWidth = 400, lineHeight = 18;
-  let height = lineHeight;
+
+export const computeNodeSize = (cfg: {
+  entries: Record<string, any>;
+  keyName?: string;
+}): [number, number, string] => {
+  const { entries, keyName = "" } = cfg;
+  const hasKeyName = Boolean(keyName);
+
+  let width = 40,
+    maxWidth = 400,
+    lineHeight = 18,
+    height = lineHeight;
+
   if (hasKeyName) {
-    let keyNameStr = keyName;
-    if(getWidth(keyName) < maxWidth){
-      width = getWidth(keyName);
-    }else{
-      width = maxWidth;
-      keyNameStr = fittingString(keyName, maxWidth )
-    }
-    return [width, height, keyNameStr];
+    const keyNameStr =
+      getWidth(keyName) < maxWidth ? keyName : fittingString(keyName, maxWidth);
+    return [getWidth(keyNameStr), height, keyNameStr];
   }
-  let entriesStr = "", entriesArr = [];
-  let keyNum = Object.keys(entries).length;
-   height = keyNum * lineHeight;
 
-  if (entries && keyNum) {
-    entriesArr =   formatObj(entries) 
-    //计算最长字符串像素宽度
-    let longestEntry =  getLongestStr(entriesArr);
-    let widthest = getWidth(longestEntry);
-    if (widthest < maxWidth) {
-      width = widthest;
-    } else {//超出最大宽度
-      width = maxWidth;
-      //新增处理换行
-      entriesArr = entriesArr.map(item =>  fittingString(item.replace(/\n|\t/g,''),maxWidth) )
-    }
-    //把对象键值对格式化为字符串
-    entriesStr = entriesArr.map(item => fittingString(item, maxWidth )).join("\n");
+  const entryKeys = Object.keys(entries);
+  const keyNum = entryKeys.length;
+  height = keyNum * lineHeight;
+
+  if (keyNum) {
+    const entriesArr = formatObj(entries);
+    const longestEntry = getLongestStr(entriesArr);
+    const widthest = getWidth(longestEntry);
+    width = widthest < maxWidth ? widthest : maxWidth;
+    const entriesStr = entriesArr
+      .map((item) => fittingString(item.replace(/\n|\t/g, ""), maxWidth))
+      .join("\n");
     return [width, height, entriesStr];
   }
 
-  return [width, height, entriesStr];
+  return [width, height, ""];
 };
