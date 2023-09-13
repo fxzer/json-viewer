@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "@antfu"
+  ],
+  "rules":{
+    "@typescript-eslint/no-invalid-this": "off",
+    "vue/valid-v-model": "off",
+  }
+}

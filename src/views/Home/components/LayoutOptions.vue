@@ -1,53 +1,57 @@
+<script lang="ts" setup>
+import type { TypeOption } from '@/types/layout/option'
+import { useLayoutStore, useThemeStore } from '@/store'
+
+const { type, setType } = toRefs(useLayoutStore())
+const { currentTheme } = useThemeStore()
+const typeList: Array<TypeOption> = [
+  {
+    type: 'indented',
+    name: '缩进树',
+    image:
+      'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*kbzRRZk2t2cAAAAAAAAAAABkARQnAQ',
+  },
+  {
+    type: 'mindmap',
+    name: '脑图树',
+    image:
+      'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*wRZjTL3fCbEAAAAAAAAAAABkARQnAQ',
+  },
+  {
+    type: 'compactBox',
+    name: '紧凑树',
+    image:
+      'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*XlXOR5pmM3oAAAAAAAAAAABkARQnAQ',
+  },
+  {
+    type: 'dendrogram',
+    name: '生态树',
+    image:
+      'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*ffD6S74MXw4AAAAAAAAAAABkARQnAQ',
+  },
+]
+function onTypeSelect(ltype: TypeOption) {
+  setType.value(ltype.type)
+}
+</script>
+
 <template>
   <div class="layout-options">
     <div
-      class="layout-item"
       v-for="(ltype, index) in typeList"
       :key="index"
+      class="layout-item"
       :class="{ selected: ltype.type === type }"
       @click="onTypeSelect(ltype)"
     >
-      <img :src="ltype.image" alt="" />
-      <p class="type-name">{{ ltype.name }}</p>
+      <img :src="ltype.image" alt="">
+      <p class="type-name">
+        {{ ltype.name }}
+      </p>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { TypeOption } from "@/types/layout/option";
-import { useThemeStore, useLayoutStore } from "@/store";
-const { type, setType } = toRefs(useLayoutStore());
-const { currentTheme } = useThemeStore();
-const typeList: Array<TypeOption> = [
-  {
-    type: "indented",
-    name: "缩进树",
-    image:
-      "https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*kbzRRZk2t2cAAAAAAAAAAABkARQnAQ",
-  },
-  {
-    type: "mindmap",
-    name: "脑图树",
-    image:
-      "https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*wRZjTL3fCbEAAAAAAAAAAABkARQnAQ",
-  },
-  {
-    type: "compactBox",
-    name: "紧凑树",
-    image:
-      "https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*XlXOR5pmM3oAAAAAAAAAAABkARQnAQ",
-  },
-  {
-    type: "dendrogram",
-    name: "生态树",
-    image:
-      "https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*ffD6S74MXw4AAAAAAAAAAABkARQnAQ",
-  },
-];
-const onTypeSelect = (ltype: TypeOption) => {
-  setType.value(ltype.type);
-};
-</script>
 <style scoped lang="scss">
 .layout-options {
   display: flex;

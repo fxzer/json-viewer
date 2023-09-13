@@ -1,21 +1,23 @@
+<script lang="ts" setup>
+import { useSearchStore, useThemeStore } from '@/store'
+
+const { currentTheme } = useThemeStore()
+const { keyword, focusCount } = toRefs(useSearchStore())
+</script>
+
 <template>
   <div class="search-wrap">
     <input
+      v-model.trim="keyword"
       class="search-input"
       type="text"
       placeholder="请输入节点名称"
-      v-model.trim="keyword"
-    />
-    <span class="iconfont icon-search"></span>
-    <span class="search-count" v-show="focusCount">{{ focusCount }} 个</span>
+    >
+    <span class="iconfont icon-search" />
+    <span v-show="focusCount" class="search-count">{{ focusCount }} 个</span>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { useThemeStore ,useSearchStore} from "@/store";
-const { currentTheme } = useThemeStore();
-const { keyword ,focusCount} = toRefs(useSearchStore());
-</script>
 <style scoped lang="scss">
 .search-wrap {
   display: flex;

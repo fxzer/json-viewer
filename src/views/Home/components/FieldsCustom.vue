@@ -1,5 +1,56 @@
+<script lang="ts" setup>
+import { useFieldsStore } from '@/store'
+
+const props = defineProps({
+  value: {
+    type: Boolean,
+    default: false,
+  },
+})
+const emit = defineEmits({
+  'update:value': (val: boolean) => true,
+})
+const { isStorage, fields } = toRefs(useFieldsStore())
+function handleType(index: number) {
+  return ['success', 'info', 'warning'][index % 3] as any
+}
+const visible = computed({
+  get() {
+    return props.value
+  },
+  set(val) {
+    emit('update:value', val)
+  },
+})
+// 标签
+const inputValue = ref('')
+const inputVisible = ref(false)
+
+const inputRef = ref<InstanceType<typeof ElInput>>()
+
+function handleClose(index: number) {
+  fields.value.splice(index, 1)
+}
+
+function showInput() {
+  inputVisible.value = true
+  nextTick(() => {
+    inputRef.value!.input!.focus()
+  })
+}
+
+function addField() {
+  if (inputValue.value)
+    fields.value.push(inputValue.value)
+
+  inputVisible.value = false
+  inputValue.value = ''
+}
+// 是否本地保存
+</script>
+
 <template>
-  <el-dialog title="指定额外解析字段" v-model="visible" width="400">
+  <el-dialog v-model="visible" title="指定额外解析字段" width="400">
     <el-form label-width="72px">
       <el-form-item label="本地保存">
         <el-switch
@@ -31,7 +82,9 @@
             @keyup.enter="addField"
             @blur="addField"
           />
-          <el-button v-else size="small" @click="showInput"> + 添加 </el-button>
+          <el-button v-else size="small" @click="showInput">
+            + 添加
+          </el-button>
         </div>
       </el-form-item>
     </el-form>
@@ -42,62 +95,12 @@
     </p>
     <template #footer>
       <span>
-        <el-button  @click="visible = false">关闭</el-button>
+        <el-button @click="visible = false">关闭</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
-<script lang="ts" setup>
-import { useFieldsStore  } from "@/store";
-const { isStorage,fields } = toRefs(useFieldsStore())
-const props = defineProps({
-  value: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-const emit = defineEmits({
-  "update:value": (val: boolean) => true,
-});
-const handleType = (index: number) => {
-  return ["success", "info", "warning"][index % 3] as any;
-};
-const visible = computed({
-  get() {
-    return props.value;
-  },
-  set(val) {
-    emit("update:value", val);
-  },
-});
-//标签
-const inputValue = ref("");
-const inputVisible = ref(false);
-
-const inputRef =  ref<InstanceType<typeof ElInput>>()
-
-const handleClose = (index: number) => {
-  fields.value.splice(index, 1);
-};
-
-const showInput = () => {
-  inputVisible.value = true;
-  nextTick(() => {
-    inputRef.value!.input!.focus()
-  });
-};
-
-const addField = () => {
-  if (inputValue.value) {
-    fields.value.push(inputValue.value);
-  }
-  inputVisible.value = false;
-  inputValue.value = "";
-};
-//是否本地保存
-</script>
 <style scoped lang="scss">
 .fields-edit {
   max-width: 400px;

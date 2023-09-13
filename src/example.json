@@ -1,7 +1,7 @@
 {
   "state": "success",
-  "error":false,
-  "total":100,
+  "error": false,
+  "total": 100,
   "createdDate": "Jan 10, 2023 1:13:21 PM",
   "finishedDate": "Jan 10, 2023 1:13:21 PM",
   "friends": [
@@ -9,14 +9,14 @@
     "王五",
     "赵六"
   ],
-  "person":{
-    "name":"张三",
-    "age":18,
-    "height":180,
-    "address":"江苏苏州姑苏区",
-    "contact":{
-      "phone":["19988886666","010-88889999"],
-       "eamil":["300100999@qq.com","g123456@gamil.com"]
+  "person": {
+    "name": "张三",
+    "age": 18,
+    "height": 180,
+    "address": "江苏苏州姑苏区",
+    "contact": {
+      "phone": ["19988886666", "010-88889999"],
+      "eamil": ["300100999@qq.com", "g123456@gamil.com"]
     }
   }
 }
