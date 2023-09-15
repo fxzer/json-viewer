@@ -2,8 +2,9 @@
   "extends": [
     "@antfu"
   ],
-  "rules":{
+  "rules": {
     "@typescript-eslint/no-invalid-this": "off",
     "vue/valid-v-model": "off",
+    "n/prefer-global/process": "off"
   }
 }

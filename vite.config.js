@@ -10,7 +10,7 @@ import removeConsole from 'vite-plugin-remove-console'
 import { visualizer } from 'rollup-plugin-visualizer'
 
 // const pathSrc = path.resolve(__dirname, 'src')
-const lifecycle = require('node:process').env.npm_lifecycle_event
+const lifecycle = process.env.npm_lifecycle_event
 // 获取npm命令
 export default defineConfig(({ _, mode }) => {
   return {
@@ -69,7 +69,7 @@ export default defineConfig(({ _, mode }) => {
     },
     // 打包配置
     build: {
-      outDir: loadEnv(mode, require('node:process').cwd()).VITE_OUTDIR,
+      outDir: loadEnv(mode, process.cwd()).VITE_OUTDIR,
     },
   }
 })
