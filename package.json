@@ -15,16 +15,16 @@
   "dependencies": {
     "@antv/g6": "^4.8.22",
     "@vueuse/core": "^9.13.0",
-    "element-plus": "^2.3.12",
+    "element-plus": "^2.3.14",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
     "vue3-json-editor": "^1.1.5"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.41.2",
+    "@antfu/eslint-config": "^0.41.4",
     "@vitejs/plugin-vue": "^4.3.4",
     "rollup-plugin-visualizer": "^5.9.2",
-    "sass": "^1.66.1",
+    "sass": "^1.67.0",
     "unplugin-auto-import": "^0.12.2",
     "unplugin-vue-components": "^0.22.12",
     "vite": "^4.4.9",

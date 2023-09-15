@@ -86,7 +86,6 @@ function confirm() {
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="visible = false">关闭</el-button>
         <el-button type="primary" @click="confirm">导出</el-button>
       </span>
     </template>

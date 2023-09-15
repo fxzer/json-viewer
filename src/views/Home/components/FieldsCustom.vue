@@ -93,11 +93,6 @@ function addField() {
       <span class="info-prefix">额外解析字段：</span>
       指定后，遇到此字段会将对应的值时，会将其解析为JSON并继续递归处理，并转化为子树。
     </p>
-    <template #footer>
-      <span>
-        <el-button @click="visible = false">关闭</el-button>
-      </span>
-    </template>
   </el-dialog>
 </template>
 

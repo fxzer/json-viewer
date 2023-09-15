@@ -21,9 +21,6 @@ const visible = computed({
     emit('update:value', val)
   },
 })
-function close() {
-  visible.value = false
-}
 const node = computed({
   get() {
     let { keyName, entries, id } = props.nodeDetail
@@ -46,11 +43,6 @@ const node = computed({
       mode="code"
       :show-btns="false"
     />
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="close">关闭</el-button>
-      </span>
-    </template>
   </el-dialog>
 </template>
 
