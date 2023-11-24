@@ -1,6 +1,7 @@
 {
   "extends": [
-    "@antfu"
+    "@antfu",
+    "@unocss"
   ],
   "rules": {
     "@typescript-eslint/no-invalid-this": "off",

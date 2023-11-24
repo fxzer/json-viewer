@@ -1,3 +1,6 @@
+/* 引入iconfont */
+@import "./assets/iconfont/iconfont.css";
+
 * {
   margin: 0;
   padding: 0;
@@ -37,5 +40,3 @@ body {
     width: calc(100vw - 50px) !important;
 }
 }
-/* 引入iconfont */
-@import "./assets/iconfont/iconfont.css";
