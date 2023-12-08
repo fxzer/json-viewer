@@ -10,6 +10,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # 部署运行环境搭建
+    permissions:
+      contents: write
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@main
@@ -29,6 +31,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.TOKEN_JV }}
-          publish_dir: ./.output/public
+          publish_dir: dist
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
