@@ -206,7 +206,7 @@ watch(
   <div class="json-home" :class="themeMode">
     <!-- 左侧工具导航栏 -->
     <div class="nav-tools">
-      <img class="jv-logo" src="/jvlogo.svg">
+      <img class="jv-logo" src="/favicon.svg">
       <div class="tool-btns">
         <el-tooltip
           :content="`${isExpandEditor ? '收起' : '展开'}编辑`"
