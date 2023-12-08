@@ -2,7 +2,7 @@
 set -e
 
 # 生成静态文件
-pnpm run build
+pnpm build
 
 # 进入生成的文件夹
 cd dist/
@@ -14,6 +14,6 @@ git commit -m '🚀Deploy Page'
 
 # 打包后的文件推送到gitee的gh-pages分支
 
-#  git push -f git@gitee.com:GiteeFXJ/json-viewer.git master:master
- git push -f git@gitee.com:fxzer/json-viewer.git master:gh-pages
- git push -f git@github.com:fxzer/json-viewer.git master:gh-pages
+ git push -f git@gitee.com:fxzer/json-viewer.git main:gh-pages
+ 
+ cd ..
