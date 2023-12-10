@@ -62,13 +62,13 @@ export default defineConfig(({ _, mode }) => {
           icons: [
             {
               src: '/json-viewer/logo_512.png',
-              types: 'img/png',
+              type: 'img/png',
               sizes: '512x512',
               purpose: 'any',
             },
             {
               src: '/json-viewer/logo_192.png',
-              types: 'img/png',
+              type: 'img/png',
               sizes: '192x192',
               purpose: 'maskable',
             },

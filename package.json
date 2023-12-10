@@ -9,26 +9,27 @@
     "build:remote": "vite build --mode prod_remote",
     "report": "rimraf dist && vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "eslint",
+    "lintf": "eslint . --fix"
   },
   "dependencies": {
-    "@antv/g6": "^4.8.22",
+    "@antv/g6": "^4.8.23",
     "@vueuse/core": "^9.13.0",
-    "element-plus": "^2.3.14",
-    "pinia": "^2.1.6",
+    "element-plus": "^2.4.3",
+    "pinia": "^2.1.7",
     "vite-plugin-pwa": "^0.17.4",
-    "vue": "^3.3.4",
+    "vue": "^3.3.11",
     "vue3-json-editor": "^1.1.5"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.41.4",
-    "@vitejs/plugin-vue": "^4.3.4",
-    "rollup-plugin-visualizer": "^5.9.2",
-    "sass": "^1.67.0",
+    "@antfu/eslint-config": "^2.4.3",
+    "@vitejs/plugin-vue": "^4.5.2",
+    "eslint-plugin-format": "^0.1.0",
+    "rollup-plugin-visualizer": "^5.11.0",
+    "sass": "^1.69.5",
     "unplugin-auto-import": "^0.12.2",
     "unplugin-vue-components": "^0.22.12",
-    "vite": "^4.4.9",
+    "vite": "^4.5.1",
     "vite-plugin-remove-console": "^1.3.0"
   }
 }
