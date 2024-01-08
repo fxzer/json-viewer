@@ -1,0 +1,1 @@
+{"name":"json-viewer","short_name":"json-viewer","start_url":"./","display":"standalone","background_color":"#ffffff","lang":"en","scope":"./","theme_color":"#ffffff","icons":[{"src":"/json-viewer/logo_512.png","type":"img/png","sizes":"512x512","purpose":"any"},{"src":"/json-viewer/logo_192.png","type":"img/png","sizes":"192x192","purpose":"maskable"}]}
