@@ -1,36 +1,66 @@
-name: Deploy GitHub Pages
+name: Deploy GitHub Pages And Sync to Gitee
 
-# 触发条件：在 push 到 master 分支后
+# 触发条件：在 push 到 main 分支后
 on:
   push:
     branches:
       - master
-
+    paths-ignore: # 下列文件的变更不触发部署
+      - LICENSE
 # 任务
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest # 部署运行环境搭建
-    permissions:
-      contents: write
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@main
-        with:
-          persist-credentials: false
-          fetch-depth: 0 # github代码拉取深度
-      - name: Setup Node  🎬
-        uses: actions/setup-node@main
+
+      - name: Set USERNAME and REPO_NAME
+        run: |
+          echo "USERNAME=${{ github.actor }}" >> $GITHUB_ENV
+          echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: true
+
       - name: Build 🔧
         run: |
-          npm install
-          npm run build
-          ls -lrth
-      - name: Deploy 🚀 # 把打包后的dist文件部署到master分支
-        uses: peaceiris/actions-gh-pages@v3
+          pnpm run build
+
+      - name: 📲 Push To GitHub Pages
+        uses: ftnext/action-push-ghpages@v1.0.0
         with:
-          github_token: ${{ secrets.TOKEN_JV }}
-          publish_dir: dist
-          user_name: github-actions[bot]
-          user_email: github-actions[bot]@users.noreply.github.com
+          build_dir: dist
+          github_token: ${{ secrets.DEPLOY_TOKEN }}
+
+      - name: Sync to Gitee
+        uses: wearerequired/git-mirror-action@master
+        env:
+          # 注意在 Settings->Secrets 配置 GITEE_RSA_PRIVATE_KEY（复制本机生成的 ~/.ssh/gitee ）
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+        with:
+          # GitHub 源仓库地址
+          source-repo: git@github.com:${{ env.REPO_NAME }}.git
+          #  Gitee 目标仓库地址
+          destination-repo: git@gitee.com:${{ env.REPO_NAME }}.git
+
+      # 首次必须手动 Gitee 部署，否则会出错
+      - name: Build Gitee Pages
+        uses: yanglbme/gitee-pages-action@main
+        with:
+          # Gitee 用户名
+          gitee-username: ${{ env.USERNAME }}
+          # 在 Settings->Secrets 配置 GITEE_PSWD
+          gitee-password: ${{ secrets.GITEE_PSWD }}
+          # Gitee 仓库，仓库名严格区分大小写，请准确填写，否则会出错
+          gitee-repo: ${{ env.REPO_NAME }}
+          # 要部署的分支，默认是 master，若是其他分支，则需要指定（指定的分支必须存在）
+          branch: gh-pages
