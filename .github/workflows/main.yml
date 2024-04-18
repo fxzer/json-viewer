@@ -4,7 +4,7 @@ name: Deploy GitHub Pages And Sync to Gitee
 on:
   push:
     branches:
-      - master
+      - main
     paths-ignore: # 下列文件的变更不触发部署
       - LICENSE
 # 任务
