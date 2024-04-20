@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { LayoutConfig } from '@/store/types/layout'
+import { useElementSize } from '@vueuse/core'
+import { type LayoutConfig } from '@/store/types/layout'
 import registerNodes from '@/utils/registerNodes'
 import registerBehaviors from '@/utils/registerBehaviors'
 import { dealDataToTree } from '@/utils/dealDataToTree'
@@ -25,8 +26,6 @@ const { themeActive, currentTheme } = toRefs(useThemeStore())
 const { formatJson } = toRefs(useJsonStore())
 const { type, config, setType, setConfig } = toRefs(useLayoutStore())
 const { keyword, focusCount } = toRefs(useSearchStore())
-const width = ref(0)
-const height = ref(0)
 const jsonCanvas = ref<HTMLElement | null>(null)
 
 // 监听formatJson变化
@@ -164,22 +163,16 @@ function drawGraph(data, isUpdate = true) {
   else
     graph.value?.zoom(0.85)
 }
-
+const { width, height } = useElementSize(jsonCanvas)
+watch([width, height], ([w, h]) => {
+  if (graph.value)
+    graph.value.changeSize(w, h)
+})
 onMounted(() => {
-  width.value = jsonCanvas.value?.clientWidth || 860
-  height.value = jsonCanvas.value?.clientHeight || 745
   initGraph()
   drawGraph(formatJson.value, false)
 })
 
-// 监听编辑区展开/收起
-watch(
-  () => props.isExpandEditor,
-  (newVal) => {
-    const newWidth = newVal ? width.value : width.value + 450
-    graph.value?.changeSize(newWidth, height.value)
-  },
-)
 // 展开/收起
 watch(
   () => props.isExpand,
@@ -198,12 +191,6 @@ watch(
 // TODO:大图模糊问题,保存为svg待实现
 function saveImage() {
   graph.value?.downloadFullImage('json-viewer')
-}
-// 监听窗口大小变化
-window.onresize = () => {
-  width.value = jsonCanvas.value?.clientWidth || 860
-  height.value = jsonCanvas.value?.clientHeight || 880
-  graph.value?.changeSize(width.value, height.value)
 }
 
 // 清除节点聚焦状态
@@ -285,7 +272,6 @@ defineExpose({
 </script>
 
 <template>
-  <div ref="jsonCanvas" class="canvas-area" />
+  <div ref="jsonCanvas" class="wh-full" />
 </template>
 
-<style scoped lang="scss"></style>

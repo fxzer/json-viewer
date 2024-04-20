@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3847355 */
-  src: url('iconfont.woff2?t=1673230792497') format('woff2'),
-       url('iconfont.woff?t=1673230792497') format('woff'),
-       url('iconfont.ttf?t=1673230792497') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_3847355_se0qr48n2ye.woff2?t=1713627253819') format('woff2'),
+       url('//at.alicdn.com/t/c/font_3847355_se0qr48n2ye.woff?t=1713627253819') format('woff'),
+       url('//at.alicdn.com/t/c/font_3847355_se0qr48n2ye.ttf?t=1713627253819') format('truetype');
 }
 
 .iconfont {
@@ -13,6 +13,26 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-center-focus:before {
+  content: "\ebb0";
+}
+
+.icon-enter-fullscreen:before {
+  content: "\e888";
+}
+
+.icon-exit-fullscreen:before {
+  content: "\e889";
+}
+
+.icon-jian:before {
+  content: "\e612";
+}
+
+.icon-jia:before {
+  content: "\e6aa";
+}
+
 .icon-theme:before {
   content: "\e618";
 }
@@ -21,24 +41,16 @@
   content: "\e723";
 }
 
-.icon-Daytimemode-fill:before {
+.icon-day:before {
   content: "\e77c";
 }
 
-.icon-nightmode-fill:before {
+.icon-night:before {
   content: "\e784";
 }
 
 .icon-home-fill:before {
   content: "\e867";
-}
-
-.icon-fullscreen-cancel:before {
-  content: "\eb10";
-}
-
-.icon-fullscreen-done:before {
-  content: "\eb11";
 }
 
 .icon-export-json:before {
@@ -53,10 +65,6 @@
   content: "\e795";
 }
 
-.icon-plus:before {
-  content: "\e747";
-}
-
 .icon-clear-json:before {
   content: "\e680";
 }
@@ -67,10 +75,6 @@
 
 .icon-node-layout:before {
   content: "\e636";
-}
-
-.icon-minus:before {
-  content: "\eaf5";
 }
 
 .icon-auto-zoom:before {
@@ -88,4 +92,3 @@
 .icon-search:before {
   content: "\e7b3";
 }
-

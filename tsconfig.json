@@ -1,31 +1,31 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    "jsx": "preserve",
     "lib": [
       "ES2017",
       "DOM"
     ],
-    // "useDefineForClassFields": true,
-    // "module": "esnext",
-    "moduleResolution": "node",
-    "strict": false,
-    "jsx": "preserve",
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "allowJs": false,
     // "esModuleInterop": true,
     // "lib": ["esnext", "dom"],
     "baseUrl": "./",
+    // "useDefineForClassFields": true,
+    // "module": "esnext",
+    "moduleResolution": "node",
     "paths": {
       "@/*": [
         "src/*"
       ]
     },
-    "allowSyntheticDefaultImports": true, // 默认导入
-    "skipLibCheck": true, // 不对第三方依赖类型检查 ，element-plus 生产打包报错
+    "resolveJsonModule": true, // 不对第三方依赖类型检查 ，element-plus 生产打包报错
     "types": [
       "element-plus/global"
-    ]
+    ],
+    "allowJs": false,
+    "strict": false,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true, // 默认导入
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.ts",

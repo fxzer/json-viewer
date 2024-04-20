@@ -89,8 +89,8 @@ export default defineConfig(({ _, mode }) => {
       filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
       globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
     },
-    esbuild:{
-      pure: ['console', 'debugger']
+    esbuild: {
+      pure: ['console', 'debugger'],
     },
     // 打包配置
     build: {

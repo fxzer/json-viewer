@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    CodeMirror: typeof import('./src/components/CodeMirror.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
     ElDialog: typeof import('element-plus/es')['ElDialog']
@@ -23,5 +24,12 @@ declare module 'vue' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
+    ExportImage: typeof import('./src/components/ExportImage.vue')['default']
+    FieldsCustom: typeof import('./src/components/FieldsCustom.vue')['default']
+    JsonCanvas: typeof import('./src/components/JsonCanvas.vue')['default']
+    LayoutCustom: typeof import('./src/components/LayoutCustom.vue')['default']
+    LayoutOptions: typeof import('./src/components/LayoutOptions.vue')['default']
+    NodeDialog: typeof import('./src/components/NodeDialog.vue')['default']
+    SearchInput: typeof import('./src/components/SearchInput.vue')['default']
   }
 }

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { Codemirror } from 'vue-codemirror'
+import { json } from '@codemirror/lang-json'
 const props = defineProps({
   value: {
     type: Boolean,
@@ -33,16 +35,13 @@ const node = computed({
     emit('update:nodeDetail', val)
   },
 })
+const code = computed(() => { return JSON.stringify(node.value, null, 2) })
 </script>
 
 <template>
   <el-dialog v-model="visible" title="节点详情" width="600">
-    <VueJsonEditor
-      v-model="node"
-      class="node-detail"
-      mode="code"
-      :show-btns="false"
-    />
+    <codemirror v-model="code" placeholder="Code here..." :style="{ height: '500px' }" :indent-with-tab="true"
+        :tab-size="2" :extensions="[json()]" />
   </el-dialog>
 </template>
 

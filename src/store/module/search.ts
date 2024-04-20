@@ -1,7 +1,6 @@
-// json数据仓库
-import { useDebouncedRef } from '@/hooks/useDobunceRef'
-
-export const useSearchStore = defineStore({
-  id: 'search',
-  state: () => ({ keyword: useDebouncedRef(''), focusCount: 0 }),
+export const useSearchStore = defineStore('search',
+() =>{
+  const keyword = ref('')
+  const focusCount = ref(0)
+  return { keyword, focusCount }
 })
