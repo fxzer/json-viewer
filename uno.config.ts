@@ -42,7 +42,6 @@ export default defineConfig({
   ],
   theme: {
     colors: {
-      ...connectEpTheme(),
     },
   },
   presets: [
@@ -54,7 +53,6 @@ export default defineConfig({
   ],
   safelist: [
     // 生成所需的静态类名组合
-    ...getSafeEpClass(),
   ], // 防止动态绑定误判为未使用，被 tree-shaking
   transformers: [
     transformerDirectives(), // @apply, @screen, @variants
@@ -62,27 +60,3 @@ export default defineConfig({
   ],
 })
 
-function connectEpTheme() {
-  const types = ['primary', 'success', 'warning', 'danger', 'error', 'info']
-  return types.reduce((prev, type) => {
-    prev[`${type}`] = `var(--el-color-${type})`
-    for (let i = 1; i <= 2; i++)
-      prev[`${type}-dark-${i}`] = `var(--el-color-${type}-dark-${i})`
-
-    for (let j = 1; j <= 9; j++)
-      prev[`${type}-light-${j}`] = `var(--el-color-${type}-light-${j})`
-    return prev
-  }, {})
-}
-
-// 获取 Element-plus 安全类名
-function getSafeEpClass() {
-  return Object.keys(connectEpTheme()).map(key => [
-    `bg-${key}`,
-    `text-${key}`,
-    `border-${key}`,
-    `hover:bg-${key}`,
-    `hover:text-${key}`,
-    `hover:border-${key}`,
-  ]).flat()
-}

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import process from 'node:process'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -6,9 +7,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import removeConsole from 'vite-plugin-remove-console'
 import { visualizer } from 'rollup-plugin-visualizer'
-
+import UnoCSS from 'unocss/vite'
 // const pathSrc = path.resolve(__dirname, 'src')
 const lifecycle = process.env.npm_lifecycle_event
 // 获取npm命令
@@ -17,7 +17,7 @@ export default defineConfig(({ _, mode }) => {
     base: './',
     plugins: [
       vue(),
-      removeConsole(), // 移除console
+      UnoCSS(),
       // visualizer(),//打包分析
       lifecycle === 'report'
         ? visualizer({ open: true, brotliSize: true, filename: 'report.html' })
@@ -74,7 +74,7 @@ export default defineConfig(({ _, mode }) => {
             },
           ],
         },
-      })
+      }),
     ],
     // 指定@为src目录
     resolve: {
@@ -88,6 +88,9 @@ export default defineConfig(({ _, mode }) => {
       enabled: true, // Default `false`
       filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
       globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
+    },
+    esbuild:{
+      pure: ['console', 'debugger']
     },
     // 打包配置
     build: {

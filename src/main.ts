@@ -2,6 +2,10 @@ import { createApp } from 'vue'
 import './main.scss'
 import * as V3JsonEditor from 'vue3-json-editor'
 
+// Tailwind 紧凑型样式重置
+import 'virtual:uno.css'
+import '@unocss/reset/tailwind-compat.css'
+
 // 引入pinia
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { createPinia } from 'pinia'
