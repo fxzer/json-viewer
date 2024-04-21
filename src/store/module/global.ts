@@ -1,11 +1,14 @@
-import exampleJson from '@/example.json'
-import { deepFormat } from '@/utils/deepFormat'
 export const useGlobalStore = defineStore('global', () => {
   const keyword = ref('')
   const focusCount = ref(0)
+  const isDark = useDark()
+  const fields = ref(['result'])
+  const autoRender = ref(true)
+  const toggleExecuteMode = useToggle(autoRender)
 
-  const fields = ref([])
-
+  // 编辑区展开/收起
+  const [isExpandEditor, toggleEditor] = useToggle(true)
+  const paneSize = computed(() => isExpandEditor.value ? [30, 70] : [0, 100])
   const colors = {
     "orange": "#fb923c",
     "amber": "#fbbf24",
@@ -25,19 +28,18 @@ export const useGlobalStore = defineStore('global', () => {
   }
   const colorName = ref('orange')
   const colorValue = computed(() => colors[colorName.value])
-
-  const originJson = ref(exampleJson)
-  const formatJson = ref({})
-  if (fields.value?.length)
-    formatJson.value = deepFormat(originJson, fields.value)
-  else
-    formatJson.value = originJson
   return {
+    isDark,
     fields,
-    originJson,
-    formatJson,
     keyword,
     focusCount,
-    colors, colorName, colorValue,
+    colors,
+    colorName,
+    colorValue,
+    autoRender,
+    toggleExecuteMode,
+    isExpandEditor,
+    toggleEditor,
+    paneSize
   }
 }, { persist: true })

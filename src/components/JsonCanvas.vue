@@ -3,8 +3,10 @@ import { type LayoutConfig } from '@/types/global'
 import registerNodes from '@/utils/registerNodes'
 import registerBehaviors from '@/utils/registerBehaviors'
 import { dealDataToTree } from '@/utils/dealDataToTree'
-import { useGlobalStore, useLayoutStore} from '@/store'
-const { colors,colorValue,formatJson,keyword,focusCount } = toRefs(useGlobalStore())
+import { useGlobalStore, useLayoutStore,useCodeStore } from '@/store'
+const { json,} = toRefs(useCodeStore())
+const { isDark, colors, colorValue, keyword, focusCount, autoRender } = toRefs(useGlobalStore())
+
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -16,23 +18,18 @@ const props = defineProps({
   },
 })
 const emit = defineEmits(['nodeClick'])
-const { activeLayout, activeConfig } = toRefs(useLayoutStore())
+const { activeConfig } = toRefs(useLayoutStore())
 const jsonCanvas = ref<HTMLElement | null>(null)
 
-// 监听formatJson变化
-watch(
-  () => formatJson.value,
-  (newVal) => {
-    drawGraph(newVal)
-    // 触发聚焦搜索
-    setTimeout(() => {
-      focusNode(keyword.value)
-    }, 500)
-  },
-  { deep: true },
-)
-const isDark = useDark()
-watch([isDark,colorValue], () => {
+function render() {
+  drawGraph(json.value, true)
+  // 触发聚焦搜索
+  setTimeout(() => {
+    focusNode(keyword.value)
+  }, 500)
+}
+watch(json, render,{ deep: true})
+watch([isDark, colorValue], () => {
   window.location.reload()
 })
 // 转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
@@ -54,8 +51,7 @@ function convertLayoutConfig(config: LayoutConfig) {
 const graph = ref()
 
 // 监听到布局配置变化,重新布局
-watch(
-  () => activeConfig,
+watch(activeConfig,
   (val: any) => {
     if (!graph.value)
       return
@@ -63,7 +59,6 @@ watch(
     // 重新布局后居中展示
     graph.value.updateLayout(layoutConfig)
     graph.value.fitView(20)
-    localStorage.setItem('layoutType', activeLayout.value)
   },
   { deep: true },
 )
@@ -97,12 +92,12 @@ function initGraph() {
     defaultEdge: {
       type: 'cubic-horizontal',
       style: {
-        stroke:  '#9ca3af88' ,
+        stroke: '#9ca3af88',
       },
     },
     edgeStateStyles: {
       hover: {
-        stroke:  '#9ca3af88' ,
+        stroke: '#9ca3af88',
         lineWidth: 2,
       },
     },
@@ -115,7 +110,7 @@ function initGraph() {
     plugins: [toolbar],
     layout: convertLayoutConfig(activeConfig.value),
   })
-  registerNodes(colors.value,colorValue.value) // 注册节点
+  registerNodes(colors.value, colorValue.value) // 注册节点
   registerBehaviors(graph.value, openNodeDetail) // 注册行为
 }
 function drawGraph(data, isUpdate = true) {
@@ -149,7 +144,7 @@ watch([width, height], ([w, h]) => {
 })
 onMounted(() => {
   initGraph()
-  drawGraph(formatJson.value, false)
+  drawGraph(json.value, false)
 })
 
 // 展开/收起
@@ -199,7 +194,6 @@ function focusNode(keyword: string) {
       easing: 'easeCubic',
       duration: 400,
     })
-    // 获取所有节点
   }
   else {
     const findHandle = (node) => {
@@ -239,18 +233,15 @@ function focusNode(keyword: string) {
     }
   }
 }
-watch(
-  () => keyword.value,
-  val => focusNode(val),
-)
+watch(keyword, focusNode)
 defineExpose({
   saveImage,
   toolbar,
   graph,
+  render
 })
 </script>
 
 <template>
   <div ref="jsonCanvas" class="wh-full" />
 </template>
-

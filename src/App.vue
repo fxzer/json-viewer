@@ -1,85 +1,28 @@
 <script setup lang="ts">
 import { toggleDarkAnimate } from '@/hooks'
 import { Pane, Splitpanes } from 'splitpanes'
-import { useGlobalStore} from '@/store'
-import { deepFormat } from '@/utils/deepFormat'
+import { useGlobalStore,useCodeStore } from '@/store'
+import { isObject } from '@/utils/typeis'
 import 'splitpanes/dist/splitpanes.css'
-
-const { fields,formatJson, originJson} = toRefs(useGlobalStore())
-const isDark = useDark()
-
+const { code, json, jsonValid, } = toRefs(useCodeStore())
+const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(useGlobalStore())
+const { toggleEditor, toggleExecuteMode } = useGlobalStore()
 const drawerVisible = ref(false)
 function openLayoutConfig() {
   drawerVisible.value = !drawerVisible.value
 }
-const code = ref(JSON.stringify(originJson.value, null, 2))
-
-
-const jsonValid = ref(true)
-watchDebounced(code, (codeStr) => {
-  if (!codeStr) {
-    formatJson.value = {}
-    return
-  }
-  try {
-    const mybeObj = JSON.parse(codeStr)
-    const isObj = Object.prototype.toString.call(mybeObj) === '[object Object]'
-    jsonValid.value = isObj
-    if (isObj) {
-      originJson.value = mybeObj
-    } else {
-      ElNotification({
-        type: 'error',
-        title: 'JSON格式错误',
-        message: '请输入正确的JSON格式',
-        duration: 2000,
-      })
-    }
-  }
-  catch (err) {
-    jsonValid.value = false
-    ElNotification({
-      type: 'error',
-      title: 'JSON语法错误',
-      dangerouslyUseHTMLString: true,
-      message: `<pre style="white-space: normal;">${err.message}</pre>`,
-      duration: 2000,
-    })
-  }
-
-}, { debounce: 500, })
-
-const autoExecute = ref(false)
-function toggleExecuteMode() {
-  autoExecute.value = !autoExecute.value
-}
-function execute() {
-  const codeObj = JSON.parse(code.value)
-  formatJson.value = deepFormat(codeObj, fields.value)
-}
-// 编辑区展开/收起
-// const isExpandEditor = ref(false)
-// const editorIconAngle = ref('0deg')
-// function onExpandEditor() {
-//   isExpandEditor.value = !isExpandEditor.value
-//   editorIconAngle.value = isExpandEditor.value ? '0deg' : '180deg'
-// }
 
 // 节点展开/收起
-const [   isExpandEditor ,toggleEditor ] = useToggle(true)
-const [   isExpand ,toggleNode ] = useToggle(true)
-const editorSize = computed(() => isExpandEditor.value ? 30 : 0)
-const canvasSize = computed(() => isExpandEditor.value ? 70 : 100)
-watch(isExpand,(val)=>{
-  console.log(val)
-})
+const [isExpand, toggleNode] = useToggle(true)
+
+
 // 导出json
 function onExport() {
   const filename = 'json-viewer.json'
   const jsonStr
-    = typeof formatJson.value === 'object'
-      ? JSON.stringify(formatJson.value, undefined, 2)
-      : formatJson.value
+    = isObject(json.value)
+      ? JSON.stringify(json.value, undefined, 2)
+      : json.value
   const blob = new Blob([jsonStr as any], { type: 'text/plain' })
   const link = document.createElement('a')
   link.setAttribute('style', 'display: none')
@@ -100,22 +43,17 @@ function onImport() {
     const reader = new FileReader()
     reader.readAsText(file)
     reader.onload = () => {
-      const json = reader.result
-      originJson.value = JSON.parse(json as string)
-      if (fields.value.length)
-        formatJson.value = deepFormat(JSON.parse(json as string), fields.value)
-      else
-        formatJson.value = JSON.parse(json as string)
+      const jsonStr = reader.result
+      code.value = jsonStr as string
     }
   }
-}
-// 清空json
-function confirmClear() {
-  code.value = ''
 }
 
 const jsonCanvasRef = ref()
 const exportVisible = ref(false)
+function onRender() {
+  jsonCanvasRef.value.render() 
+}
 function showExportImage() {
   exportVisible.value = true
 }
@@ -161,40 +99,12 @@ const fieldsVisible = ref(false)
 function openFieldsDialog() {
   fieldsVisible.value = true
 }
-// 监听fields变化,重新处理数据画图
-watch(
-  () => fields.value,
-  (fields) => {
-    // 重新处理数据
-    formatJson.value = deepFormat(originJson.value, fields)
-  },
-  { deep: true },
-)
-watch(
-  () => originJson.value,
-  (val) => {
-    if (autoExecute.value) {
-      formatJson.value = deepFormat(val, fields.value)
-    }
-  },
-  { deep: true },
-)
-watch(
-  () => formatJson.value,
-  (val) => { },
-  { deep: true },
-)
 </script>
-
-
-
 <template>
   <div>
     <Splitpanes class="default-theme" style="height: 100vh">
-      <Pane  max-size="50" :size="editorSize">
+      <Pane max-size="50" :size="paneSize[0]">
         <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
-          
-
           <el-tooltip content="布局配置">
             <span class="iconfont icon-node-layout" @click="openLayoutConfig" />
           </el-tooltip>
@@ -209,18 +119,19 @@ watch(
           </el-tooltip>
 
           <el-popconfirm title="确定清空JSON?" confirm-button-type="warning" confirm-button-text="确定"
-            cancel-button-text="取消" @confirm="confirmClear">
+            cancel-button-text="取消" @confirm="code = ''">
             <template #reference>
               <span class="iconfont icon-clear-json" />
             </template>
           </el-popconfirm>
           <el-tooltip content="自动渲染">
-            <span class="iconfont icon-auto" @click="toggleExecuteMode" :class="autoExecute ? '!text-green-500' : ''" />
+            <span class="iconfont icon-auto" @click="toggleExecuteMode()"
+              :class="autoRender ? '!text-green-500' : ''" />
           </el-tooltip>
           <el-tooltip content="渲染">
             <Transition name="slide">
-              <el-button class="iconfont icon-execute" v-show="!autoExecute" @click="execute" :class="[
-                !autoExecute && jsonValid ? '!text-green-500' : '',
+              <el-button class="iconfont icon-execute" v-show="!autoRender" @click="onRender" :class="[
+                !autoRender && jsonValid ? '!text-green-500' : '',
                 jsonValid ? '' : '!text-gray-300'
               ]" link :disabled="!jsonValid" />
             </Transition>
@@ -229,14 +140,14 @@ watch(
 
         <VueCodeMirror v-model="code" :style="{ height: '100%' }" />
       </Pane>
-      <Pane :size="canvasSize">
+      <Pane :size="paneSize[1]">
         <div h-full>
           <div border="b gray/20" class="flex-between-center  px-2  bg-gray/10 h-10 ">
             <div class='flex-y-center space-x-3'>
               <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑`">
-            <span class="iconfont icon-editor-expand" :style="{ transform: `rotate(${isExpandEditor?'0deg':'180deg'})` }"
-              @click="toggleEditor()" />
-          </el-tooltip>
+                <span class="iconfont icon-editor-expand"
+                  :style="{ transform: `rotate(${isExpandEditor ? '0deg' : '180deg'})` }" @click="toggleEditor()" />
+              </el-tooltip>
               <el-tooltip :content="`${isExpand ? '收起' : '展开'}节点`">
                 <span class="iconfont" :class="isExpand ? 'icon-node-collapse' : 'icon-node-expand'"
                   @click="toggleNode()" />
@@ -267,7 +178,7 @@ watch(
             <SearchInput />
           </div>
           <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpand" :is-expand-editor="isExpandEditor"
-             @node-click="nodeClickHandler" />
+            @node-click="nodeClickHandler" />
         </div>
       </Pane>
     </Splitpanes>
