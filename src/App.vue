@@ -34,7 +34,7 @@ const layoutConfig = ref({
   type: 'indented',
   direction: 'LR',
   indent: 250,
-  dropCap: false,
+  dropCap: false
 })
 function openLayoutConfig() {
   drawerVisible.value = !drawerVisible.value
@@ -304,9 +304,10 @@ function changJson() {
 </template>
 
 <style lang="scss" scoped>
-*{
+* {
   font-size: 13px;
 }
+
 .splitpanes {
   &.default-theme {
     .splitpanes__pane {
@@ -331,5 +332,4 @@ function changJson() {
     transform: scale(1.1);
   }
 }
-
 </style>
