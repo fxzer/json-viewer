@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type LayoutConfig } from '@/store/types/layout'
+import { type LayoutConfig } from '@/types/global'
 import registerNodes from '@/utils/registerNodes'
 import registerBehaviors from '@/utils/registerBehaviors'
 import { dealDataToTree } from '@/utils/dealDataToTree'
@@ -7,9 +7,9 @@ import {
   useJsonStore,
   useLayoutStore,
   useSearchStore,
-  useThemeStore,
 } from '@/store'
-
+import { useThemeStore } from '@/store'
+const { colors,colorValue } = toRefs(useThemeStore())
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -21,9 +21,8 @@ const props = defineProps({
   },
 })
 const emit = defineEmits(['nodeClick'])
-const { themeActive, currentTheme } = toRefs(useThemeStore())
 const { formatJson } = toRefs(useJsonStore())
-const { type, config, setType, setConfig } = toRefs(useLayoutStore())
+const { activeLayout, activeConfig } = toRefs(useLayoutStore())
 const { keyword, focusCount } = toRefs(useSearchStore())
 const jsonCanvas = ref<HTMLElement | null>(null)
 
@@ -39,12 +38,10 @@ watch(
   },
   { deep: true },
 )
-
-watch(
-  () => themeActive.value,
-  () => window.location.reload(), //  刷新
-)
-
+const isDark = useDark()
+watch([isDark,colorValue], () => {
+  window.location.reload()
+})
 // 转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
 function convertLayoutConfig(config: LayoutConfig) {
   const hvgapLayout = ['mindmap', 'compactBox']
@@ -65,7 +62,7 @@ const graph = ref()
 
 // 监听到布局配置变化,重新布局
 watch(
-  () => config.value,
+  () => activeConfig,
   (val: any) => {
     if (!graph.value)
       return
@@ -73,8 +70,7 @@ watch(
     // 重新布局后居中展示
     graph.value.updateLayout(layoutConfig)
     graph.value.fitView(20)
-    localStorage.setItem('layoutType', type.value)
-    localStorage.setItem('layoutConfig', JSON.stringify(layoutConfig))
+    localStorage.setItem('layoutType', activeLayout.value)
   },
   { deep: true },
 )
@@ -85,15 +81,6 @@ function openNodeDetail(node) {
   emit('nodeClick', nodeDetail.value)
 }
 
-// 获取缓存布局配置
-const layoutConfig: LayoutConfig = JSON.parse(
-  localStorage.getItem('layoutConfig') || '{}',
-)
-const layoutType = localStorage.getItem('layoutType')
-if (layoutConfig && Object.keys(layoutConfig).length)
-  setConfig.value(layoutConfig)
-else
-  setType.value(layoutType || 'mindmap')
 
 // 初始化
 const toolbar = new G6.ToolBar({
@@ -117,12 +104,12 @@ function initGraph() {
     defaultEdge: {
       type: 'cubic-horizontal',
       style: {
-        stroke: themeActive.value === 'dark' ? '#424660' : '#ccc',
+        stroke:  '#9ca3af88' ,
       },
     },
     edgeStateStyles: {
       hover: {
-        stroke: themeActive.value === 'dark' ? '#5a5e78' : '#b4b4b4',
+        stroke:  '#9ca3af88' ,
         lineWidth: 2,
       },
     },
@@ -133,9 +120,9 @@ function initGraph() {
       ],
     },
     plugins: [toolbar],
-    layout: convertLayoutConfig(config.value),
+    layout: convertLayoutConfig(activeConfig.value),
   })
-  registerNodes(currentTheme.value) // 注册节点
+  registerNodes(colors.value,colorValue.value) // 注册节点
   registerBehaviors(graph.value, openNodeDetail) // 注册行为
 }
 function drawGraph(data, isUpdate = true) {

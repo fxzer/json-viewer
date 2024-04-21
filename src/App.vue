@@ -1,22 +1,15 @@
 <script setup lang="ts">
 import { toggleDarkAnimate } from '@/hooks'
 import { Pane, Splitpanes } from 'splitpanes'
-import { useFieldsStore, useJsonStore, useThemeStore } from '@/store'
+import { useFieldsStore, useJsonStore} from '@/store'
 import { deepFormat } from '@/utils/deepFormat'
 import 'splitpanes/dist/splitpanes.css'
-const { themeActive, themeList } = toRefs(useThemeStore())
+
 const { fields, isStorage } = toRefs(useFieldsStore())
 const { formatJson, originJson } = toRefs(useJsonStore())
 const isDark = useDark()
 
-// 布局配置抽屉
 const drawerVisible = ref(false)
-const layoutConfig = ref({
-  type: 'indented',
-  direction: 'LR',
-  indent: 250,
-  dropCap: false
-})
 function openLayoutConfig() {
   drawerVisible.value = !drawerVisible.value
 }
@@ -66,19 +59,21 @@ function execute() {
   formatJson.value = deepFormat(codeObj, fields.value)
 }
 // 编辑区展开/收起
-const isExpandEditor = ref(false)
-const editorIconAngle = ref('0deg')
-function onExpandEditor() {
-  isExpandEditor.value = !isExpandEditor.value
-  editorIconAngle.value = isExpandEditor.value ? '0deg' : '180deg'
-}
+// const isExpandEditor = ref(false)
+// const editorIconAngle = ref('0deg')
+// function onExpandEditor() {
+//   isExpandEditor.value = !isExpandEditor.value
+//   editorIconAngle.value = isExpandEditor.value ? '0deg' : '180deg'
+// }
 
 // 节点展开/收起
-const isExpand = ref(true)
-function onExpand() {
-  isExpand.value = !isExpand.value
-}
-
+const [   isExpandEditor ,toggleEditor ] = useToggle(true)
+const [   isExpand ,toggleNode ] = useToggle(true)
+const editorSize = computed(() => isExpandEditor.value ? 30 : 0)
+const canvasSize = computed(() => isExpandEditor.value ? 70 : 100)
+watch(isExpand,(val)=>{
+  console.log(val)
+})
 // 导出json
 function onExport() {
   const filename = 'json-viewer.json'
@@ -201,12 +196,9 @@ watch(
 <template>
   <div>
     <Splitpanes class="default-theme" style="height: 100vh">
-      <Pane min-size="24" max-size="50" size="30">
+      <Pane  max-size="50" :size="editorSize">
         <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
-          <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑`">
-            <span class="iconfont icon-editor-expand" :style="{ transform: `rotate(${editorIconAngle})` }"
-              @click="onExpandEditor" />
-          </el-tooltip>
+          
 
           <el-tooltip content="布局配置">
             <span class="iconfont icon-node-layout" @click="openLayoutConfig" />
@@ -242,13 +234,17 @@ watch(
 
         <VueCodeMirror v-model="code" :style="{ height: '100%' }" />
       </Pane>
-      <Pane>
+      <Pane :size="canvasSize">
         <div h-full>
           <div border="b gray/20" class="flex-between-center  px-2  bg-gray/10 h-10 ">
             <div class='flex-y-center space-x-3'>
+              <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑`">
+            <span class="iconfont icon-editor-expand" :style="{ transform: `rotate(${isExpandEditor?'0deg':'180deg'})` }"
+              @click="toggleEditor()" />
+          </el-tooltip>
               <el-tooltip :content="`${isExpand ? '收起' : '展开'}节点`">
                 <span class="iconfont" :class="isExpand ? 'icon-node-collapse' : 'icon-node-expand'"
-                  @click="onExpand" />
+                  @click="toggleNode()" />
               </el-tooltip>
               <el-tooltip content="放大">
                 <span class="iconfont icon-jia" @click="onZoomOut" />
@@ -267,29 +263,23 @@ watch(
                   " @click="onFullScreen" />
               </el-tooltip>
               <span class="iconfont" @click="toggleDarkAnimate" :class="isDark ? 'icon-night' : 'icon-day'" />
-              <el-popover title="主题配色" popper-class="theme-popover" trigger="click">
-                <template #reference>
+              <ColorPicker>
+                <template #icon>
                   <span class="iconfont icon-theme" />
                 </template>
-                <el-select v-model="themeActive" style="width: 124px">
-                  <el-option v-for="theme in themeList" :key="theme.key" :label="theme.label" :value="theme.key"
-                    :style="{ color: theme.color }" />
-                </el-select>
-              </el-popover>
+              </ColorPicker>
             </div>
             <SearchInput />
           </div>
           <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpand" :is-expand-editor="isExpandEditor"
-            :layout-config="layoutConfig" @node-click="nodeClickHandler" />
+             @node-click="nodeClickHandler" />
         </div>
       </Pane>
     </Splitpanes>
     <ExportImage v-model="exportVisible" @confirm="confirmExport" />
     <FieldsCustom v-model="fieldsVisible" />
     <NodeDialog v-model="nodeDetailVisible" :node-detail="nodeDetail" />
-    <!-- <div class='wh-full'>
-  <LayoutCustom v-model="drawerVisible" v-model:config="layoutConfig" />
-</div> -->
+    <LayoutCustom v-model="drawerVisible" />
   </div>
 
 </template>
@@ -306,8 +296,10 @@ watch(
     }
 
     :deep(.splitpanes__splitter) {
-      background-color: #f5f5f5 !important;
+      background-color: #d1d5db26;
+      border-left: 1px solid #d1d5db26 !important;
     }
+
   }
 }
 
@@ -315,11 +307,16 @@ watch(
   font-size: 18px;
   cursor: pointer;
   transition: all 0.2s;
-  color: #6b7280;
+  color: #9ca3af;
 
   &:hover {
     color: #222;
   }
+}
+
+.dark .iconfont:hover {
+  color: #fff;
+  // color:#9ca3af88
 }
 
 .slide-enter-active,

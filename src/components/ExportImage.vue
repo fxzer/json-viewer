@@ -55,7 +55,7 @@ function confirm() {
           <el-radio-button
             v-for="(typeItem, key) of imageTypes"
             :key="typeItem"
-            :label="typeItem"
+            :value="typeItem"
           >
             {{ key }}
           </el-radio-button>

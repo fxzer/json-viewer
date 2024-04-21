@@ -1,27 +1,22 @@
 // import G6  from "@antv/g6";
 import { computeNodeSize } from './computeNodeSize'
 import type { GraphOptionsPlus } from '@/types/graph'
-import type { ThemeItem } from '@/store/types/theme'
 
-const focusColor = '#33BB69'
+import chroma from "chroma-js";
+type bos = boolean | string
 
-function registerNodes(theme: ThemeItem) {
-  const { color, hcolor, hbcolor, nodeLabelColor, nodeHoverColor } = theme
-  // 不同状态下的颜色映射表
-  const rootRolorMap = {
-    true: hcolor,
-    false: color,
-  }
-  const rectFocusColorMap = {
-    true: {
-      stroke: focusColor,
-      fill: `${focusColor}20`,
-    },
-    // 如果hover前是focus状态，hover后颜色恢复聚焦颜色
-    false: {
-      stroke: color,
-      fill: `${color}20`,
-    },
+function registerNodes(colors,colorValue) {
+  const focusColor = ['#00DC82','#2dd4bf'].includes(colorValue) ? colors.amber: '#33BB69'
+  const focusColorMap = {
+    fill: chroma(focusColor).alpha(0.2).hex(),
+    stroke:focusColor,
+  } 
+  const isDark = useDark()
+  const clevels = new Array(10).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
+  const textColor  = isDark.value ? '#fff': '#333'
+  const rectColorMap = {
+    stroke: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.stroke : (isHover ? colorValue : clevels[8] ),
+    fill: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[3] : clevels[2])
   }
   // 注册根节点
   G6.registerNode(
@@ -48,7 +43,7 @@ function registerNodes(theme: ThemeItem) {
             textAlign: 'center',
             text: '\uE867',
             fontSize: 50,
-            fill: color, // 字体图标颜色
+            fill: clevels[8] , // 字体图标颜色
             cursor: 'pointer',
           },
           name: 'root-shape',
@@ -73,25 +68,8 @@ function registerNodes(theme: ThemeItem) {
       setState(name, value, item) {
         const group = item?.getContainer()
         const shape = group?.get('children')[1] // 顺序根据 draw 时确定
-        const isFocus = item.hasState('focus')
-        if (name === 'hover') {
-          if (value) {
-            shape.attr('fill', rootRolorMap[`${value}`])
-          }
-          else {
-            if (isFocus) {
-              shape.attr('fill', focusColor)
-              return
-            };
-            shape.attr('fill', color)
-          }
-        }
-        else if (name === 'focus') {
-          if (value)
-            shape.attr('fill', focusColor)
-
-          else
-            shape.attr('fill', color)
+        if (name === 'focus') {
+          shape.attr('fill', value ? focusColorMap.fill : clevels[8] )
         }
       },
     },
@@ -114,9 +92,9 @@ function registerNodes(theme: ThemeItem) {
           height: height + 20,
           lineWidth: 1,
           fontSize: 12,
-          fill: `${color}20`, // 设置透明度
+          fill:clevels[2], // 设置透明度
           radius: 4,
-          stroke: color,
+          stroke: clevels[8] ,
           opacity: 1,
         }
 
@@ -133,7 +111,7 @@ function registerNodes(theme: ThemeItem) {
           },
         })
 
-        // 文本
+        // 文本内容
         group.addShape('text', {
           attrs: {
             textAlign: 'left',
@@ -143,7 +121,7 @@ function registerNodes(theme: ThemeItem) {
             text: entriesStr,
             fontSize: 12,
             lineHeight: 12 * 1.5,
-            fill: nodeLabelColor,
+            fill: textColor,
             cursor: 'pointer',
             fontFamily: 'Arial',
           } as any,
@@ -158,9 +136,9 @@ function registerNodes(theme: ThemeItem) {
               y: -6,
               width: 12,
               height: 12,
-              stroke: `${hcolor}80`,
+              stroke: clevels[8],
               cursor: 'pointer',
-              fill: hbcolor,
+              fill: clevels[2],
               radius: 2,
             },
             name: 'collapse-back',
@@ -177,7 +155,7 @@ function registerNodes(theme: ThemeItem) {
               text: collapsed ? '+' : '-',
               fontSize: 16,
               cursor: 'pointer',
-              fill: `${hcolor}80`,
+              fill: clevels[8],
             },
             name: 'collapse-text',
             modelId: id,
@@ -201,27 +179,15 @@ function registerNodes(theme: ThemeItem) {
         else if (name === 'hover') {
           const group = item.getContainer()
           const shape = group.get('children')[0]
-          shape.attr('stroke', '#9AA1DB')
           const isFocus = item.hasState('focus')
-          const rectHoverColorMap = {
-            true: {
-              stroke: nodeHoverColor,
-              fill: `${nodeHoverColor}20`,
-            },
-            // 如果hover前是focus状态，hover后颜色恢复聚焦颜色
-            false: {
-              stroke: isFocus ? focusColor : color,
-              fill: isFocus ? `${focusColor}20` : `${color}20`,
-            },
-          }
-          shape.attr('stroke', rectHoverColorMap[`${value}`].stroke)
-          shape.attr('fill', rectHoverColorMap[`${value}`].fill)
+          shape.attr('stroke', rectColorMap.stroke(value, isFocus))
+          shape.attr('fill', rectColorMap.fill(value, isFocus))
         }
         else if (name === 'focus') {
           const group = item.getContainer()
           const shape = group.get('children')[0]
-          shape.attr('stroke', rectFocusColorMap[`${value}`].stroke)
-          shape.attr('fill', rectFocusColorMap[`${value}`].fill)
+          shape.attr('stroke', rectColorMap.stroke(false, value))
+          shape.attr('fill', rectColorMap.fill(false, value))
         }
       },
       getAnchorPoints() {

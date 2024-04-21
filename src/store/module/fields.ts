@@ -1,8 +1,8 @@
-import type { State } from '../types/fields'
+import type { FieldState } from '@/types/global'
 
 export const useFieldsStore = defineStore({
   id: 'fields',
-  state: (): State => {
+  state: (): FieldState => {
     const isStorage = ref(JSON.parse(localStorage.getItem('isStorage') || 'false'))
     const fields = ref(JSON.parse(localStorage.getItem('extraFields') || '[]'))
     // 监听改变并持久化

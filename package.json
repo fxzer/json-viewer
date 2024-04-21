@@ -15,10 +15,13 @@
   "dependencies": {
     "@antv/g6": "^4.8.24",
     "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/theme-one-dark": "^6.1.2",
     "@vueuse/core": "^10.9.0",
+    "chroma-js": "^2.4.2",
     "codemirror": "^6.0.1",
     "element-plus": "^2.7.0",
     "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.1",
     "splitpanes": "^3.1.5",
     "vite-plugin-pwa": "^0.19.8",
     "vue": "^3.4.23",

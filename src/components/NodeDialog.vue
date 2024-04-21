@@ -15,7 +15,7 @@ const code = computed(() => {
 
 <template>
   <el-dialog v-model="visible" title="节点详情" width="600">
-    <VueCodeMirror v-model="code" :style="{ height: '400px', border: '1px solid #ddd' }" />
+    <VueCodeMirror v-model="code" :style="{ height: '400px', border: '1px solid #9ca3af58' }" />
   </el-dialog>
 </template>
 

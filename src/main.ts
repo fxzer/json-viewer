@@ -9,9 +9,11 @@ import 'splitpanes/dist/splitpanes.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { createPinia } from 'pinia'
 import App from './App.vue'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 // 创建pinia实例
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 const app = createApp(App)
 app.use(pinia)
 app.mount('#app')

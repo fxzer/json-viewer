@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import type { TypeOption } from '@/types/layout/option'
-import { useLayoutStore, useThemeStore } from '@/store'
+import type {TypeOptionType, TypeOption } from '@/types/global'
+import {   useThemeStore } from '@/store'
 
-const { type, setType } = toRefs(useLayoutStore())
-const { currentTheme } = useThemeStore()
+const activeLayout = defineModel<TypeOptionType>()
 const typeList: Array<TypeOption> = [
   {
     type: 'indented',
@@ -30,9 +29,8 @@ const typeList: Array<TypeOption> = [
       'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*ffD6S74MXw4AAAAAAAAAAABkARQnAQ',
   },
 ]
-function onTypeSelect(ltype: TypeOption) {
-  setType.value(ltype.type)
-}
+
+const { currentTheme } = useThemeStore()
 </script>
 
 <template>
@@ -41,8 +39,8 @@ function onTypeSelect(ltype: TypeOption) {
       v-for="(ltype, index) in typeList"
       :key="index"
       class="layout-item"
-      :class="{ selected: ltype.type === type }"
-      @click="onTypeSelect(ltype)"
+      :class="{ selected: ltype.type === activeLayout }"
+      @click="activeLayout = ltype.type"
     >
       <img :src="ltype.image" alt="">
       <p class="type-name">
@@ -74,15 +72,18 @@ function onTypeSelect(ltype: TypeOption) {
     &:hover {
       transform: translateY(-2px);
       img {
-        box-shadow: 0 6px 16px v-bind("currentTheme.bgcolor");
-      }
+        box-shadow: 0 0px 10px #9ca3af71    
+      
+  }
       .type-name {
         font-weight: 600;
       }
     }
     &.selected {
       img {
-        border: 1px solid v-bind("currentTheme.color");
+  
+      border: 1px solid v-bind("currentTheme.hcolor");
+
       }
       .type-name {
         color: v-bind("currentTheme.hcolor");
@@ -90,14 +91,14 @@ function onTypeSelect(ltype: TypeOption) {
     }
     img {
       width: 100%;
-      border: 1px solid v-bind("currentTheme.bgcolor");
       border-radius: 3px;
       height: calc(100% - 20px);
+      border: 1px solid #d1d5db8f;
+
     }
     .type-name {
       text-align: center;
       font-size: 12px;
-      color: v-bind("currentTheme.color");
     }
   }
 }
