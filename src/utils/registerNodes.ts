@@ -14,6 +14,7 @@ function registerNodes(colors,colorValue) {
   const isDark = useDark()
   const clevels = new Array(10).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
   const textColor  = isDark.value ? '#fff': '#333'
+  const  foldColor = chroma(textColor).alpha(0.8).hex()
   const rectColorMap = {
     stroke: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.stroke : (isHover ? colorValue : clevels[8] ),
     fill: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[3] : clevels[2])
@@ -34,7 +35,7 @@ function registerNodes(colors,colorValue) {
           },
           name: 'root-bg-shape',
         })
-        // 添加图标
+        // 添加根节点图标
         const keyShape = group.addShape('text', {
           attrs: {
             x: 0,
@@ -136,9 +137,9 @@ function registerNodes(colors,colorValue) {
               y: -6,
               width: 12,
               height: 12,
-              stroke: clevels[8],
+              stroke: clevels[6],
               cursor: 'pointer',
-              fill: clevels[2],
+              fill: clevels[1],
               radius: 2,
             },
             name: 'collapse-back',
@@ -153,9 +154,9 @@ function registerNodes(colors,colorValue) {
               textAlign: 'center',
               textBaseline: 'middle',
               text: collapsed ? '+' : '-',
-              fontSize: 16,
+              fontSize: 12,
               cursor: 'pointer',
-              fill: clevels[8],
+              fill: foldColor,
             },
             name: 'collapse-text',
             modelId: id,
