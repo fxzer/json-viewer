@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { watchDebounced } from '@vueuse/core'
 // import Home from '@/index.vue'
 import { Pane, Splitpanes } from 'splitpanes'
 import JsonCanvas from '@/components/JsonCanvas.vue'
@@ -39,42 +40,51 @@ const layoutConfig = ref({
 function openLayoutConfig() {
   drawerVisible.value = !drawerVisible.value
 }
-const isPaste = ref(false)
-const jsonValid = ref(true)
+const code = ref(JSON.stringify(originJson.value, null, 2))
 
-const onJsonChange = debounce((opt, json) => {
-  console.log('[ opt ]-46', opt)
-  originJson.value = JSON.parse(json)
-}, 500)
-const onJsonError = debounce((err: Error) => {
-  // 如果是粘贴的json格式通过，不提示
-  if (jsonValid.value && isPaste.value) {
-    isPaste.value = false
+
+const jsonValid = ref(true)
+watchDebounced(code, (codeStr) => {
+  if(!codeStr)  {
+    formatJson.value = {}
     return
   }
-  ElNotification({
-    type: 'error',
-    title: 'JSON语法错误',
-    dangerouslyUseHTMLString: true,
-    message: `<pre style="white-space: normal;">${err.message}</pre>`,
-    duration: 2000,
-  })
-}, 600)
-// 监听剪切板粘贴事件
-function onPaste(e: ClipboardEvent) {
-  const text = e.clipboardData.getData('text')
-  // 验证json格式是否正确
-  jsonValid.value = true
   try {
-    JSON.parse(text)
-    isPaste.value = true
+    const mybeObj = JSON.parse(codeStr)
+    const isObj = Object.prototype.toString.call(mybeObj) === '[object Object]' 
+    jsonValid.value = isObj
+    if(isObj) {
+      originJson.value = mybeObj
+    }else{
+      ElNotification({
+        type: 'error',
+        title: 'JSON格式错误',
+        message: '请输入正确的JSON格式',
+        duration: 2000,
+      })
+    }
   }
   catch (err) {
     jsonValid.value = false
+    ElNotification({
+      type: 'error',
+      title: 'JSON语法错误',
+      dangerouslyUseHTMLString: true,
+      message: `<pre style="white-space: normal;">${err.message}</pre>`,
+      duration: 2000,
+    })
   }
-}
-window.addEventListener('paste', onPaste)
 
+}, { debounce: 500, })
+
+const autoExecute = ref(false)
+function toggleExecuteMode() {
+  autoExecute.value = !autoExecute.value
+}
+function execute() {
+  const codeObj = JSON.parse(code.value)
+  formatJson.value = deepFormat(codeObj, fields.value)
+}
 // 编辑区展开/收起
 const isExpandEditor = ref(false)
 const editorIconAngle = ref('0deg')
@@ -127,7 +137,7 @@ function onImport() {
 }
 // 清空json
 function confirmClear() {
-  formatJson.value = {} as any
+  code.value = ''
 }
 
 const jsonCanvasRef = ref<InstanceType<typeof JsonCanvas>>()
@@ -193,7 +203,9 @@ watch(
 watch(
   () => originJson.value,
   (val) => {
-    formatJson.value = deepFormat(val, fields.value)
+    if (autoExecute.value) {
+      formatJson.value = deepFormat(val, fields.value)
+    }
   },
   { deep: true },
 )
@@ -204,20 +216,10 @@ watch(
 )
 const extensions = [json()]
 function handleReady(editor: any) {
-  console.log('[ editor ]-206', editor)
 }
 
-function log(opt, e) {
-  console.log(opt, e)
 
-}
-const code = ref(JSON.stringify(originJson.value, null, 2))
-function changJson() {
-  code.value = JSON.stringify({
-    "name": "张三",
-    "age": 18,
-  })
-}
+
 </script>
 
 <!-- <div class='wh-full'>
@@ -254,11 +256,21 @@ function changJson() {
             <span class="iconfont icon-clear-json" />
           </template>
         </el-popconfirm>
+        <el-tooltip content="自动渲染">
+          <span class="iconfont icon-auto" @click="toggleExecuteMode" :class="autoExecute ? '!text-green-500' : ''" />
+        </el-tooltip>
+        <el-tooltip content="渲染">
+          <Transition name="slide">
+            <el-button class="iconfont icon-execute" v-show="!autoExecute" @click="execute" :class="[
+              !autoExecute && jsonValid ? '!text-green-500' : '',
+              jsonValid ? '' : '!text-gray-300'
+            ]" link :disabled="!jsonValid" />
+          </Transition>
+        </el-tooltip>
       </div>
 
       <codemirror v-model="code" placeholder="Code here..." :style="{ height: '100%' }" :indent-with-tab="true"
-        :tab-size="2" :extensions="extensions" @ready="handleReady" @change="onJsonChange('change', $event)"
-        @focus="log('focus', $event)" @blur="log('blur', $event)" />
+        :tab-size="2" :extensions="extensions" />
     </Pane>
     <Pane>
       <div h-full>
@@ -324,12 +336,23 @@ function changJson() {
   font-size: 18px;
   cursor: pointer;
   transition: all 0.2s;
-  opacity: 0.5;
+  color: #6b7280;
 
   &:hover {
-    opacity: 1;
-    color: #613bd3;
-    transform: scale(1.1);
+    color: #222;
   }
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.15s ease-in-out;
+}
+
+.slide-enter-from {
+  transform: translateY(-100%);
+}
+
+.slide-leave-to {
+  transform: translateY(-100%);
 }
 </style>
