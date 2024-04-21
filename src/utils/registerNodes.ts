@@ -1,7 +1,14 @@
 // import G6  from "@antv/g6";
-import { computeNodeSize } from './computeNodeSize'
-import type { GraphOptionsPlus } from '@/types/graph'
+import type { GraphOptions } from '@antv/g6'
 
+import { computeNodeSize } from './computeNodeSize'
+interface GraphOptionsPlus extends GraphOptions {
+  id: string
+  entries: string
+  keyName: string
+  collapsed?: boolean
+  [propName: string]: any
+}
 import chroma from "chroma-js";
 type bos = boolean | string
 

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type {TypeOptionType, TypeOption } from '@/types/global'
-import {   useThemeStore } from '@/store'
 
 const activeLayout = defineModel<TypeOptionType>()
 const typeList: Array<TypeOption> = [
@@ -30,7 +29,6 @@ const typeList: Array<TypeOption> = [
   },
 ]
 
-const { currentTheme } = useThemeStore()
 </script>
 
 <template>
@@ -82,11 +80,11 @@ const { currentTheme } = useThemeStore()
     &.selected {
       img {
   
-      border: 1px solid v-bind("currentTheme.hcolor");
+      // border: 1px solid v-bind("currentTheme.hcolor");
 
       }
       .type-name {
-        color: v-bind("currentTheme.hcolor");
+        // color: v-bind("currentTheme.hcolor");
       }
     }
     img {

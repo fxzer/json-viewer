@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { toggleDarkAnimate } from '@/hooks'
 import { Pane, Splitpanes } from 'splitpanes'
-import { useFieldsStore, useJsonStore} from '@/store'
+import { useGlobalStore} from '@/store'
 import { deepFormat } from '@/utils/deepFormat'
 import 'splitpanes/dist/splitpanes.css'
 
-const { fields, isStorage } = toRefs(useFieldsStore())
-const { formatJson, originJson } = toRefs(useJsonStore())
+const { fields,formatJson, originJson} = toRefs(useGlobalStore())
 const isDark = useDark()
 
 const drawerVisible = ref(false)
@@ -168,10 +167,6 @@ watch(
   (fields) => {
     // 重新处理数据
     formatJson.value = deepFormat(originJson.value, fields)
-    if (isStorage.value)
-      localStorage.setItem("extraFields", JSON.stringify(fields))
-    else
-      localStorage.removeItem('extraFields')
   },
   { deep: true },
 )

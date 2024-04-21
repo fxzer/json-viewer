@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useSearchStore } from '@/store'
+import { useGlobalStore } from '@/store'
 
-const { keyword, focusCount } = toRefs(useSearchStore())
+const { keyword, focusCount } = toRefs(useGlobalStore())
 </script>
 
 <template>

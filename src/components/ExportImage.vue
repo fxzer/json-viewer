@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import type { ImageConfig } from '@/types/export/image'
+interface ImageConfig {
+  name: string
+  type: string
+  padding: number
+  backgroundColor: string
+}
 
 const visible = defineModel<boolean>()
 const emit = defineEmits({

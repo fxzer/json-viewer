@@ -3,13 +3,8 @@ import { type LayoutConfig } from '@/types/global'
 import registerNodes from '@/utils/registerNodes'
 import registerBehaviors from '@/utils/registerBehaviors'
 import { dealDataToTree } from '@/utils/dealDataToTree'
-import {
-  useJsonStore,
-  useLayoutStore,
-  useSearchStore,
-} from '@/store'
-import { useThemeStore } from '@/store'
-const { colors,colorValue } = toRefs(useThemeStore())
+import { useGlobalStore, useLayoutStore} from '@/store'
+const { colors,colorValue,formatJson,keyword,focusCount } = toRefs(useGlobalStore())
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -21,9 +16,7 @@ const props = defineProps({
   },
 })
 const emit = defineEmits(['nodeClick'])
-const { formatJson } = toRefs(useJsonStore())
 const { activeLayout, activeConfig } = toRefs(useLayoutStore())
-const { keyword, focusCount } = toRefs(useSearchStore())
 const jsonCanvas = ref<HTMLElement | null>(null)
 
 // 监听formatJson变化

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const visible = defineModel<boolean>()
-import { useFieldsStore } from '@/store'
+import { useGlobalStore } from '@/store'
 
-const { isStorage, fields } = toRefs(useFieldsStore())
+const {fields } = toRefs(useGlobalStore())
 function handleType(index: number) {
   return ['success', 'info', 'warning'][index % 3] as any
 }
@@ -35,9 +35,6 @@ function addField() {
 <template>
   <el-dialog v-model="visible" title="指定额外解析字段" width="400">
     <el-form label-width="72px">
-      <el-form-item label="本地保存">
-        <el-switch v-model="isStorage" inline-prompt active-text="是" inactive-text="否" />
-      </el-form-item>
       <el-form-item label="字段名称">
         <div class="flex gap-4 flex-wrap">
           <el-tag v-for="(field, index) in fields" :key="index" :type="handleType(index)" closable
