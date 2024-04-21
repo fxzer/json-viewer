@@ -1,7 +1,7 @@
 import type { LayoutConfig, LayoutState } from '@/types/global'
 
 export const useLayoutStore = defineStore('layout', (): LayoutState => {
-  const activeLayout = ref('indented')
+  const activeLayout = ref('mindmap')
   const layoutList = reactive({
     indented: {
       type: 'indented',

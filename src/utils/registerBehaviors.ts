@@ -1,5 +1,5 @@
 // 注册行为
-function registerBehaviors(graph, nodeClickCb: (node: any) => void) {
+export function registerBehaviors(graph, nodeClickCb: (node: any) => void) {
   const handleCollapse = (e) => {
     e.stopPropagation()
     const target = e.target
@@ -44,4 +44,3 @@ function registerBehaviors(graph, nodeClickCb: (node: any) => void) {
 
   graph.on('node:click', handleNodeClick)
 }
-export default registerBehaviors

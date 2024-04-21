@@ -1,6 +1,5 @@
 import exampleJson from '@/example.json'
-import { deepFormat } from '@/utils/deepFormat'
-import { isObject } from '@/utils/typeis'
+import { isObject,deepFormat } from '@/utils'
 import { useGlobalStore } from './global'
 
 export const useCodeStore = defineStore('code', () => {

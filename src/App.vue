@@ -2,7 +2,7 @@
 import { toggleDarkAnimate } from '@/hooks'
 import { Pane, Splitpanes } from 'splitpanes'
 import { useGlobalStore,useCodeStore } from '@/store'
-import { isObject } from '@/utils/typeis'
+import { isObject } from '@/utils'
 import 'splitpanes/dist/splitpanes.css'
 const { code, json, jsonValid, } = toRefs(useCodeStore())
 const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(useGlobalStore())

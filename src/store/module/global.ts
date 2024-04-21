@@ -1,3 +1,4 @@
+import { setHtmlProperty } from '@/utils'
 export const useGlobalStore = defineStore('global', () => {
   const keyword = ref('')
   const focusCount = ref(0)
@@ -27,7 +28,11 @@ export const useGlobalStore = defineStore('global', () => {
     "rose": "#fb7185"
   }
   const colorName = ref('orange')
-  const colorValue = computed(() => colors[colorName.value])
+  const colorValue = computed(() => {
+    const color = colors[colorName.value]
+    setHtmlProperty('--el-color-primary', color)
+    return color
+  })
   return {
     isDark,
     fields,

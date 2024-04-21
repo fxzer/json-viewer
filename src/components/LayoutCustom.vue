@@ -21,7 +21,7 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
   >
     <LayoutOptions v-model="activeLayout" />
     <div class="layout-custom">
-      <el-form label-width="80px" :inline="false">
+      <el-form label-width="68" :inline="false">
         <!-- 共有方向 -->
         <el-form-item label="布局方向">
           <el-radio-group v-model="activeConfig.direction">
@@ -43,7 +43,7 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
               active-text="是"
               inactive-text="否"
             />
-            <span class="text-info">开启后子节点从父节点下一行开始依次渲染</span>
+            <span class="text-gray text-xs ml-3">开启后子节点从父节点下一行开始依次渲染</span>
           </el-form-item>
           <el-form-item label="缩进距离">
             <el-input v-model.number="activeConfig.indent">
@@ -113,13 +113,8 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
 
 <style scoped lang="scss">
 .layout-custom {
-  .text-info {
-    color: #909399;
-    font-size: 13px;
-    margin-left: 10px;
-  }
   .el-form-item {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   :deep(.el-radio-group) {
     display: flex;

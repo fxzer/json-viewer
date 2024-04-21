@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { type LayoutConfig } from '@/types/global'
-import registerNodes from '@/utils/registerNodes'
-import registerBehaviors from '@/utils/registerBehaviors'
-import { dealDataToTree } from '@/utils/dealDataToTree'
+import { dealDataToTree,registerBehaviors, registerNodes} from '@/utils'
 import { useGlobalStore, useLayoutStore,useCodeStore } from '@/store'
 const { json,} = toRefs(useCodeStore())
 const { isDark, colors, colorValue, keyword, focusCount, autoRender } = toRefs(useGlobalStore())

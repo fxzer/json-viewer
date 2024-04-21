@@ -12,7 +12,7 @@ interface GraphOptionsPlus extends GraphOptions {
 import chroma from "chroma-js";
 type bos = boolean | string
 
-function registerNodes(colors,colorValue) {
+export function registerNodes(colors,colorValue) {
   const focusColor = ['#00DC82','#2dd4bf'].includes(colorValue) ? colors.amber: '#33BB69'
   const focusColorMap = {
     fill: chroma(focusColor).alpha(0.2).hex(),
@@ -209,4 +209,3 @@ function registerNodes(colors,colorValue) {
   )
 }
 
-export default registerNodes
