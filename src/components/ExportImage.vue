@@ -1,23 +1,9 @@
 <script lang="ts" setup>
 import type { ImageConfig } from '@/types/export/image'
 
-const props = defineProps({
-  value: {
-    type: Boolean,
-    default: false,
-  },
-})
+const visible = defineModel<boolean>()
 const emit = defineEmits({
-  'update:value': (val: boolean) => true,
   'confirm': (val: ImageConfig) => true,
-})
-const visible = computed({
-  get() {
-    return props.value
-  },
-  set(val: boolean) {
-    emit('update:value', val)
-  },
 })
 const imageTypes = reactive({
   PNG: 'image/png',
@@ -33,7 +19,7 @@ const predefineColors = ref([
   '#00ced1',
   '#1e90ff',
   '#c71585',
-  'rgba(255, 69, 0, 0.68)',
+  'rgba(255, 69, 0, 0.4)',
   'rgb(255, 120, 0)',
   'hsv(51, 100, 98)',
   'hsva(120, 40, 94, 0.5)',

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3847355 */
-  src: url('//at.alicdn.com/t/c/font_3847355_53erj4r7ei4.woff2?t=1713672235271') format('woff2'),
-       url('//at.alicdn.com/t/c/font_3847355_53erj4r7ei4.woff?t=1713672235271') format('woff'),
-       url('//at.alicdn.com/t/c/font_3847355_53erj4r7ei4.ttf?t=1713672235271') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_3847355_59czu9rb7c.woff2?t=1713676680507') format('woff2'),
+       url('//at.alicdn.com/t/c/font_3847355_59czu9rb7c.woff?t=1713676680507') format('woff'),
+       url('//at.alicdn.com/t/c/font_3847355_59czu9rb7c.ttf?t=1713676680507') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-day:before {
+  content: "\e839";
+}
+
+.icon-night:before {
+  content: "\e83e";
 }
 
 .icon-execute:before {
@@ -47,14 +55,6 @@
 
 .icon-zidingyi:before {
   content: "\e723";
-}
-
-.icon-day:before {
-  content: "\e77c";
-}
-
-.icon-night:before {
-  content: "\e784";
 }
 
 .icon-home-fill:before {

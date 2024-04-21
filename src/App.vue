@@ -1,33 +1,22 @@
 <script setup lang="ts">
 import { watchDebounced } from '@vueuse/core'
-// import Home from '@/index.vue'
+import { toggleDarkAnimate } from '@/hooks'
 import { Pane, Splitpanes } from 'splitpanes'
 import JsonCanvas from '@/components/JsonCanvas.vue'
-// import ExportImage from '@/components/ExportImage.vue'
+import ExportImage from '@/components/ExportImage.vue'
 // import NodeDialog from '@/components/NodeDialog.vue'
-// import FieldsCustom from '@/components/FieldsCustom.vue'
+import FieldsCustom from '@/components/FieldsCustom.vue'
 // import LayoutCustom from '@/components/LayoutCustom.vue'
 // import SearchInput from '@/components/SearchInput.vue'
 import { useFieldsStore, useJsonStore, useThemeStore } from '@/store'
-import { debounce } from '@/utils/debounce'
 import { deepFormat } from '@/utils/deepFormat'
 import 'splitpanes/dist/splitpanes.css'
-const { themeActive, themeList, currentTheme } = toRefs(useThemeStore())
+const { themeActive, themeList} = toRefs(useThemeStore())
 const { fields, isStorage } = toRefs(useFieldsStore())
 const { formatJson, originJson } = toRefs(useJsonStore())
 import { Codemirror } from 'vue-codemirror'
 import { json } from '@codemirror/lang-json'
 const isDark = useDark()
-const toggleDark = useToggle(isDark)
-
-const themeMode = computed(() => {
-  if (themeActive.value === 'dark')
-    toggleDark(true)
-  else
-    toggleDark(false)
-
-  return themeActive.value === 'dark' ? 'dark' : 'light'
-})
 
 // 布局配置抽屉
 const drawerVisible = ref(false)
@@ -222,15 +211,11 @@ function handleReady(editor: any) {
 
 </script>
 
-<!-- <div class='wh-full'>
-  <NodeDialog v-model="showNodeDetail" :node-detail="nodeDetail" />
-  <ExportImage v-model="exportVisible" @confirm="confirmExport" />
-  <LayoutCustom v-model="drawerVisible" v-model:config="layoutConfig" />
-  <FieldsCustom v-model="fieldsVisible" />
-</div> -->
+
 
 <template>
-  <Splitpanes class="default-theme" style="height: 100vh">
+  <div>
+    <Splitpanes class="default-theme" style="height: 100vh">
     <Pane min-size="24" max-size="50" size="30">
       <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
         <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑`">
@@ -241,15 +226,16 @@ function handleReady(editor: any) {
         <el-tooltip content="布局配置">
           <span class="iconfont icon-node-layout" @click="openLayoutConfig" />
         </el-tooltip>
+        <el-tooltip content="解析字段">
+          <span class="iconfont icon-zidingyi" @click="openFieldsDialog" />
+        </el-tooltip>
         <el-tooltip content="导入JSON">
           <span class="iconfont icon-import-json" @click="onImport" />
         </el-tooltip>
         <el-tooltip content="导出JSON">
           <span class="iconfont icon-export-json" @click="onExport" />
         </el-tooltip>
-        <el-tooltip content="解析字段">
-          <span class="iconfont icon-zidingyi" @click="openFieldsDialog" />
-        </el-tooltip>
+     
         <el-popconfirm title="确定清空JSON?" confirm-button-type="warning" confirm-button-text="确定" cancel-button-text="取消"
           @confirm="confirmClear">
           <template #reference>
@@ -295,7 +281,7 @@ function handleReady(editor: any) {
               <span class="iconfont" :class="isFullScreen ? 'icon-exit-fullscreen' : 'icon-enter-fullscreen'
                 " @click="onFullScreen" />
             </el-tooltip>
-
+              <span class="iconfont" @click="toggleDarkAnimate" :class="isDark ? 'icon-night':'icon-day'" />
             <el-popover title="主题配色" popper-class="theme-popover" trigger="click">
               <template #reference>
                 <span class="iconfont icon-theme" />
@@ -313,6 +299,14 @@ function handleReady(editor: any) {
       </div>
     </Pane>
   </Splitpanes>
+  <ExportImage v-model="exportVisible" @confirm="confirmExport" />
+  <FieldsCustom v-model="fieldsVisible" />
+<!-- <div class='wh-full'>
+  <NodeDialog v-model="showNodeDetail" :node-detail="nodeDetail" />
+  <LayoutCustom v-model="drawerVisible" v-model:config="layoutConfig" />
+</div> -->
+  </div>
+
 </template>
 
 <style lang="scss" scoped>
