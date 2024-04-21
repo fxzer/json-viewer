@@ -128,3 +128,8 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
   }
 }
 </style>
+<style>
+.layout-modal {
+width: 450px;
+}
+</style>
