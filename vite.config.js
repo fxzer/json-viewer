@@ -34,24 +34,22 @@ export default defineConfig(({ _, mode }) => {
           // 预定义
           'vue', // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
           'pinia',
+          '@vueuse/core',
           // 自定义
           {
-            '@vueuse/core': [
-              'useDark',
-              'useToggle', // import { useDark } from '@vueuse/core',
-            ],
             '@antv/g6': [
               ['default', 'G6'], // mport G6  from "@antv/g6";
               // "GraphOptions"  //import { TreeGraph ,GraphOptions}  from "@antv/g6";
             ],
           },
         ],
-        dts: true, // 方案二:生成自动导入的auto-imports.d.ts声明文件, 解决 '找不到名称“Elxxx”' 报错
+        dts: 'src/types/auto-imports.d.ts', // 方案二:生成自动导入的auto-imports.d.ts声明文件, 解决 '找不到名称“Elxxx”' 报错
         // dts: path.resolve(pathSrc, 'auto-imports.d.ts'), //手动指定文件路径
         resolvers: [ElementPlusResolver()], // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
       }),
       Components({
         resolvers: [ElementPlusResolver()],
+        dts: 'src/types/auto-components.d.ts',
       }),
       VitePWA({
         outDir: 'dist',

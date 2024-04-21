@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useElementSize } from '@vueuse/core'
 import { type LayoutConfig } from '@/store/types/layout'
 import registerNodes from '@/utils/registerNodes'
 import registerBehaviors from '@/utils/registerBehaviors'

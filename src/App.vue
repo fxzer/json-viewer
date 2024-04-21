@@ -1,21 +1,12 @@
 <script setup lang="ts">
-import { watchDebounced } from '@vueuse/core'
 import { toggleDarkAnimate } from '@/hooks'
 import { Pane, Splitpanes } from 'splitpanes'
-import JsonCanvas from '@/components/JsonCanvas.vue'
-import ExportImage from '@/components/ExportImage.vue'
-// import NodeDialog from '@/components/NodeDialog.vue'
-import FieldsCustom from '@/components/FieldsCustom.vue'
-// import LayoutCustom from '@/components/LayoutCustom.vue'
-// import SearchInput from '@/components/SearchInput.vue'
 import { useFieldsStore, useJsonStore, useThemeStore } from '@/store'
 import { deepFormat } from '@/utils/deepFormat'
 import 'splitpanes/dist/splitpanes.css'
-const { themeActive, themeList} = toRefs(useThemeStore())
+const { themeActive, themeList } = toRefs(useThemeStore())
 const { fields, isStorage } = toRefs(useFieldsStore())
 const { formatJson, originJson } = toRefs(useJsonStore())
-import { Codemirror } from 'vue-codemirror'
-import { json } from '@codemirror/lang-json'
 const isDark = useDark()
 
 // 布局配置抽屉
@@ -34,17 +25,17 @@ const code = ref(JSON.stringify(originJson.value, null, 2))
 
 const jsonValid = ref(true)
 watchDebounced(code, (codeStr) => {
-  if(!codeStr)  {
+  if (!codeStr) {
     formatJson.value = {}
     return
   }
   try {
     const mybeObj = JSON.parse(codeStr)
-    const isObj = Object.prototype.toString.call(mybeObj) === '[object Object]' 
+    const isObj = Object.prototype.toString.call(mybeObj) === '[object Object]'
     jsonValid.value = isObj
-    if(isObj) {
+    if (isObj) {
       originJson.value = mybeObj
-    }else{
+    } else {
       ElNotification({
         type: 'error',
         title: 'JSON格式错误',
@@ -129,7 +120,7 @@ function confirmClear() {
   code.value = ''
 }
 
-const jsonCanvasRef = ref<InstanceType<typeof JsonCanvas>>()
+const jsonCanvasRef = ref()
 const exportVisible = ref(false)
 function showExportImage() {
   exportVisible.value = true
@@ -155,11 +146,11 @@ function onAutoZoom() {
     (jsonCanvasRef?.value?.toolbar as any).autoZoom()
 }
 // 关键词搜索
-const showNodeDetail = ref(false)
+const nodeDetailVisible = ref(false)
 const nodeDetail = ref({})
 function nodeClickHandler(node: any) {
   nodeDetail.value = node
-  showNodeDetail.value = true
+  nodeDetailVisible.value = true
 }
 // 全屏/退出全屏
 const isFullScreen = ref(false)
@@ -203,12 +194,6 @@ watch(
   (val) => { },
   { deep: true },
 )
-const extensions = [json()]
-function handleReady(editor: any) {
-}
-
-
-
 </script>
 
 
@@ -216,93 +201,93 @@ function handleReady(editor: any) {
 <template>
   <div>
     <Splitpanes class="default-theme" style="height: 100vh">
-    <Pane min-size="24" max-size="50" size="30">
-      <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
-        <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑`">
-          <span class="iconfont icon-editor-expand" :style="{ transform: `rotate(${editorIconAngle})` }"
-            @click="onExpandEditor" />
-        </el-tooltip>
+      <Pane min-size="24" max-size="50" size="30">
+        <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
+          <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑`">
+            <span class="iconfont icon-editor-expand" :style="{ transform: `rotate(${editorIconAngle})` }"
+              @click="onExpandEditor" />
+          </el-tooltip>
 
-        <el-tooltip content="布局配置">
-          <span class="iconfont icon-node-layout" @click="openLayoutConfig" />
-        </el-tooltip>
-        <el-tooltip content="解析字段">
-          <span class="iconfont icon-zidingyi" @click="openFieldsDialog" />
-        </el-tooltip>
-        <el-tooltip content="导入JSON">
-          <span class="iconfont icon-import-json" @click="onImport" />
-        </el-tooltip>
-        <el-tooltip content="导出JSON">
-          <span class="iconfont icon-export-json" @click="onExport" />
-        </el-tooltip>
-     
-        <el-popconfirm title="确定清空JSON?" confirm-button-type="warning" confirm-button-text="确定" cancel-button-text="取消"
-          @confirm="confirmClear">
-          <template #reference>
-            <span class="iconfont icon-clear-json" />
-          </template>
-        </el-popconfirm>
-        <el-tooltip content="自动渲染">
-          <span class="iconfont icon-auto" @click="toggleExecuteMode" :class="autoExecute ? '!text-green-500' : ''" />
-        </el-tooltip>
-        <el-tooltip content="渲染">
-          <Transition name="slide">
-            <el-button class="iconfont icon-execute" v-show="!autoExecute" @click="execute" :class="[
-              !autoExecute && jsonValid ? '!text-green-500' : '',
-              jsonValid ? '' : '!text-gray-300'
-            ]" link :disabled="!jsonValid" />
-          </Transition>
-        </el-tooltip>
-      </div>
+          <el-tooltip content="布局配置">
+            <span class="iconfont icon-node-layout" @click="openLayoutConfig" />
+          </el-tooltip>
+          <el-tooltip content="解析字段">
+            <span class="iconfont icon-zidingyi" @click="openFieldsDialog" />
+          </el-tooltip>
+          <el-tooltip content="导入JSON">
+            <span class="iconfont icon-import-json" @click="onImport" />
+          </el-tooltip>
+          <el-tooltip content="导出JSON">
+            <span class="iconfont icon-export-json" @click="onExport" />
+          </el-tooltip>
 
-      <codemirror v-model="code" placeholder="Code here..." :style="{ height: '100%' }" :indent-with-tab="true"
-        :tab-size="2" :extensions="extensions" />
-    </Pane>
-    <Pane>
-      <div h-full>
-        <div border="b gray/20" class="flex-between-center  px-2  bg-gray/10 h-10 ">
-          <div class='flex-y-center space-x-3'>
-            <el-tooltip :content="`${isExpand ? '收起' : '展开'}节点`">
-              <span class="iconfont" :class="isExpand ? 'icon-node-collapse' : 'icon-node-expand'" @click="onExpand" />
-            </el-tooltip>
-            <el-tooltip content="放大">
-              <span class="iconfont icon-jia" @click="onZoomOut" />
-            </el-tooltip>
-            <el-tooltip content="缩小">
-              <span class="iconfont icon-jian" @click="onZoomIn" />
-            </el-tooltip>
-            <el-tooltip content="居中">
-              <span class="iconfont icon-center-focus" @click="onAutoZoom" />
-            </el-tooltip>
-            <el-tooltip content="存为图片">
-              <span class="iconfont icon-save-image" @click="showExportImage" />
-            </el-tooltip>
-            <el-tooltip :content="`${isFullScreen ? '退出' : '进入'}全屏`">
-              <span class="iconfont" :class="isFullScreen ? 'icon-exit-fullscreen' : 'icon-enter-fullscreen'
-                " @click="onFullScreen" />
-            </el-tooltip>
-              <span class="iconfont" @click="toggleDarkAnimate" :class="isDark ? 'icon-night':'icon-day'" />
-            <el-popover title="主题配色" popper-class="theme-popover" trigger="click">
-              <template #reference>
-                <span class="iconfont icon-theme" />
-              </template>
-              <el-select v-model="themeActive" style="width: 124px">
-                <el-option v-for="theme in themeList" :key="theme.key" :label="theme.label" :value="theme.key"
-                  :style="{ color: theme.color }" />
-              </el-select>
-            </el-popover>
-          </div>
-          <SearchInput />
+          <el-popconfirm title="确定清空JSON?" confirm-button-type="warning" confirm-button-text="确定"
+            cancel-button-text="取消" @confirm="confirmClear">
+            <template #reference>
+              <span class="iconfont icon-clear-json" />
+            </template>
+          </el-popconfirm>
+          <el-tooltip content="自动渲染">
+            <span class="iconfont icon-auto" @click="toggleExecuteMode" :class="autoExecute ? '!text-green-500' : ''" />
+          </el-tooltip>
+          <el-tooltip content="渲染">
+            <Transition name="slide">
+              <el-button class="iconfont icon-execute" v-show="!autoExecute" @click="execute" :class="[
+                !autoExecute && jsonValid ? '!text-green-500' : '',
+                jsonValid ? '' : '!text-gray-300'
+              ]" link :disabled="!jsonValid" />
+            </Transition>
+          </el-tooltip>
         </div>
-        <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpand" :is-expand-editor="isExpandEditor"
-          :layout-config="layoutConfig" @node-click="nodeClickHandler" />
-      </div>
-    </Pane>
-  </Splitpanes>
-  <ExportImage v-model="exportVisible" @confirm="confirmExport" />
-  <FieldsCustom v-model="fieldsVisible" />
-<!-- <div class='wh-full'>
-  <NodeDialog v-model="showNodeDetail" :node-detail="nodeDetail" />
+
+        <VueCodeMirror v-model="code" :style="{ height: '100%' }" />
+      </Pane>
+      <Pane>
+        <div h-full>
+          <div border="b gray/20" class="flex-between-center  px-2  bg-gray/10 h-10 ">
+            <div class='flex-y-center space-x-3'>
+              <el-tooltip :content="`${isExpand ? '收起' : '展开'}节点`">
+                <span class="iconfont" :class="isExpand ? 'icon-node-collapse' : 'icon-node-expand'"
+                  @click="onExpand" />
+              </el-tooltip>
+              <el-tooltip content="放大">
+                <span class="iconfont icon-jia" @click="onZoomOut" />
+              </el-tooltip>
+              <el-tooltip content="缩小">
+                <span class="iconfont icon-jian" @click="onZoomIn" />
+              </el-tooltip>
+              <el-tooltip content="居中">
+                <span class="iconfont icon-center-focus" @click="onAutoZoom" />
+              </el-tooltip>
+              <el-tooltip content="存为图片">
+                <span class="iconfont icon-save-image" @click="showExportImage" />
+              </el-tooltip>
+              <el-tooltip :content="`${isFullScreen ? '退出' : '进入'}全屏`">
+                <span class="iconfont" :class="isFullScreen ? 'icon-exit-fullscreen' : 'icon-enter-fullscreen'
+                  " @click="onFullScreen" />
+              </el-tooltip>
+              <span class="iconfont" @click="toggleDarkAnimate" :class="isDark ? 'icon-night' : 'icon-day'" />
+              <el-popover title="主题配色" popper-class="theme-popover" trigger="click">
+                <template #reference>
+                  <span class="iconfont icon-theme" />
+                </template>
+                <el-select v-model="themeActive" style="width: 124px">
+                  <el-option v-for="theme in themeList" :key="theme.key" :label="theme.label" :value="theme.key"
+                    :style="{ color: theme.color }" />
+                </el-select>
+              </el-popover>
+            </div>
+            <SearchInput />
+          </div>
+          <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpand" :is-expand-editor="isExpandEditor"
+            :layout-config="layoutConfig" @node-click="nodeClickHandler" />
+        </div>
+      </Pane>
+    </Splitpanes>
+    <ExportImage v-model="exportVisible" @confirm="confirmExport" />
+    <FieldsCustom v-model="fieldsVisible" />
+    <NodeDialog v-model="nodeDetailVisible" :node-detail="nodeDetail" />
+    <!-- <div class='wh-full'>
   <LayoutCustom v-model="drawerVisible" v-model:config="layoutConfig" />
 </div> -->
   </div>
