@@ -1,18 +1,18 @@
-export interface FieldState{
-  isStorage:ref<boolean>,
-  fields:ref<string[]>,
+export interface FieldState {
+  isStorage: ref<boolean>,
+  fields: ref<string[]>,
 }
 type TypeOptionType = 'indented' | 'mindmap' | 'compactBox' | 'dendrogram';
 
-export interface LayoutState{
-  activeLayout:ref<string>
-  activeConfig:ref<LayoutConfig>
+export interface LayoutState {
+  activeLayout: ref<string>
+  activeConfig: ref<LayoutConfig>
   layoutList: reactive<LayoutList>
 }
-export interface LayoutList{
-  [key:string]:LayoutConfig
+export interface LayoutList {
+  [key: string]: LayoutConfig
 }
-export interface LayoutConfig{
+export interface LayoutConfig {
   type: TypeOptionType;
   direction: string;
   directions: string[];
@@ -24,7 +24,7 @@ export interface LayoutConfig{
   vgap?: number;
   getHGap?: () => number;
   getVGap?: (d: any) => number;
-  [propName:string]:any
+  [propName: string]: any
 }
 
 export interface TypeOption {
@@ -36,7 +36,7 @@ export interface TypeOption {
 //   themeActive:string,
 //   themeList:ThemeItem[]
 // }
-export interface ThemeItem{
+export interface ThemeItem {
   label: string;
   key: string;
   color: string;
@@ -46,3 +46,8 @@ export interface ThemeItem{
   nodeLabelColor?: string;
   nodeHoverColor?: string;
 }
+
+// declare interface ImportMeta {
+//   VITE_BASE_URL: string
+//   VITE_OUTDIR: string
+// }

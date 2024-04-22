@@ -1,21 +1,16 @@
 {
   "compilerOptions": {
+    "module": "esnext",
     "target": "ES2017",
     "jsx": "preserve",
-    "lib": [
-      "ES2017",
-      "DOM"
-    ],
-    // "esModuleInterop": true,
-    // "lib": ["esnext", "dom"],
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
     "baseUrl": "./",
-    // "useDefineForClassFields": true,
-    // "module": "esnext",
+    "useDefineForClassFields": true,
     "moduleResolution": "node",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@": ["src"],
+      "@/*": ["src/*"]
     },
     "resolveJsonModule": true, // 不对第三方依赖类型检查 ，element-plus 生产打包报错
     "types": [
@@ -25,13 +20,9 @@
     "strict": false,
     "sourceMap": true,
     "allowSyntheticDefaultImports": true, // 默认导入
-    "skipLibCheck": true
+    "skipLibCheck": true,
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "auto-imports.d.ts" // 方案一: 解决 '找不到名称“Elxxx”' 报错
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+
 }

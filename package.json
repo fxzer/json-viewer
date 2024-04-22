@@ -1,7 +1,7 @@
 {
   "name": "json-viewer",
   "type": "module",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -21,6 +21,7 @@
     "chroma-js": "^2.4.2",
     "codemirror": "^6.0.1",
     "element-plus": "^2.7.0",
+    "lz-string": "^1.5.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "splitpanes": "^3.1.5",

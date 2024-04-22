@@ -13,8 +13,9 @@ import UnoCSS from 'unocss/vite'
 const lifecycle = process.env.npm_lifecycle_event
 // 获取npm命令
 export default defineConfig(({ _, mode }) => {
+  const env = loadEnv(mode, process.cwd())
   return {
-    base: './',
+    base: env.VITE_BASE_URL,
     plugins: [
       vue(),
       UnoCSS(),
@@ -92,7 +93,7 @@ export default defineConfig(({ _, mode }) => {
     },
     // 打包配置
     build: {
-      outDir: loadEnv(mode, process.cwd()).VITE_OUTDIR,
+      outDir: env.VITE_OUTDIR,
     },
   }
 })
