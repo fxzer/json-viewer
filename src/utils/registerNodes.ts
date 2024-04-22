@@ -28,7 +28,7 @@ export function handleColors([colors, colorValue]) {
   }
   const isDark = useDark()
   const textColor = isDark.value ? '#fff' : '#333'
-  const clevels = new Array(10).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
+  const clevels = Array.from({ length: 10 }).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
   const foldColor = chroma(textColor).alpha(0.8).hex()
 
   return { focusColorMap, clevels, textColor, foldColor, rectColorMap }
@@ -87,11 +87,12 @@ export function registerNodes(...args: any[]) {
         const nodeRect = group?.get('children')[1] // 顺序根据 draw 时确定
         if (name === 'focus') {
           nodeRect.attr('fill', value ? focusColorMap.fill : clevels[8])
-        } else if (name === 'theme-change') {
-          // 获取html元素的主题色
-          const pcolor = getPrimaryColor()
-          nodeRect.attr('fill', pcolor)
-        }
+        } 
+        // else if (name === 'theme-change') {
+        //   // 获取html元素的主题色
+        //   const pcolor = getPrimaryColor()
+        //   nodeRect.attr('fill', pcolor)
+        // }
       },
     },
     'circle',
@@ -195,7 +196,7 @@ export function registerNodes(...args: any[]) {
         const nodeText = group.find((e) =>byName(e, 'node-text'))
         const collapseText = group.find((e) =>byName(e, 'collapse-text'))
         const pcolor = getPrimaryColor()
-        const { textColor, rectColorMap, clevels, foldColor } = handleColors([args[0], pcolor])
+        const { textColor, rectColorMap, foldColor } = handleColors([args[0], pcolor])
         if (value) {
           /* 暗黑模式切换 */
           if (['dark', 'light'].includes(name)) {
@@ -208,16 +209,17 @@ export function registerNodes(...args: any[]) {
             if (collapseText) {
               collapseText.attr({ text: value ? '+' : '-' })
             }
-          }else if (name === 'theme-change') {
-            // 主题色切换
-            nodeText.attr('fill', textColor)
-            nodeRect.attr('fill', clevels[2])
-            nodeRect.attr('stroke', clevels[8])
-  
-            collapseText?.attr('fill', foldColor)
-            collapseRect?.attr('fill', clevels[1])
-            collapseRect?.attr('stroke', clevels[6])
           }
+          // else if (name === 'theme-change') {
+          //   // 主题色切换
+          //   nodeText.attr('fill', textColor)
+          //   nodeRect.attr('fill', clevels[2])
+          //   nodeRect.attr('stroke', clevels[8])
+  
+          //   collapseText?.attr('fill', foldColor)
+          //   collapseRect?.attr('fill', clevels[1])
+          //   collapseRect?.attr('stroke', clevels[6])
+          // }
         }
 
         if (name === 'hover') {

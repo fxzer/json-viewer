@@ -30,8 +30,7 @@ function render() {
   }, 500)
 }
 watch(json, () => {
-  if (autoRender.value)
-    render()
+  autoRender.value && render()
 }, { deep: true })
 watch(isDark, () => {
   updateStylle(graph.value)
