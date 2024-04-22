@@ -73,6 +73,18 @@ export default defineConfig(({ _, mode }) => {
               sizes: '192x192',
               purpose: 'maskable',
             },
+            {
+              src: '/json-viewer/logo_144.png',
+              type: 'img/png',
+              sizes: '144x144',
+              purpose: 'maskable',
+            },
+            {
+              src: '/json-viewer/logo_144.png',
+              type: 'img/png',
+              sizes: '144x144',
+              purpose: 'any',
+            },
           ],
         },
       }),
