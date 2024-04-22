@@ -17,7 +17,7 @@ const lifecycle = process.env.npm_lifecycle_event
 export default defineConfig(({ _, mode }) => {
   const env = loadEnv(mode, process.cwd())
   return {
-    base: './',
+    base: env.VITE_BASE_URL,
     plugins: [
       vue(),
       UnoCSS(),
