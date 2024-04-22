@@ -167,7 +167,7 @@ const canvasIconList = [
   <div>
     <Splitpanes class="default-theme" style="height: 100vh" :horizontal="isMobile">
       <Pane max-size="50" :size="paneSize[0]">
-        <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
+        <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-10 space-x-3">
           <template v-for="item in editorIconList">
             <el-tooltip :content="$t(item.content)">
               <span class="iconfont" :class="item.icon" @click="item.onClick" />
@@ -248,7 +248,7 @@ const canvasIconList = [
 
     :deep(.splitpanes__splitter) {
       background-color: #d1d5db26;
-      border-left: 1px solid #d1d5db26 !important;
+      border-color:#d1d5db26 !important;
     }
 
   }
