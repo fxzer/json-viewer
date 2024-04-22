@@ -24,12 +24,12 @@ function addField() {
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="指定额外解析字段" :width="width">
+  <el-dialog v-model="visible" :title="$t('assignField')" :width="width">
     <div class='flex gap-3'>
-      <el-input ref="inputRef" class='flex-1' v-model.trim="inputValue" placeholder="输入字段名称，可按回车确认" size="small"
+      <el-input ref="inputRef" class='flex-1' v-model.trim="inputValue" :placeholder="$t('fieldPlaceholder')" size="small"
         @keyup.enter="addField" />
       <el-button size="small" @click="addField">
-        + 添加
+        +
       </el-button>
     </div>
     <div class="flex gap-4 flex-wrap my-4">
@@ -39,8 +39,8 @@ function addField() {
       </el-tag>
     </div>
     <p class="bg-gray/10 text-gray rounded p3 text-xs">
-      <span class="text-amber">额外解析字段：</span>
-      指定后，遇到此字段会将对应的值时，会将其解析为JSON并继续递归处理，并转化为子树。
+      <span class="text-amber">{{ $t('infoName') }}</span>
+      {{ $t('info') }}
     </p>
   </el-dialog>
 </template>

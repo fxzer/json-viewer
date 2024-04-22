@@ -13,7 +13,7 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
 <template>
   <el-drawer
     v-model="visible"
-    title="布局配置"
+    :title="$t('layoutConfig')"
     :with-header="true"
     :modal="false"
     append-to-body
@@ -24,9 +24,9 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
   >
     <LayoutOptions v-model="activeLayout" />
     <div class="layout-custom">
-      <el-form label-width="70" :inline="false">
+      <el-form label-width="72" :inline="false">
         <!-- 共有方向 -->
-        <el-form-item label="布局方向">
+        <el-form-item :label="$t('direction')">
           <el-radio-group v-model="activeConfig.direction">
             <el-radio-button
               v-for="direction in activeConfig.directions"
@@ -37,18 +37,18 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
         </el-form-item>
         <!-- indented缩进树  -->
         <div v-if="activeLayout === 'indented'" class="indented">
-          <el-form-item label="节点换行">
+          <el-form-item :label="$t('nodeWrap')" >
+            <div class='flex-y-center flex-nowrap'>
             <el-switch
               v-model="activeConfig.dropCap"
               :active-value="true"
               :inactive-value="false"
               inline-prompt
-              active-text="是"
-              inactive-text="否"
             />
-            <span class="text-gray text-xs ml-3">开启后子节点从父节点下一行开始依次渲染</span>
+            <span class="text-gray text-xs ml-3 truncate w-60">{{ $t('nodeWrapInfo') }}</span>
+            </div>
           </el-form-item>
-          <el-form-item label="缩进距离">
+          <el-form-item :label="$t('indentDistance')">
             <el-input v-model.number="activeConfig.indent">
               <template #append>
                 px
@@ -58,14 +58,14 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
         </div>
         <!-- dendrogram生态树  -->
         <div v-if="activeLayout === 'dendrogram'" class="dendrogram">
-          <el-form-item label="层级间距">
+          <el-form-item :label="$t('levelSpacing')">
             <el-input v-model.number="activeConfig.rankSep">
               <template #append>
                 px
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item label="节点间距">
+          <el-form-item :label="$t('nodeSpacing')">
             <el-input v-model.number="activeConfig.nodeSep">
               <template #append>
                 px
@@ -76,14 +76,14 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
         <!--  mindmap脑图树 -->
         <div v-if="activeLayout === 'mindmap'" class="mindmap">
           <div class="custom-mode">
-            <el-form-item label="水平间距">
+            <el-form-item :label="$t('hgap')">
               <el-input v-model.number="activeConfig.hgap">
                 <template #append>
                   px
                 </template>
               </el-input>
             </el-form-item>
-            <el-form-item label="垂直间距">
+            <el-form-item :label="$t('vgap')">
               <el-input v-model.number="activeConfig.vgap">
                 <template #append>
                   px
@@ -94,14 +94,14 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
         </div>
         <!-- compactBox紧凑树 -->
         <div v-if="activeLayout === 'compactBox'" class="compactBox">
-          <el-form-item label="水平间距">
+          <el-form-item :label="$t('hgap')">
             <el-input v-model.number="activeConfig.hgap">
               <template #append>
                 px
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item label="垂直间距">
+          <el-form-item :label="$t('vgap')">
             <el-input v-model.number="activeConfig.vgap">
               <template #append>
                 px

@@ -5,25 +5,21 @@ const activeLayout = defineModel<TypeOptionType>()
 const typeList: Array<TypeOption> = [
   {
     type: 'indented',
-    name: '缩进树',
     image:
       'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*kbzRRZk2t2cAAAAAAAAAAABkARQnAQ',
   },
   {
     type: 'mindmap',
-    name: '脑图树',
     image:
       'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*wRZjTL3fCbEAAAAAAAAAAABkARQnAQ',
   },
   {
     type: 'compactBox',
-    name: '紧凑树',
     image:
       'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*XlXOR5pmM3oAAAAAAAAAAABkARQnAQ',
   },
   {
     type: 'dendrogram',
-    name: '生态树',
     image:
       'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*ffD6S74MXw4AAAAAAAAAAABkARQnAQ',
   },
@@ -37,7 +33,7 @@ const typeList: Array<TypeOption> = [
       :class="{ selected: ltype.type === activeLayout }" @click="activeLayout = ltype.type">
       <img :src="ltype.image" class='border h-14 rounded' :class="ltype.type === activeLayout ? '!border-primary':''">
       <p class="text-xs text-center mt-2" :class="ltype.type === activeLayout ? 'text-primary':''">
-        {{ ltype.name }}
+        {{ $t(ltype.type) }}
       </p>
     </div>
   </div>

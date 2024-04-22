@@ -16,7 +16,7 @@ const width = useDialogWidth(600)
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="节点详情" :width="width">
+  <el-dialog v-model="visible" :title="$t('nodeDetail')" :width="width">
     <VueCodeMirror v-model="code" :style="{ height: '400px', border: '1px solid #9ca3af58' }" />
   </el-dialog>
 </template>

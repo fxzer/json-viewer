@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { setupI18n } from './utils'
 import './main.scss'
 
 // Tailwind 紧凑型样式重置
@@ -15,5 +16,6 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 const app = createApp(App)
+setupI18n(app)
 app.use(pinia)
 app.mount('#app')

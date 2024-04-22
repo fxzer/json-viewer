@@ -1,14 +1,22 @@
+import { useI18n } from 'vue-i18n'
 import { setHtmlProperty } from '@/utils'
+import chroma from "chroma-js";
 import { useMobile} from '@/hooks'
 export const useGlobalStore = defineStore('global', () => {
+  const i18n = useI18n()
+  const language = ref('zh-CN')
   const keyword = ref('')
   const focusCount = ref(0)
   const isDark = useDark()
   const fields = ref(['result'])
   const autoRender = ref(true)
+
+  function toggleLanguage() {
+    language.value =  i18n.locale.value = language.value === 'zh-CN' ? 'en-US' : 'zh-CN'
+  }
+
   const toggleExecuteMode = useToggle(autoRender)
   const  isMobile  = useMobile()
-  // 编辑区展开/收起
   const [isExpandEditor, toggleEditor] = useToggle(true)
   const paneSize = computed(() => {
     if(isMobile.value){
@@ -38,12 +46,16 @@ export const useGlobalStore = defineStore('global', () => {
   const colorValue = computed(() => {
     const color = colors[colorName.value]
     setHtmlProperty('--el-color-primary', color)
+    setHtmlProperty('--el-color-primary-light-9', chroma(color).alpha(0.1).hex())
+    setHtmlProperty('--el-color-primary-light-7', chroma(color).alpha(0.3).hex())
+
     return color
   })
   return {
     isDark,
     fields,
     keyword,
+    language,
     focusCount,
     colors,
     colorName,
@@ -52,6 +64,7 @@ export const useGlobalStore = defineStore('global', () => {
     toggleExecuteMode,
     isExpandEditor,
     toggleEditor,
-    paneSize
+    paneSize,
+    toggleLanguage
   }
 }, { persist: true })

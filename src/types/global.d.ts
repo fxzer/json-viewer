@@ -30,7 +30,6 @@ export interface LayoutConfig {
 export interface TypeOption {
   type: TypeOptionType;
   image: string;
-  name: string;
 }
 // export interface ThemeState{
 //   themeActive:string,

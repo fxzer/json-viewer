@@ -10,7 +10,7 @@ const extensions = computed(() => isDark.value ? [json(), oneDark] : [json()])
 </script>
 
 <template>
-  <codemirror v-model="code" placeholder="Code here..." :style="style" :indent-with-tab="true" :tab-size="2"
+  <codemirror v-model="code" :placeholder="$t('editorPlaceholder')" :style="style" :indent-with-tab="true" :tab-size="2"
     :extensions="extensions"></codemirror>
 </template>
 

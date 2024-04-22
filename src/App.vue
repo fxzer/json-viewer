@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { Pane, Splitpanes } from 'splitpanes'
-import { useGlobalStore,useCodeStore } from '@/store'
-import { toggleDarkAnimate ,useMobile} from '@/hooks'
+import { useGlobalStore, useCodeStore } from '@/store'
+import { toggleDarkAnimate, useMobile } from '@/hooks'
 import { isObject } from '@/utils'
 import 'splitpanes/dist/splitpanes.css'
 const { code, json, jsonValid, } = toRefs(useCodeStore())
 const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(useGlobalStore())
-const { toggleEditor, toggleExecuteMode } = useGlobalStore()
+const { toggleEditor, toggleExecuteMode, toggleLanguage } = useGlobalStore()
 const drawerVisible = ref(false)
 function openLayoutConfig() {
   drawerVisible.value = !drawerVisible.value
 }
-const  isMobile  = useMobile()
+const isMobile = useMobile()
 // 节点展开/收起
-const [isExpand, toggleNode] = useToggle(true)
+const [isExpandNode, toggleNode] = useToggle(true)
 const editorIconStyle = computed(() => {
-  if(isMobile.value){
+  if (isMobile.value) {
     return { transform: `rotate(${isExpandEditor.value ? '90deg' : '270deg'})` }
-  }else{
+  } else {
     return { transform: `rotate(${isExpandEditor.value ? '0deg' : '180deg'})` }
   }
 })
@@ -58,7 +58,7 @@ function onImport() {
 const jsonCanvasRef = ref()
 const exportVisible = ref(false)
 function onRender() {
-  jsonCanvasRef.value.render() 
+  jsonCanvasRef.value.render()
 }
 function showExportImage() {
   exportVisible.value = true
@@ -105,31 +105,75 @@ const fieldsVisible = ref(false)
 function openFieldsDialog() {
   fieldsVisible.value = true
 }
+
+const editorIconList = [
+  {
+    icon: 'icon-node-layout',
+    content: 'layoutConfig',
+    onClick: openLayoutConfig,
+  },
+  {
+    icon: 'icon-zidingyi',
+    content: 'parseField',
+    onClick: openFieldsDialog,
+  },
+  {
+    icon: 'icon-import-json',
+    content: 'import',
+    onClick: onImport,
+  },
+  {
+    icon: 'icon-export-json',
+    content: 'export',
+    onClick: onExport,
+  },
+  {
+    icon: 'icon-clear-json',
+    content: 'clear',
+    onClick: () => {
+      code.value = ''
+    },
+  },
+]
+const canvasIconList = [
+  {
+    icon: 'icon-jia',
+    content: 'zoomIn',
+    onClick: onZoomOut,
+  },
+  {
+    icon: 'icon-jian',
+    content: 'zoomOut',
+    onClick: onZoomIn,
+  },
+  {
+    icon: 'icon-center-focus',
+    content: 'center',
+    onClick: onAutoZoom,
+  },
+  {
+    icon: 'icon-save-image',
+    content: 'saveImage',
+    onClick: showExportImage,
+  },
+  {
+    icon: 'icon-language',
+    content: 'language',
+    onClick: toggleLanguage,
+  },
+]
 </script>
 <template>
   <div>
     <Splitpanes class="default-theme" style="height: 100vh" :horizontal="isMobile">
       <Pane max-size="50" :size="paneSize[0]">
         <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
-          <el-tooltip content="布局配置">
-            <span class="iconfont icon-node-layout" @click="openLayoutConfig" />
-          </el-tooltip>
-          <el-tooltip content="解析字段">
-            <span class="iconfont icon-zidingyi" @click="openFieldsDialog" />
-          </el-tooltip>
-          <el-tooltip content="导入JSON">
-            <span class="iconfont icon-import-json" @click="onImport" />
-          </el-tooltip>
-          <el-tooltip content="导出JSON">
-            <span class="iconfont icon-export-json" @click="onExport" />
-          </el-tooltip>
+          <template v-for="item in editorIconList">
+            <el-tooltip :content="$t(item.content)">
+              <span class="iconfont" :class="item.icon" @click="item.onClick" />
+            </el-tooltip>
+          </template>
 
-          <el-popconfirm title="确定清空JSON?" confirm-button-type="warning" confirm-button-text="确定"
-            cancel-button-text="取消" @confirm="code = ''">
-            <template #reference>
-              <span class="iconfont icon-clear-json" />
-            </template>
-          </el-popconfirm>
           <el-tooltip content="自动渲染">
             <span class="iconfont icon-auto" @click="toggleExecuteMode()"
               :class="autoRender ? '!text-green-500' : ''" />
@@ -150,27 +194,22 @@ function openFieldsDialog() {
         <div h-full>
           <div border="b gray/20" class="md:(h-10 flex-between-center) px-2   bg-gray/10 ">
             <div class='flex-y-center space-x-3'>
-              <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑区`">
-                <span class="iconfont icon-editor-expand"
-                  :style="editorIconStyle" @click="toggleEditor()" />
+
+              <el-tooltip :content="`${isExpandEditor ?  $t('collapse') : $t('expand')}${$t('editor')}`">
+                <span class="iconfont icon-editor-expand" :style="editorIconStyle" @click="toggleEditor()" />
               </el-tooltip>
-              <el-tooltip :content="`${isExpand ? '收起' : '展开'}节点`">
-                <span class="iconfont" :class="isExpand ? 'icon-node-collapse' : 'icon-node-expand'"
+              <el-tooltip :content="`${isExpandNode ?  $t('collapse') : $t('expand')}${$t('nodes')}`">
+                <span class="iconfont" :class="isExpandNode ? 'icon-node-collapse' : 'icon-node-expand'"
                   @click="toggleNode()" />
               </el-tooltip>
-              <el-tooltip content="放大">
-                <span class="iconfont icon-jia" @click="onZoomOut" />
-              </el-tooltip>
-              <el-tooltip content="缩小">
-                <span class="iconfont icon-jian" @click="onZoomIn" />
-              </el-tooltip>
-              <el-tooltip content="居中">
-                <span class="iconfont icon-center-focus" @click="onAutoZoom" />
-              </el-tooltip>
-              <el-tooltip content="存为图片">
-                <span class="iconfont icon-save-image" @click="showExportImage" />
-              </el-tooltip>
-              <el-tooltip :content="`${isFullScreen ? '退出' : '进入'}全屏`">
+
+              <template v-for="item in canvasIconList">
+                <el-tooltip :content="$t(item.content)">
+                  <span class="iconfont" :class="item.icon" @click="item.onClick" />
+                </el-tooltip>
+              </template>
+
+              <el-tooltip  :content="`${isFullScreen ?  $t('exit') : $t('enter')}${$t('fullscreen')}`">
                 <span class="iconfont" :class="isFullScreen ? 'icon-exit-fullscreen' : 'icon-enter-fullscreen'
                   " @click="onFullScreen" />
               </el-tooltip>
@@ -183,9 +222,9 @@ function openFieldsDialog() {
             </div>
             <SearchInput />
           </div>
-          <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpand" :is-expand-editor="isExpandEditor"
+          <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpandNode" :is-expand-editor="isExpandEditor"
             @node-click="nodeClickHandler" />
-        </div> 
+        </div>
       </Pane>
     </Splitpanes>
     <ExportImage v-model="exportVisible" @confirm="confirmExport" />
