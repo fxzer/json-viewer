@@ -174,7 +174,7 @@ const canvasIconList = [
             </el-tooltip>
           </template>
 
-          <el-tooltip content="自动渲染">
+          <el-tooltip :content="$t(autoRender ? 'autoRender':'manualRender')">
             <span class="iconfont icon-auto" @click="toggleExecuteMode()"
               :class="autoRender ? '!text-green-500' : ''" />
           </el-tooltip>

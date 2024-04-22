@@ -12,6 +12,7 @@ export default {
   center: 'Center',
   nodes: 'Nodes',
   autoRender: 'Auto Render',
+  manualRender: 'Manual Render', 
   execute: 'Render',
   import: 'Import',
   export: 'Export',

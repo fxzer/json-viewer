@@ -12,6 +12,7 @@ export default {
   center: '居中',
   nodes: '节点',
   autoRender: '自动渲染',
+  manualRender: '手动渲染', 
   execute: '渲染',
   import: '导入',
   export: '导出',
