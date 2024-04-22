@@ -1,11 +1,12 @@
 <script lang="ts" setup>
+import { useDialogWidth } from '@/hooks'
 interface ImageConfig {
   name: string
   type: string
   padding: number
   backgroundColor: string
 }
-
+const width = useDialogWidth()
 const visible = defineModel<boolean>()
 const emit = defineEmits({
   'confirm': (val: ImageConfig) => true,
@@ -46,7 +47,7 @@ function confirm() {
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="将画布导出为图片" width="378">
+  <el-dialog v-model="visible" title="将画布导出为图片" :width="width">
     <el-form label-width="72px">
       <el-form-item label="图片名称">
         <el-input

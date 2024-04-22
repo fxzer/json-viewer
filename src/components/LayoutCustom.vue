@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import LayoutOptions from './LayoutOptions.vue'
 import { useLayoutStore } from '@/store'
-import {  useMobile } from '@/hooks'
+import { useDialogWidth } from '@/hooks'
 
 const visible = defineModel<boolean>()
 
-const isMobile = useMobile()
-const { width } = useWindowSize()
-const drawerSize = computed(() =>  isMobile.value ? width.value :   400 )
+const width = useDialogWidth()
 // 弹窗相关
 const { activeLayout, activeConfig } = toRefs(useLayoutStore())
 </script>
@@ -21,7 +19,7 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
     append-to-body
     modal-class="md:w-100"
     direction="ltr"
-    :size="drawerSize"
+    :size="width"
     close-on-press-escape
   >
     <LayoutOptions v-model="activeLayout" />

@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-const visible = defineModel<boolean>()
 import { useGlobalStore } from '@/store'
+import { useDialogWidth } from '@/hooks'
 
+
+const width = useDialogWidth()
+const visible = defineModel<boolean>()
 const { fields } = toRefs(useGlobalStore())
 function handleType(index: number) {
   return ['success', 'info', 'warning'][index % 3] as any
@@ -21,7 +24,7 @@ function addField() {
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="指定额外解析字段" width="400">
+  <el-dialog v-model="visible" title="指定额外解析字段" :width="width">
     <div class='flex gap-3'>
       <el-input ref="inputRef" class='flex-1' v-model.trim="inputValue" placeholder="输入字段名称，可按回车确认" size="small"
         @keyup.enter="addField" />
