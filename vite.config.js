@@ -3,12 +3,14 @@ import process from 'node:process'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import { version } from './package.json'
 // 引入element-plus自动按需导入插件
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { visualizer } from 'rollup-plugin-visualizer'
 import UnoCSS from 'unocss/vite'
+import { webUpdateNotice } from '@plugin-web-update-notification/vite'
 // const pathSrc = path.resolve(__dirname, 'src')
 const lifecycle = process.env.npm_lifecycle_event
 // 获取npm命令
@@ -72,6 +74,14 @@ export default defineConfig(({ _, mode }) => {
               purpose: 'maskable',
             },
           ],
+        },
+      }),
+      webUpdateNotice({
+        checkInterval: 1 * 60 * 1000,
+        notificationProps: {
+          title: '🎉 网站更新提示!',
+          description: `检测到新版本(${version}), 请刷新页面后使用！`,
+          buttonText: '刷新',
         },
       }),
     ],

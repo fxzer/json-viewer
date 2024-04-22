@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode production",
+    "build": "vite build",
     "build:remote": "vite build --mode prod_remote",
     "report": "rimraf dist && vite build",
     "preview": "vite preview",
@@ -31,6 +31,7 @@
     "vue-i18n": "^9.13.1"
   },
   "devDependencies": {
+    "@plugin-web-update-notification/vite": "^1.7.1",
     "@unocss/reset": "^0.59.4",
     "@vitejs/plugin-vue": "^5.0.4",
     "bumpp": "^9.4.0",

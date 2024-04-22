@@ -54,6 +54,9 @@ importers:
         specifier: ^9.13.1
         version: 9.13.1(vue@3.4.23(typescript@5.3.3))
     devDependencies:
+      '@plugin-web-update-notification/vite':
+        specifier: ^1.7.1
+        version: 1.7.1(vite@5.2.10(@types/node@20.10.4)(sass@1.75.0)(terser@5.26.0))
       '@unocss/reset':
         specifier: ^0.59.4
         version: 0.59.4
@@ -1080,6 +1083,14 @@ packages:
     resolution: {integrity: sha512-LmwDhDaZYd20WKmHPeITYNazGVUBFvs7D9+WJ+ecx+bX/6euFp8j+e/4sUzxR5gk6pecqyA6WEld52Gy6W92jg==}
     cpu: [x64]
     os: [win32]
+
+  '@plugin-web-update-notification/core@1.7.1':
+    resolution: {integrity: sha512-G5xbuFE4B3TGxM9FxYwUlbGleuWNUzdbw3ZNcht1WDn85Qbhgzk7lQwuXVilxZII6LhsghJ4Zdapw0jgzuCJQw==}
+
+  '@plugin-web-update-notification/vite@1.7.1':
+    resolution: {integrity: sha512-qIP2JBt19gZGWjagZOGc0qatoLGa2h4GnrHjF1ETzVgHUuJMgBeZpqMjzO81MwbmOUQdWbvwlF3ZZhXopeXB/w==}
+    peerDependencies:
+      vite: ^5.0.0 || >4.0.0 || ^3.0.0
 
   '@polka/url@1.0.0-next.25':
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
@@ -4291,6 +4302,13 @@ snapshots:
 
   '@oxlint/win32-x64@0.2.18':
     optional: true
+
+  '@plugin-web-update-notification/core@1.7.1': {}
+
+  '@plugin-web-update-notification/vite@1.7.1(vite@5.2.10(@types/node@20.10.4)(sass@1.75.0)(terser@5.26.0))':
+    dependencies:
+      '@plugin-web-update-notification/core': 1.7.1
+      vite: 5.2.10(@types/node@20.10.4)(sass@1.75.0)(terser@5.26.0)
 
   '@polka/url@1.0.0-next.25': {}
 
