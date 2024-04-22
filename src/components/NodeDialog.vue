@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useDialogWidth } from '@/hooks'
 const visible = defineModel<boolean>()
 const props = defineProps({
   nodeDetail: {
@@ -11,10 +12,11 @@ const code = computed(() => {
   let node = id === 'root' ? {} : keyName || entries
   return JSON.stringify(node, null, 2)
 })
+const width = useDialogWidth(600)
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="节点详情" width="600">
+  <el-dialog v-model="visible" title="节点详情" :width="width">
     <VueCodeMirror v-model="code" :style="{ height: '400px', border: '1px solid #9ca3af58' }" />
   </el-dialog>
 </template>

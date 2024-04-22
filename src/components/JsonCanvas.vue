@@ -3,7 +3,7 @@ import { type LayoutConfig } from '@/types/global'
 import { dealDataToTree,registerBehaviors, registerNodes} from '@/utils'
 import { useGlobalStore, useLayoutStore,useCodeStore } from '@/store'
 const { json,} = toRefs(useCodeStore())
-const { isDark, colors, colorValue, keyword, focusCount, autoRender } = toRefs(useGlobalStore())
+const { isDark, colors, colorValue, keyword, focusCount} = toRefs(useGlobalStore())
 
 const props = defineProps({
   isExpand: {
@@ -136,10 +136,10 @@ function drawGraph(data, isUpdate = true) {
     graph.value?.zoom(0.85)
 }
 const { width, height } = useElementSize(jsonCanvas)
-watch([width, height], ([w, h]) => {
+watchDebounced([width, height], ([w, h]) => {
   if (graph.value)
     graph.value.changeSize(w, h)
-})
+},{debounce: 600})
 onMounted(() => {
   initGraph()
   drawGraph(json.value, false)

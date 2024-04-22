@@ -185,7 +185,7 @@ function openFieldsDialog() {
           </div>
           <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpand" :is-expand-editor="isExpandEditor"
             @node-click="nodeClickHandler" />
-        </div>
+        </div> 
       </Pane>
     </Splitpanes>
     <ExportImage v-model="exportVisible" @confirm="confirmExport" />
