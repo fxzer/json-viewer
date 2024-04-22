@@ -17,20 +17,21 @@ export const useCodeStore = defineStore('code', () => {
 
   watch(fields, (val) => {
     json.value = deepFormat(JSON.parse(code.value), val)
-  },
-  )
+  },{ deep: true })
 
   const jsonValid = ref(true)
   watchDebounced(code, (codeStr) => {
 
     if (!codeStr) {
       json.value = {}
+      url.searchParams.delete(queryKey)
+      window.history.replaceState('', '', `${url.pathname}${url.search}`) 
       return
     }
     try {
       const mybeObj = JSON.parse(codeStr)
       if (isObject(mybeObj)) {
-        json.value = mybeObj
+        json.value =  deepFormat(mybeObj, fields.value)
         jsonValid.value = true
         url.searchParams.set(queryKey, encode(codeStr))
         window.history.replaceState('', '', `${url.pathname}${url.search}`)
