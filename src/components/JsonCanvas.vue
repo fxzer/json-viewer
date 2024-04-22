@@ -41,7 +41,7 @@ function updateStylle(g) {
   const nodes = g.getNodes()
   const state = isDark.value  ? 'dark' : 'light'
   nodes.forEach(node => {
-    g.clearItemStates(node, ['dark', 'light']); 
+    g.clearItemStates(node, [isDark.value ? 'light' : 'dark','hover']); 
     g.setItemState(node, state, true)
   })
 }
