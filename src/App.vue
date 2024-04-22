@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { toggleDarkAnimate } from '@/hooks'
 import { Pane, Splitpanes } from 'splitpanes'
 import { useGlobalStore,useCodeStore } from '@/store'
+import { toggleDarkAnimate ,useMobile} from '@/hooks'
 import { isObject } from '@/utils'
 import 'splitpanes/dist/splitpanes.css'
 const { code, json, jsonValid, } = toRefs(useCodeStore())
@@ -11,10 +11,16 @@ const drawerVisible = ref(false)
 function openLayoutConfig() {
   drawerVisible.value = !drawerVisible.value
 }
-
+const  isMobile  = useMobile()
 // 节点展开/收起
 const [isExpand, toggleNode] = useToggle(true)
-
+const editorIconStyle = computed(() => {
+  if(isMobile.value){
+    return { transform: `rotate(${isExpandEditor.value ? '90deg' : '270deg'})` }
+  }else{
+    return { transform: `rotate(${isExpandEditor.value ? '0deg' : '180deg'})` }
+  }
+})
 
 // 导出json
 function onExport() {
@@ -102,7 +108,7 @@ function openFieldsDialog() {
 </script>
 <template>
   <div>
-    <Splitpanes class="default-theme" style="height: 100vh">
+    <Splitpanes class="default-theme" style="height: 100vh" :horizontal="isMobile">
       <Pane max-size="50" :size="paneSize[0]">
         <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-9 space-x-3">
           <el-tooltip content="布局配置">
@@ -142,11 +148,11 @@ function openFieldsDialog() {
       </Pane>
       <Pane :size="paneSize[1]">
         <div h-full>
-          <div border="b gray/20" class="flex-between-center  px-2  bg-gray/10 h-10 ">
+          <div border="b gray/20" class="md:(h-10 flex-between-center) px-2   bg-gray/10 ">
             <div class='flex-y-center space-x-3'>
-              <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑`">
+              <el-tooltip :content="`${isExpandEditor ? '收起' : '展开'}编辑区`">
                 <span class="iconfont icon-editor-expand"
-                  :style="{ transform: `rotate(${isExpandEditor ? '0deg' : '180deg'})` }" @click="toggleEditor()" />
+                  :style="editorIconStyle" @click="toggleEditor()" />
               </el-tooltip>
               <el-tooltip :content="`${isExpand ? '收起' : '展开'}节点`">
                 <span class="iconfont" :class="isExpand ? 'icon-node-collapse' : 'icon-node-expand'"

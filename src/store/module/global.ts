@@ -1,4 +1,5 @@
 import { setHtmlProperty } from '@/utils'
+import { useMobile} from '@/hooks'
 export const useGlobalStore = defineStore('global', () => {
   const keyword = ref('')
   const focusCount = ref(0)
@@ -6,10 +7,16 @@ export const useGlobalStore = defineStore('global', () => {
   const fields = ref(['result'])
   const autoRender = ref(true)
   const toggleExecuteMode = useToggle(autoRender)
-
+  const  isMobile  = useMobile()
   // 编辑区展开/收起
   const [isExpandEditor, toggleEditor] = useToggle(true)
-  const paneSize = computed(() => isExpandEditor.value ? [30, 70] : [0, 100])
+  const paneSize = computed(() => {
+    if(isMobile.value){
+      return isExpandEditor.value ? [50,50] : [0, 100]
+    }else{
+      return isExpandEditor.value ? [30, 70] : [0, 100]
+    }
+  })
   const colors = {
     "orange": "#fb923c",
     "amber": "#fbbf24",

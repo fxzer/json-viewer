@@ -24,6 +24,7 @@ export default defineConfig(({ _, mode }) => {
         ? visualizer({ open: true, brotliSize: true, filename: 'report.html' })
         : null, // 打包分析
       AutoImport({
+        // dirs: ['src/hooks'],
         include: [
           // 导入目标文件类型
           /\.[tj]s(x|on)?$/, // .ts, .tsx, .js, .jsx .json
@@ -45,7 +46,6 @@ export default defineConfig(({ _, mode }) => {
           },
         ],
         dts: 'src/types/auto-imports.d.ts', // 方案二:生成自动导入的auto-imports.d.ts声明文件, 解决 '找不到名称“Elxxx”' 报错
-        // dts: path.resolve(pathSrc, 'auto-imports.d.ts'), //手动指定文件路径
         resolvers: [ElementPlusResolver()], // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
       }),
       Components({
