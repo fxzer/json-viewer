@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { type LayoutConfig } from '@/types/global'
-import { dealDataToTree,registerBehaviors, registerNodes} from '@/utils'
-import { useGlobalStore, useLayoutStore,useCodeStore } from '@/store'
-const { json} = toRefs(useCodeStore())
-const { isDark, colors, colorValue, keyword, focusCount} = toRefs(useGlobalStore())
+import { dealDataToTree, registerBehaviors, registerNodes, handleColors } from '@/utils'
+import { useGlobalStore, useLayoutStore, useCodeStore } from '@/store'
+const { json } = toRefs(useCodeStore())
+const { isDark, colors, themeColor, keyword, focusCount } = toRefs(useGlobalStore())
 
+const graph = ref()
 const ratio = defineModel<number>('ratio')
 const props = defineProps({
   isExpand: {
@@ -27,10 +28,32 @@ function render() {
     focusNode(keyword.value)
   }, 500)
 }
-watch(json, render,{ deep: true})
-watch([isDark, colorValue], () => {
-  window.location.reload()
+watch(json, render, { deep: true })
+watch(isDark, () => {
+  updateStylle(graph.value)
 })
+watch(themeColor, () => {
+  updateTheme(graph.value) 
+})
+
+/* 更新样式 */
+function updateStylle(g) {
+  const nodes = g.getNodes()
+  const state = isDark.value  ? 'dark' : 'light'
+  nodes.forEach(node => {
+    g.clearItemStates(node, ['dark', 'light']); 
+    g.setItemState(node, state, true)
+  })
+}
+
+function updateTheme(g) {
+  const nodes = g.getNodes()
+  nodes.forEach(node => {
+    g.clearItemStates(node, ['dark', 'light','hover','focus','theme-change']); 
+    g.setItemState(node, 'theme-change', true)
+  }) 
+  g.paint()
+}
 // 转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
 function convertLayoutConfig(config: LayoutConfig) {
   const hvgapLayout = ['mindmap', 'compactBox']
@@ -47,7 +70,7 @@ function convertLayoutConfig(config: LayoutConfig) {
   }
   return config
 }
-const graph = ref()
+
 
 // 监听到布局配置变化,重新布局
 watch(activeConfig,
@@ -109,7 +132,7 @@ function initGraph() {
     plugins: [toolbar],
     layout: convertLayoutConfig(activeConfig.value),
   })
-  registerNodes(colors.value, colorValue.value) // 注册节点
+  registerNodes(colors.value, themeColor.value) // 注册节点
   registerBehaviors(graph.value, openNodeDetail) // 注册行为
   graph.value?.on('wheel', (e) => {
     ratio.value = graph.value?.getZoom()
@@ -143,10 +166,11 @@ const { width, height } = useElementSize(jsonCanvas)
 watchDebounced([width, height], ([w, h]) => {
   if (graph.value)
     graph.value.changeSize(w, h)
-},{debounce: 600})
+}, { debounce: 600 })
 onMounted(() => {
   initGraph()
   drawGraph(json.value, false)
+  focusNode(keyword.value)
 })
 
 // 展开/收起
@@ -164,7 +188,6 @@ watch(
   },
 )
 // 保存为图片
-// TODO:大图模糊问题,保存为svg待实现
 function saveImage() {
   graph.value?.downloadFullImage('json-viewer')
 }
@@ -235,7 +258,11 @@ function focusNode(keyword: string) {
     }
   }
 }
-watch(keyword, focusNode)
+watchDebounced(keyword, focusNode,{ debounce: 300 })
+onUnmounted(() => {
+  graph.value?.clear()
+  graph.value?.destroy()
+})
 defineExpose({
   saveImage,
   toolbar,

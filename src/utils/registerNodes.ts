@@ -12,20 +12,30 @@ interface GraphOptionsPlus extends GraphOptions {
 import chroma from "chroma-js";
 type bos = boolean | string
 
-export function registerNodes(colors,colorValue) {
-  const focusColor = ['#00DC82','#2dd4bf'].includes(colorValue) ? colors.amber: '#33BB69'
+function getPrimaryColor() {
+  return document.documentElement.style.getPropertyValue('--el-color-primary')
+}
+
+export function handleColors([colors, colorValue]) {
+  const focusColor = ['#00DC82', '#2dd4bf'].includes(colorValue) ? colors.amber : '#33BB69'
   const focusColorMap = {
     fill: chroma(focusColor).alpha(0.2).hex(),
-    stroke:focusColor,
-  } 
-  const isDark = useDark()
-  const clevels = new Array(10).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
-  const textColor  = isDark.value ? '#fff': '#333'
-  const  foldColor = chroma(textColor).alpha(0.8).hex()
+    stroke: focusColor,
+  }
   const rectColorMap = {
-    stroke: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.stroke : (isHover ? colorValue : clevels[8] ),
+    stroke: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.stroke : (isHover ? colorValue : clevels[8]),
     fill: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[3] : clevels[2])
   }
+  const isDark = useDark()
+  const textColor = isDark.value ? '#fff' : '#333'
+  const clevels = new Array(10).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
+  const foldColor = chroma(textColor).alpha(0.8).hex()
+
+  return { focusColorMap, clevels, textColor, foldColor, rectColorMap }
+}
+
+export function registerNodes(...args: any[]) {
+  const { focusColorMap, clevels, textColor, foldColor } = handleColors(args)
   // 注册根节点
   G6.registerNode(
     'root-icon',
@@ -40,10 +50,11 @@ export function registerNodes(colors,colorValue) {
             r: 30,
             visible: false, // 看不见元素隐藏,提升性能
           },
-          name: 'root-bg-shape',
+          name: 'root-bg-nodeRect',
         })
         // 添加根节点图标
         const keyShape = group.addShape('text', {
+          name: 'root-icon',
           attrs: {
             x: 0,
             y: 20,
@@ -51,13 +62,12 @@ export function registerNodes(colors,colorValue) {
             textAlign: 'center',
             text: '\uE867',
             fontSize: 50,
-            fill: clevels[8] , // 字体图标颜色
+            fill: clevels[8], // 字体图标颜色
             cursor: 'pointer',
           },
-          name: 'root-shape',
         })
-        // 添加label
         group.addShape('text', {
+          name: 'root-text',
           attrs: {
             x: 0,
             y: -4,
@@ -68,16 +78,19 @@ export function registerNodes(colors,colorValue) {
             fill: '#fff',
             fontWeight: 'bold',
           },
-          name: 'root-label',
         })
         return keyShape
       },
       // 响应状态变化
       setState(name, value, item) {
         const group = item?.getContainer()
-        const shape = group?.get('children')[1] // 顺序根据 draw 时确定
+        const nodeRect = group?.get('children')[1] // 顺序根据 draw 时确定
         if (name === 'focus') {
-          shape.attr('fill', value ? focusColorMap.fill : clevels[8] )
+          nodeRect.attr('fill', value ? focusColorMap.fill : clevels[8])
+        } else if (name === 'theme-change') {
+          // 获取html元素的主题色
+          const pcolor = getPrimaryColor()
+          nodeRect.attr('fill', pcolor)
         }
       },
     },
@@ -100,9 +113,9 @@ export function registerNodes(colors,colorValue) {
           height: height + 20,
           lineWidth: 1,
           fontSize: 12,
-          fill:clevels[2], // 设置透明度
+          fill: clevels[2], // 设置透明度
           radius: 4,
-          stroke: clevels[8] ,
+          stroke: clevels[8],
           opacity: 1,
         }
 
@@ -112,6 +125,7 @@ export function registerNodes(colors,colorValue) {
         }
 
         const rect = group.addShape('rect', {
+          name: 'bg-rect',
           attrs: {
             x: nodeOrigin.x,
             y: nodeOrigin.y,
@@ -121,6 +135,7 @@ export function registerNodes(colors,colorValue) {
 
         // 文本内容
         group.addShape('text', {
+          name: 'node-text',
           attrs: {
             textAlign: 'left',
             textBaseline: 'bottom',
@@ -139,6 +154,7 @@ export function registerNodes(colors,colorValue) {
         const { id, children = [] } = cfg
         if (children.length) {
           group.addShape('rect', {
+            name: 'collapse-rect',
             attrs: {
               x: rectConfig.width / 2 - 6,
               y: -6,
@@ -148,13 +164,14 @@ export function registerNodes(colors,colorValue) {
               cursor: 'pointer',
               fill: clevels[1],
               radius: 2,
+              zIndex: 10,
             },
-            name: 'collapse-back',
             modelId: id,
           })
 
           // 折叠按钮上的文字
           group.addShape('text', {
+            name: 'collapse-text',
             attrs: {
               x: rectConfig.width / 2,
               y: -1,
@@ -165,37 +182,52 @@ export function registerNodes(colors,colorValue) {
               cursor: 'pointer',
               fill: foldColor,
             },
-            name: 'collapse-text',
             modelId: id,
           })
         }
         return rect
       },
       setState(name, value, item) {
-        if (name === 'collapse') {
-          const group = item.getContainer()
-          const collapseText = group.find(
-            e => e.get('name') === 'collapse-text',
-          )
-          if (collapseText) {
-            if (!value)
-              collapseText.attr({ text: '-' })
-            else
-              collapseText.attr({ text: '+' })
+        const group = item.getContainer()
+        const byName = (e,name) => e.get('name') === name
+        const nodeRect = group.find((e) =>byName(e, 'bg-rect')) 
+        const collapseRect = group.find((e) =>byName(e, 'collapse-rect'))
+        const nodeText = group.find((e) =>byName(e, 'node-text'))
+        const collapseText = group.find((e) =>byName(e, 'collapse-text'))
+        const pcolor = getPrimaryColor()
+        const { textColor, rectColorMap, clevels, foldColor } = handleColors([args[0], pcolor])
+        if (value) {
+          /* 暗黑模式切换 */
+          if (['dark', 'light'].includes(name)) {
+            nodeText.attr('fill', textColor)
+            // 折叠按钮
+            if (collapseText) {
+              collapseText.attr('fill', foldColor)
+            }
+          } else if (name === 'collapse') {
+            if (collapseText) {
+              collapseText.attr({ text: value ? '+' : '-' })
+            }
+          }else if (name === 'theme-change') {
+            // 主题色切换
+            // nodeText.attr('fill', textColor)
+            // nodeRect.attr('fill', clevels[2])
+            // nodeRect.attr('stroke', clevels[8])
+  
+            // collapseText?.attr('fill', foldColor)
+            // collapseRect?.attr('fill', clevels[1])
+            collapseRect?.attr('stroke', clevels[6])
           }
         }
-        else if (name === 'hover') {
-          const group = item.getContainer()
-          const shape = group.get('children')[0]
+
+        if (name === 'hover') {
           const isFocus = item.hasState('focus')
-          shape.attr('stroke', rectColorMap.stroke(value, isFocus))
-          shape.attr('fill', rectColorMap.fill(value, isFocus))
+          nodeRect.attr('stroke', rectColorMap.stroke(value, isFocus))
+          nodeRect.attr('fill', rectColorMap.fill(value, isFocus))
         }
         else if (name === 'focus') {
-          const group = item.getContainer()
-          const shape = group.get('children')[0]
-          shape.attr('stroke', rectColorMap.stroke(false, value))
-          shape.attr('fill', rectColorMap.fill(false, value))
+          nodeRect.attr('stroke', rectColorMap.stroke(false, value))
+          nodeRect.attr('fill', rectColorMap.fill(false, value))
         }
       },
       getAnchorPoints() {

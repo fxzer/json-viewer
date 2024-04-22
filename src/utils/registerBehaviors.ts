@@ -29,7 +29,7 @@ export function registerBehaviors(graph, nodeClickCb: (node: any) => void) {
     graph?.setItemState(edge, 'hover', false)
   }
   graph.on('collapse-text:click', handleCollapse)
-  graph.on('collapse-back:click', handleCollapse)
+  graph.on('collapse-icon:click', handleCollapse)
 
   graph.on('node:mouseover', handleNodeMouseEnter)
   graph.on('node:mouseout', handleNodeMouseEnter)

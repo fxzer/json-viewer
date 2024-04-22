@@ -228,11 +228,9 @@ const canvasIconList = [
                   <span class="iconfont icon-theme" />
                 </template>
               </ColorPicker>
-            </div>
-            <div class='flex-y-center gap-2'>
               <div op60>{{ ratioText }}</div>
-              <SearchInput />
             </div>
+              <SearchInput />
           </div>
           <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpandNode" :is-expand-editor="isExpandEditor"
             @node-click="nodeClickHandler" v-model:ratio="ratio" />
@@ -279,7 +277,6 @@ const canvasIconList = [
 
 .dark .iconfont:hover {
   color: #fff;
-  // color:#9ca3af88
 }
 
 .slide-enter-active,
@@ -294,4 +291,5 @@ const canvasIconList = [
 .slide-leave-to {
   transform: translateY(-100%);
 }
+
 </style>

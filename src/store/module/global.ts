@@ -43,12 +43,11 @@ export const useGlobalStore = defineStore('global', () => {
     "rose": "#fb7185"
   }
   const colorName = ref('orange')
-  const colorValue = computed(() => {
+  const themeColor = computed(() => {
     const color = colors[colorName.value]
     setHtmlProperty('--el-color-primary', color)
     setHtmlProperty('--el-color-primary-light-9', chroma(color).alpha(0.1).hex())
     setHtmlProperty('--el-color-primary-light-7', chroma(color).alpha(0.3).hex())
-
     return color
   })
   return {
@@ -59,7 +58,7 @@ export const useGlobalStore = defineStore('global', () => {
     focusCount,
     colors,
     colorName,
-    colorValue,
+    themeColor,
     autoRender,
     toggleExecuteMode,
     isExpandEditor,
