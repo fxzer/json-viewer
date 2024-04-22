@@ -11,6 +11,10 @@ const drawerVisible = ref(false)
 function openLayoutConfig() {
   drawerVisible.value = !drawerVisible.value
 }
+const ratio = ref(1)
+const ratioText = computed(() => {
+  return `${(ratio.value * 100).toFixed(2)}%`
+})
 const isMobile = useMobile()
 // 节点展开/收起
 const [isExpandNode, toggleNode] = useToggle(true)
@@ -72,16 +76,22 @@ function confirmExport(config: any) {
   })
 }
 function onZoomOut() {
-  if (jsonCanvasRef?.value)
+  if (jsonCanvasRef?.value) {
     (jsonCanvasRef?.value?.toolbar as any).zoomOut()
+    ratio.value = jsonCanvasRef?.value?.graph.getZoom()
+  }
 }
 function onZoomIn() {
-  if (jsonCanvasRef?.value)
+  if (jsonCanvasRef?.value) {
     (jsonCanvasRef?.value?.toolbar as any).zoomIn()
+    ratio.value = jsonCanvasRef?.value?.graph.getZoom()
+  }
 }
 function onAutoZoom() {
-  if (jsonCanvasRef?.value)
+  if (jsonCanvasRef?.value) {
     (jsonCanvasRef?.value?.toolbar as any).autoZoom()
+    ratio.value = jsonCanvasRef?.value?.graph.getZoom()
+  }
 }
 // 关键词搜索
 const nodeDetailVisible = ref(false)
@@ -99,7 +109,6 @@ function onFullScreen() {
   else
     document.exitFullscreen()
 }
-
 // 自定义需要额外解析的字段
 const fieldsVisible = ref(false)
 function openFieldsDialog() {
@@ -174,7 +183,7 @@ const canvasIconList = [
             </el-tooltip>
           </template>
 
-          <el-tooltip :content="$t(autoRender ? 'autoRender':'manualRender')">
+          <el-tooltip :content="$t(autoRender ? 'autoRender' : 'manualRender')">
             <span class="iconfont icon-auto" @click="toggleExecuteMode()"
               :class="autoRender ? '!text-green-500' : ''" />
           </el-tooltip>
@@ -195,10 +204,10 @@ const canvasIconList = [
           <div border="b gray/20" class="md:(h-10 flex-between-center) px-2   bg-gray/10 ">
             <div class='flex-y-center space-x-3'>
 
-              <el-tooltip :content="`${isExpandEditor ?  $t('collapse') : $t('expand')}${$t('editor')}`">
+              <el-tooltip :content="`${isExpandEditor ? $t('collapse') : $t('expand')}${$t('editor')}`">
                 <span class="iconfont icon-editor-expand" :style="editorIconStyle" @click="toggleEditor()" />
               </el-tooltip>
-              <el-tooltip :content="`${isExpandNode ?  $t('collapse') : $t('expand')}${$t('nodes')}`">
+              <el-tooltip :content="`${isExpandNode ? $t('collapse') : $t('expand')}${$t('nodes')}`">
                 <span class="iconfont" :class="isExpandNode ? 'icon-node-collapse' : 'icon-node-expand'"
                   @click="toggleNode()" />
               </el-tooltip>
@@ -209,7 +218,7 @@ const canvasIconList = [
                 </el-tooltip>
               </template>
 
-              <el-tooltip  :content="`${isFullScreen ?  $t('exit') : $t('enter')}${$t('fullscreen')}`">
+              <el-tooltip :content="`${isFullScreen ? $t('exit') : $t('enter')}${$t('fullscreen')}`">
                 <span class="iconfont" :class="isFullScreen ? 'icon-exit-fullscreen' : 'icon-enter-fullscreen'
                   " @click="onFullScreen" />
               </el-tooltip>
@@ -220,10 +229,13 @@ const canvasIconList = [
                 </template>
               </ColorPicker>
             </div>
-            <SearchInput />
+            <div class='flex-y-center gap-2'>
+              <div op60>{{ ratioText }}</div>
+              <SearchInput />
+            </div>
           </div>
           <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpandNode" :is-expand-editor="isExpandEditor"
-            @node-click="nodeClickHandler" />
+            @node-click="nodeClickHandler" v-model:ratio="ratio" />
         </div>
       </Pane>
     </Splitpanes>
@@ -248,7 +260,7 @@ const canvasIconList = [
 
     :deep(.splitpanes__splitter) {
       background-color: #d1d5db26;
-      border-color:#d1d5db26 !important;
+      border-color: #d1d5db26 !important;
     }
 
   }

@@ -113,6 +113,10 @@ export default defineConfig(({ _, mode }) => {
     esbuild: {
       pure: ['console', 'debugger'],
     },
+    server: {
+      host:true,
+      open: true,
+    },
     // 打包配置
     build: {
       outDir: env.VITE_OUTDIR,

@@ -10,7 +10,7 @@ export function registerBehaviors(graph, nodeClickCb: (node: any) => void) {
     graph?.layout()
     graph?.setItemState(item, 'collapse', nodeModel.collapsed)
   }
-
+  // 打印画布可以监听的事件
   const handleNodeMouseEnter = (e) => {
     e.stopPropagation()
     const node = e.item
@@ -43,4 +43,6 @@ export function registerBehaviors(graph, nodeClickCb: (node: any) => void) {
   })
 
   graph.on('node:click', handleNodeClick)
+  graph.on('node:touchend', handleNodeClick)
+
 }

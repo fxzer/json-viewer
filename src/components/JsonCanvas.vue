@@ -2,9 +2,10 @@
 import { type LayoutConfig } from '@/types/global'
 import { dealDataToTree,registerBehaviors, registerNodes} from '@/utils'
 import { useGlobalStore, useLayoutStore,useCodeStore } from '@/store'
-const { json,} = toRefs(useCodeStore())
+const { json} = toRefs(useCodeStore())
 const { isDark, colors, colorValue, keyword, focusCount} = toRefs(useGlobalStore())
 
+const ratio = defineModel<number>('ratio')
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -110,6 +111,9 @@ function initGraph() {
   })
   registerNodes(colors.value, colorValue.value) // 注册节点
   registerBehaviors(graph.value, openNodeDetail) // 注册行为
+  graph.value?.on('wheel', (e) => {
+    ratio.value = graph.value?.getZoom()
+  });
 }
 function drawGraph(data, isUpdate = true) {
   if (!data)
