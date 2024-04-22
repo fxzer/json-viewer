@@ -210,12 +210,12 @@ export function registerNodes(...args: any[]) {
             }
           }else if (name === 'theme-change') {
             // 主题色切换
-            // nodeText.attr('fill', textColor)
-            // nodeRect.attr('fill', clevels[2])
-            // nodeRect.attr('stroke', clevels[8])
+            nodeText.attr('fill', textColor)
+            nodeRect.attr('fill', clevels[2])
+            nodeRect.attr('stroke', clevels[8])
   
-            // collapseText?.attr('fill', foldColor)
-            // collapseRect?.attr('fill', clevels[1])
+            collapseText?.attr('fill', foldColor)
+            collapseRect?.attr('fill', clevels[1])
             collapseRect?.attr('stroke', clevels[6])
           }
         }

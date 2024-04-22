@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { type LayoutConfig } from '@/types/global'
-import { dealDataToTree, registerBehaviors, registerNodes, handleColors } from '@/utils'
+import { dealDataToTree, registerBehaviors, registerNodes} from '@/utils'
 import { useGlobalStore, useLayoutStore, useCodeStore } from '@/store'
 const { json } = toRefs(useCodeStore())
-const { isDark, colors, themeColor, keyword, focusCount } = toRefs(useGlobalStore())
+const { isDark, colors, themeColor, keyword, focusCount,autoRender } = toRefs(useGlobalStore())
 
 const graph = ref()
 const ratio = defineModel<number>('ratio')
@@ -23,17 +23,21 @@ const jsonCanvas = ref<HTMLElement | null>(null)
 
 function render() {
   drawGraph(json.value, true)
+  updateStylle(graph.value)
   // 触发聚焦搜索
   setTimeout(() => {
     focusNode(keyword.value)
   }, 500)
 }
-watch(json, render, { deep: true })
+watch(json, () => {
+  if (autoRender.value)
+    render()
+}, { deep: true })
 watch(isDark, () => {
   updateStylle(graph.value)
 })
 watch(themeColor, () => {
-  updateTheme(graph.value) 
+  window.location.reload()
 })
 
 /* 更新样式 */
@@ -46,14 +50,14 @@ function updateStylle(g) {
   })
 }
 
-function updateTheme(g) {
-  const nodes = g.getNodes()
-  nodes.forEach(node => {
-    g.clearItemStates(node, ['dark', 'light','hover','focus','theme-change']); 
-    g.setItemState(node, 'theme-change', true)
-  }) 
-  g.paint()
-}
+// function updateTheme(g) {
+//   const nodes = g.getNodes()
+//   nodes.forEach(node => {
+//     g.clearItemStates(node, ['dark', 'light','hover','focus','theme-change']); 
+//     g.setItemState(node, 'theme-change', true)
+//   }) 
+//   g.paint()
+// }
 // 转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
 function convertLayoutConfig(config: LayoutConfig) {
   const hvgapLayout = ['mindmap', 'compactBox']
@@ -162,11 +166,13 @@ function drawGraph(data, isUpdate = true) {
   else
     graph.value?.zoom(0.85)
 }
+
 const { width, height } = useElementSize(jsonCanvas)
 watchDebounced([width, height], ([w, h]) => {
   if (graph.value)
     graph.value.changeSize(w, h)
 }, { debounce: 600 })
+
 onMounted(() => {
   initGraph()
   drawGraph(json.value, false)
