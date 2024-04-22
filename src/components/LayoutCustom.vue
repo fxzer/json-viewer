@@ -1,8 +1,13 @@
 <script lang="ts" setup>
 import LayoutOptions from './LayoutOptions.vue'
 import { useLayoutStore } from '@/store'
+import {  useMobile } from '@/hooks'
 
 const visible = defineModel<boolean>()
+
+const isMobile = useMobile()
+const { width } = useWindowSize()
+const drawerSize = computed(() =>  isMobile.value ? width.value :   400 )
 // 弹窗相关
 const { activeLayout, activeConfig } = toRefs(useLayoutStore())
 </script>
@@ -14,14 +19,14 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
     :with-header="true"
     :modal="false"
     append-to-body
-    modal-class="layout-modal"
+    modal-class="md:w-100"
     direction="ltr"
-    size="450"
+    :size="drawerSize"
     close-on-press-escape
   >
     <LayoutOptions v-model="activeLayout" />
     <div class="layout-custom">
-      <el-form label-width="68" :inline="false">
+      <el-form label-width="70" :inline="false">
         <!-- 共有方向 -->
         <el-form-item label="布局方向">
           <el-radio-group v-model="activeConfig.direction">
@@ -126,10 +131,5 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
       width: 100%;
     }
   }
-}
-</style>
-<style>
-.layout-modal {
-width: 450px;
 }
 </style>
