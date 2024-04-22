@@ -1,7 +1,7 @@
 {
   "name": "json-viewer",
   "type": "module",
-  "version": "0.0.0",
+  "version": "2.0.1",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,8 @@
     "report": "rimraf dist && vite build",
     "preview": "vite preview",
     "lint": "npx oxlint --import-plugin",
-    "lintf": "npx oxlint --fix"
+    "lintf": "npx oxlint --fix",
+    "release": "bumpp"
   },
   "dependencies": {
     "@antv/g6": "^4.8.24",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@unocss/reset": "^0.59.4",
     "@vitejs/plugin-vue": "^5.0.4",
+    "bumpp": "^9.4.0",
     "lint-staged": "^15.2.2",
     "oxlint": "^0.2.18",
     "rollup-plugin-visualizer": "^5.12.0",
