@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { type LayoutConfig } from '@/types/global'
-import { dealDataToTree, registerBehaviors, registerNodes} from '@/utils'
+import { dealDataToTree, registerBehaviors, registerNodes,updateStylle} from '@/utils'
 import { useGlobalStore, useLayoutStore, useCodeStore } from '@/store'
 const { json } = toRefs(useCodeStore())
 const { isDark, colors, themeColor, keyword, focusCount,autoRender } = toRefs(useGlobalStore())
@@ -39,15 +39,6 @@ watch(themeColor, () => {
   window.location.reload()
 })
 
-/* 更新样式 */
-function updateStylle(g) {
-  const nodes = g.getNodes()
-  const state = isDark.value  ? 'dark' : 'light'
-  nodes.forEach(node => {
-    g.clearItemStates(node, [isDark.value ? 'light' : 'dark','hover']); 
-    g.setItemState(node, state, true)
-  })
-}
 
 // function updateTheme(g) {
 //   const nodes = g.getNodes()

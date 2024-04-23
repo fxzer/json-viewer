@@ -16,6 +16,16 @@ function getPrimaryColor() {
   return document.documentElement.style.getPropertyValue('--el-color-primary')
 }
 
+export function updateStylle(g) {
+  const nodes = g.getNodes()
+  const isDark = useDark()
+  const state = isDark.value  ? 'dark' : 'light'
+  nodes.forEach(node => {
+    g.clearItemStates(node, [isDark.value ? 'light' : 'dark','hover']); 
+    g.setItemState(node, state, true)
+  })
+}
+
 export function handleColors([colors, colorValue]) {
   const focusColor = ['#00DC82', '#2dd4bf'].includes(colorValue) ? colors.amber : '#33BB69'
   const focusColorMap = {
@@ -179,7 +189,7 @@ export function registerNodes(...args: any[]) {
               textAlign: 'center',
               textBaseline: 'middle',
               text: collapsed ? '+' : '-',
-              fontSize: 12,
+              fontSize: 16,
               cursor: 'pointer',
               fill: foldColor,
             },
