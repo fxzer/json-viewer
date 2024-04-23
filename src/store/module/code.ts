@@ -17,7 +17,7 @@ export const useCodeStore = defineStore('code', () => {
   watch(json, (val) => {
     if(Object.keys(val).length === 0) {
       url.searchParams.delete(queryKey)
-      window.history.replaceState('', '', `/`) 
+      window.history.replaceState('', '', `${url.pathname}`) 
       formatCode.value = ''
     }else{
       formatCode.value =   JSON.stringify(val, null, 2)

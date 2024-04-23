@@ -89,6 +89,7 @@ export default defineConfig(({ _, mode }) => {
         },
       }),
       webUpdateNotice({
+        hiddenDismissButton:true,
         checkInterval: 1 * 60 * 1000,
         notificationProps: {
           title: '🎉 网站更新提示!',
