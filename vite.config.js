@@ -55,37 +55,41 @@ export default defineConfig(({ _, mode }) => {
       VitePWA({
         outDir: "dist",
         manifest: {
+          lang: "zh-CN",
           name: "json-viewer",
           short_name: "json-viewer",
+          scope: "/json-viewer/",
+          start_url:"/json-viewer/",
           theme_color: "#ffffff",
+          background_color: "#ffffff",
           icons: [
             {
               src: "/json-viewer/logo_512.png",
-              type: "img/png",
+              types: "img/png",
               sizes: "512x512",
-              purpose:"maskable",
+              "purpose": "any"
             },
             {
               src: "/json-viewer/logo_192.png",
-              type: "img/png",
+              types: "img/png",
               sizes: "192x192",
-              purpose:"any",
+              "purpose": "maskable"
             },
             {
               src: "/json-viewer/logo_144.png",
-              type: "img/png",
+              types: "img/png",
               sizes: "144x144",
               purpose:"any"
             },
             {
               src: "/json-viewer/logo_120.png",
-              type: "img/png",
+              types: "img/png",
               sizes: "120x120",
               purpose:"any"
             },
             {
               src: "/json-viewer/logo_72.png",
-              type: "img/png",
+              types: "img/png",
               sizes: "72x72",
               purpose:"maskable",
             },
