@@ -15,9 +15,15 @@ export const useCodeStore = defineStore('code', () => {
   const formatCode = ref<string>(JSON.stringify(json.value, null, 2))
 
   watch(json, (val) => {
-    formatCode.value = Object.keys(val).length ?  JSON.stringify(val, null, 2) : ''
-    url.searchParams.set(queryKey, encode(formatCode.value))
-    window.history.replaceState('', '', `${url.pathname}${url.search}`)
+    if(Object.keys(val).length === 0) {
+      url.searchParams.delete(queryKey)
+      window.history.replaceState('', '', `/`) 
+      formatCode.value = ''
+    }else{
+      formatCode.value =   JSON.stringify(val, null, 2)
+      url.searchParams.set(queryKey, encode(formatCode.value))
+      window.history.replaceState('', '', `${url.pathname}${url.search}`)
+    }
   })
 
   watch(fields, (val) => {
@@ -28,8 +34,7 @@ export const useCodeStore = defineStore('code', () => {
   watch(originCode, (codeStr) => {
     if (!codeStr) {
       json.value = {}
-      url.searchParams.delete(queryKey)
-      window.history.replaceState('', '', `${url.pathname}${url.search}`) 
+
       return
     }
     try {

@@ -144,7 +144,7 @@ const editorIconList = [
     icon: 'icon-clear-json',
     content: 'clear',
     onClick: () => {
-      formatCode.value = ''
+      originCode.value = ''
     },
   },
 ]
