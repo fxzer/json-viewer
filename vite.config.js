@@ -63,25 +63,31 @@ export default defineConfig(({ _, mode }) => {
               src: "/json-viewer/logo_512.png",
               type: "img/png",
               sizes: "512x512",
-              purpose: "any",
+              purpose:"maskable",
             },
             {
               src: "/json-viewer/logo_192.png",
               type: "img/png",
               sizes: "192x192",
-              purpose: "maskable",
+              purpose:"any",
             },
             {
               src: "/json-viewer/logo_144.png",
               type: "img/png",
               sizes: "144x144",
-              purpose: "maskable",
+              purpose:"any"
             },
             {
-              src: "/json-viewer/logo_144.png",
+              src: "/json-viewer/logo_120.png",
               type: "img/png",
-              sizes: "144x144",
-              purpose: "any",
+              sizes: "120x120",
+              purpose:"any"
+            },
+            {
+              src: "/json-viewer/logo_72.png",
+              type: "img/png",
+              sizes: "72x72",
+              purpose:"maskable",
             },
           ],
         },
