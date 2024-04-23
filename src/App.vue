@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Pane, Splitpanes } from 'splitpanes'
-import { useGlobalStore, useCodeStore } from '@/store'
+import { useGlobalStore, useCodeStore} from '@/store'
 import { toggleDarkAnimate, useMobile } from '@/hooks'
 import { isObject } from '@/utils'
 import 'splitpanes/dist/splitpanes.css'
-const { code, json, jsonValid, } = toRefs(useCodeStore())
+const {originCode, formatCode, json,jsonValid} = toRefs(useCodeStore())
 const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(useGlobalStore())
 const { toggleEditor, toggleExecuteMode, toggleLanguage } = useGlobalStore()
 const drawerVisible = ref(false)
@@ -25,6 +25,10 @@ const editorIconStyle = computed(() => {
     return { transform: `rotate(${isExpandEditor.value ? '0deg' : '180deg'})` }
   }
 })
+function onUpdateCode(codeStr:string) {
+  originCode.value =  codeStr
+}
+const debounceUpdate = useDebounceFn(onUpdateCode, 500)
 
 // 导出json
 function onExport() {
@@ -54,7 +58,7 @@ function onImport() {
     reader.readAsText(file)
     reader.onload = () => {
       const jsonStr = reader.result
-      code.value = jsonStr as string
+      originCode.value = jsonStr as string
     }
   }
 }
@@ -140,7 +144,7 @@ const editorIconList = [
     icon: 'icon-clear-json',
     content: 'clear',
     onClick: () => {
-      code.value = ''
+      formatCode.value = ''
     },
   },
 ]
@@ -197,7 +201,7 @@ const canvasIconList = [
           </el-tooltip>
         </div>
 
-        <VueCodeMirror v-model="code" :style="{ height: '100%' }" />
+        <VueCodeMirror :value="formatCode" @update-code="debounceUpdate" :style="{ height: '100%' }" />
       </Pane>
       <Pane :size="paneSize[1]">
         <div h-full>

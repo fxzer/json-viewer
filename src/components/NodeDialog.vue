@@ -12,12 +12,12 @@ const code = computed(() => {
   let node = id === 'root' ? {} : keyName || entries
   return JSON.stringify(node, null, 2)
 })
-const width = useDialogWidth(600)
+const width = useDialogWidth(640)
 </script>
 
 <template>
   <el-dialog v-model="visible" :title="$t('nodeDetail')" :width="width">
-    <VueCodeMirror v-model="code" :style="{ height: '400px', border: '1px solid #9ca3af58' }" />
+    <VueCodeMirror :value="code" :style="{ height: '400px', border: '1px solid #9ca3af58' }" />
   </el-dialog>
 </template>
 

@@ -6,22 +6,26 @@ const params = new URLSearchParams(window.location.search  || '')
 // @ts-ignore
 const baseUrl = import.meta.env.VITE_BASE_URL as string
 const url = new URL(baseUrl, window.location.origin)
-const queryKey = 'code'
+export const queryKey = 'code'
 export const useCodeStore = defineStore('code', () => {
-
   const { fields } = storeToRefs(useGlobalStore())
   const exmapleCode = JSON.stringify(exampleJson, null, 2)
+  const originCode = ref(decode(params.get(queryKey) || '') || exmapleCode)
+  const json = ref(deepFormat(JSON.parse(originCode.value), fields.value))
+  const formatCode = ref<string>(JSON.stringify(json.value, null, 2))
 
-  const code = ref<string>(decode(params.get(queryKey) || '') || exmapleCode)
-  const json = ref(deepFormat(JSON.parse(code.value), fields.value))
+  watch(json, (val) => {
+    formatCode.value = Object.keys(val).length ?  JSON.stringify(val, null, 2) : ''
+    url.searchParams.set(queryKey, encode(formatCode.value))
+    window.history.replaceState('', '', `${url.pathname}${url.search}`)
+  })
 
   watch(fields, (val) => {
-    json.value = deepFormat(JSON.parse(code.value), val)
+    json.value = deepFormat(JSON.parse(originCode.value), val)
   },{ deep: true })
 
   const jsonValid = ref(true)
-  watchDebounced(code, (codeStr) => {
-
+  watch(originCode, (codeStr) => {
     if (!codeStr) {
       json.value = {}
       url.searchParams.delete(queryKey)
@@ -33,8 +37,6 @@ export const useCodeStore = defineStore('code', () => {
       if (isObject(mybeObj)) {
         json.value =  deepFormat(mybeObj, fields.value)
         jsonValid.value = true
-        url.searchParams.set(queryKey, encode(codeStr))
-        window.history.replaceState('', '', `${url.pathname}${url.search}`)
       } else {
         jsonValid.value = false
         ElNotification({
@@ -55,10 +57,11 @@ export const useCodeStore = defineStore('code', () => {
         duration: 2000,
       })
     }
-  }, { debounce: 500, })
+  })
 
   return {
-    code,
+    formatCode,
+    originCode,
     json,
     jsonValid,
   }
