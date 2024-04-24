@@ -1,7 +1,7 @@
 {
   "name": "json-viewer",
   "type": "module",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -40,6 +40,7 @@
     "rollup-plugin-visualizer": "^5.12.0",
     "sass": "^1.75.0",
     "simple-git-hooks": "^2.11.1",
+    "standard-version": "^9.5.0",
     "unocss": "^0.59.4",
     "unplugin-auto-import": "^0.17.5",
     "unplugin-vue-components": "^0.26.0",
