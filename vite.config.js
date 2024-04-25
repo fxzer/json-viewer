@@ -132,17 +132,17 @@ export default defineConfig(({ _, mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // if (id.includes("node_modules")) {
-            //   return "vendor";
+            if (id.includes('node_modules'))
+              return 'vendor'
+
+            // if (id.includes('node_modules')) {
+            //   if (id.includes('@codemirror'))
+            //     return 'codemirror'
+            //   else if (id.includes('@antv'))
+            //     return 'antv'
+            //   else
+            //     return 'vendor'
             // }
-            if (id.includes('node_modules')) {
-              if (id.includes('@codemirror'))
-                return 'codemirror'
-              else if (id.includes('@antv'))
-                return 'antv'
-              else
-                return 'vendor'
-            }
           },
         },
       },
