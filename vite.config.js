@@ -9,9 +9,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { visualizer } from 'rollup-plugin-visualizer'
 import UnoCSS from 'unocss/vite'
-import { webUpdateNotice } from '@plugin-web-update-notification/vite'
-import { version } from './package.json'
-// const pathSrc = path.resolve(__dirname, 'src')
+
 const lifecycle = process.env.npm_lifecycle_event
 // 获取npm命令
 export default defineConfig(({ _, mode }) => {
@@ -96,15 +94,6 @@ export default defineConfig(({ _, mode }) => {
           ],
         },
       }),
-      webUpdateNotice({
-        hiddenDismissButton: true,
-        checkInterval: 1 * 60 * 1000,
-        notificationProps: {
-          title: '🎉 网站更新提示!',
-          description: `检测到新版本(${version}), 请刷新页面后使用！`,
-          buttonText: '刷新',
-        },
-      }),
     ],
     // 指定@为src目录
     resolve: {
@@ -129,23 +118,6 @@ export default defineConfig(({ _, mode }) => {
     // 打包配置
     build: {
       outDir: env.VITE_OUTDIR,
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('node_modules'))
-              return 'vendor'
-
-            // if (id.includes('node_modules')) {
-            //   if (id.includes('@codemirror'))
-            //     return 'codemirror'
-            //   else if (id.includes('@antv'))
-            //     return 'antv'
-            //   else
-            //     return 'vendor'
-            // }
-          },
-        },
-      },
     },
   }
 })
