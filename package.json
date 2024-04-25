@@ -1,7 +1,7 @@
 {
   "name": "json-viewer",
   "type": "module",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "private": true,
   "scripts": {
     "dev": "vite",
