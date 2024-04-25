@@ -32,20 +32,22 @@ const { activeLayout, activeConfig } = toRefs(useLayoutStore())
               v-for="direction in activeConfig.directions"
               :key="direction"
               :value="direction"
-            > {{ direction }} </el-radio-button>
+            >
+              {{ direction }}
+            </el-radio-button>
           </el-radio-group>
         </el-form-item>
         <!-- indented缩进树  -->
         <div v-if="activeLayout === 'indented'" class="indented">
-          <el-form-item :label="$t('nodeWrap')" >
-            <div class='flex-y-center flex-nowrap'>
-            <el-switch
-              v-model="activeConfig.dropCap"
-              :active-value="true"
-              :inactive-value="false"
-              inline-prompt
-            />
-            <span class="text-gray text-xs ml-3 truncate w-60">{{ $t('nodeWrapInfo') }}</span>
+          <el-form-item :label="$t('nodeWrap')">
+            <div class="flex-y-center flex-nowrap">
+              <el-switch
+                v-model="activeConfig.dropCap"
+                :active-value="true"
+                :inactive-value="false"
+                inline-prompt
+              />
+              <span class="ml-3 w-60 truncate text-xs text-gray">{{ $t('nodeWrapInfo') }}</span>
             </div>
           </el-form-item>
           <el-form-item :label="$t('indentDistance')">

@@ -1,7 +1,9 @@
 // import G6  from "@antv/g6";
 import type { GraphOptions } from '@antv/g6'
 
+import chroma from 'chroma-js'
 import { computeNodeSize } from './computeNodeSize'
+
 interface GraphOptionsPlus extends GraphOptions {
   id: string
   entries: string
@@ -9,7 +11,6 @@ interface GraphOptionsPlus extends GraphOptions {
   collapsed?: boolean
   [propName: string]: any
 }
-import chroma from "chroma-js";
 type bos = boolean | string
 
 function getPrimaryColor() {
@@ -19,9 +20,9 @@ function getPrimaryColor() {
 export function updateStylle(g) {
   const nodes = g.getNodes()
   const isDark = useDark()
-  const state = isDark.value  ? 'dark' : 'light'
-  nodes.forEach(node => {
-    g.clearItemStates(node, [isDark.value ? 'light' : 'dark','hover']); 
+  const state = isDark.value ? 'dark' : 'light'
+  nodes.forEach((node) => {
+    g.clearItemStates(node, [isDark.value ? 'light' : 'dark', 'hover'])
     g.setItemState(node, state, true)
   })
 }
@@ -32,13 +33,14 @@ export function handleColors([colors, colorValue]) {
     fill: chroma(focusColor).alpha(0.2).hex(),
     stroke: focusColor,
   }
+  const clevels = Array.from({ length: 10 }).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
+
   const rectColorMap = {
     stroke: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.stroke : (isHover ? colorValue : clevels[8]),
-    fill: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[3] : clevels[2])
+    fill: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[3] : clevels[2]),
   }
   const isDark = useDark()
   const textColor = isDark.value ? '#fff' : '#333'
-  const clevels = Array.from({ length: 10 }).fill(0).map((_, i) => chroma(colorValue).alpha(i / 10).hex())
   const foldColor = chroma(textColor).alpha(0.8).hex()
 
   return { focusColorMap, clevels, textColor, foldColor, rectColorMap }
@@ -95,9 +97,9 @@ export function registerNodes(...args: any[]) {
       setState(name, value, item) {
         const group = item?.getContainer()
         const nodeRect = group?.get('children')[1] // 顺序根据 draw 时确定
-        if (name === 'focus') {
+        if (name === 'focus')
           nodeRect.attr('fill', value ? focusColorMap.fill : clevels[8])
-        } 
+
         // else if (name === 'theme-change') {
         //   // 获取html元素的主题色
         //   const pcolor = getPrimaryColor()
@@ -200,11 +202,11 @@ export function registerNodes(...args: any[]) {
       },
       setState(name, value, item) {
         const group = item.getContainer()
-        const byName = (e,name) => e.get('name') === name
-        const nodeRect = group.find((e) =>byName(e, 'bg-rect')) 
-        const collapseRect = group.find((e) =>byName(e, 'collapse-rect'))
-        const nodeText = group.find((e) =>byName(e, 'node-text'))
-        const collapseText = group.find((e) =>byName(e, 'collapse-text'))
+        const byName = (e, name) => e.get('name') === name
+        const nodeRect = group.find(e => byName(e, 'bg-rect'))
+        // const collapseRect = group.find(e => byName(e, 'collapse-rect'))
+        const nodeText = group.find(e => byName(e, 'node-text'))
+        const collapseText = group.find(e => byName(e, 'collapse-text'))
         const pcolor = getPrimaryColor()
         const { textColor, rectColorMap, foldColor } = handleColors([args[0], pcolor])
         if (value) {
@@ -212,20 +214,19 @@ export function registerNodes(...args: any[]) {
           if (['dark', 'light'].includes(name)) {
             nodeText.attr('fill', textColor)
             // 折叠按钮
-            if (collapseText) {
+            if (collapseText)
               collapseText.attr('fill', foldColor)
-            }
-          } else if (name === 'collapse') {
-            if (collapseText) {
+          }
+          else if (name === 'collapse') {
+            if (collapseText)
               collapseText.attr({ text: value ? '+' : '-' })
-            }
           }
           // else if (name === 'theme-change') {
           //   // 主题色切换
           //   nodeText.attr('fill', textColor)
           //   nodeRect.attr('fill', clevels[2])
           //   nodeRect.attr('stroke', clevels[8])
-  
+
           //   collapseText?.attr('fill', foldColor)
           //   collapseRect?.attr('fill', clevels[1])
           //   collapseRect?.attr('stroke', clevels[6])
@@ -252,4 +253,3 @@ export function registerNodes(...args: any[]) {
     'rect',
   )
 }
-

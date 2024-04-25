@@ -19,6 +19,6 @@
       "eamil": ["300100999@qq.com", "g123456@gamil.com"]
     }
   },
-  "result":"{\"code\": 200, \"message\": \"success\"}" 
+  "result": "{\"code\": 200, \"message\": \"success\"}"
 
 }

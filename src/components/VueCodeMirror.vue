@@ -1,31 +1,33 @@
 <script setup lang='ts'>
-const emit = defineEmits(['update-code'])
-const props = defineProps({
-  value: {
-    type: String,
-    required: true
-  },
-  style: {
-    type: Object,
-    default: () => ({ height: '100%' })
-  }
-})
-const code = ref<string>()
 import { Codemirror } from 'vue-codemirror'
 import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
+
+const props = defineProps({
+  value: {
+    type: String,
+    required: true,
+  },
+  style: {
+    type: Object,
+    default: () => ({ height: '100%' }),
+  },
+})
+const emit = defineEmits(['updatCcode'])
+const code = ref<string>()
 const isDark = useDark()
 const extensions = computed(() => isDark.value ? [json(), oneDark] : [json()])
 
 watch(() => props.value, val => code.value = val, { immediate: true })
 
-watch(code, (val) =>  emit('update-code', val))
-
+watch(code, val => emit('updatCcode', val))
 </script>
 
 <template>
-  <codemirror v-model="code" :placeholder="$t('editorPlaceholder')" :style="style" :indent-with-tab="true" :tab-size="2"
-    :extensions="extensions"  ></codemirror>
+  <Codemirror
+    v-model="code" :placeholder="$t('editorPlaceholder')" :style="style" :indent-with-tab="true" :tab-size="2"
+    :extensions="extensions"
+  />
 </template>
 
 <style scoped lang='scss'>

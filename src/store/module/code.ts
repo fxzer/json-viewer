@@ -1,9 +1,9 @@
 import { decompressFromEncodedURIComponent as decode, compressToEncodedURIComponent as encode } from 'lz-string'
-import exampleJson from '@/example.json'
-import { isObject, deepFormat } from '@/utils'
 import { useGlobalStore } from './global'
-const params = new URLSearchParams(window.location.search  || '')
-// @ts-ignore
+import exampleJson from '@/example.json'
+import { deepFormat, isObject } from '@/utils'
+
+const params = new URLSearchParams(window.location.search || '')
 const baseUrl = import.meta.env.VITE_BASE_URL as string
 const url = new URL(baseUrl, window.location.origin)
 export const queryKey = 'code'
@@ -15,12 +15,13 @@ export const useCodeStore = defineStore('code', () => {
   const formatCode = ref<string>(JSON.stringify(json.value, null, 2))
 
   watch(json, (val) => {
-    if(Object.keys(val).length === 0) {
+    if (Object.keys(val).length === 0) {
       url.searchParams.delete(queryKey)
-      window.history.replaceState('', '', `${url.pathname}`) 
+      window.history.replaceState('', '', `${url.pathname}`)
       formatCode.value = ''
-    }else{
-      formatCode.value =   JSON.stringify(val, null, 2)
+    }
+    else {
+      formatCode.value = JSON.stringify(val, null, 2)
       url.searchParams.set(queryKey, encode(formatCode.value))
       window.history.replaceState('', '', `${url.pathname}${url.search}`)
     }
@@ -28,7 +29,7 @@ export const useCodeStore = defineStore('code', () => {
 
   watch(fields, (val) => {
     json.value = deepFormat(JSON.parse(originCode.value), val)
-  },{ deep: true })
+  }, { deep: true })
 
   const jsonValid = ref(true)
   watch(originCode, (codeStr) => {
@@ -40,9 +41,10 @@ export const useCodeStore = defineStore('code', () => {
     try {
       const mybeObj = JSON.parse(codeStr)
       if (isObject(mybeObj)) {
-        json.value =  deepFormat(mybeObj, fields.value)
+        json.value = deepFormat(mybeObj, fields.value)
         jsonValid.value = true
-      } else {
+      }
+      else {
         jsonValid.value = false
         ElNotification({
           type: 'error',

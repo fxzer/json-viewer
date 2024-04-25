@@ -2,7 +2,6 @@
 import { useGlobalStore } from '@/store'
 import { useDialogWidth } from '@/hooks'
 
-
 const width = useDialogWidth()
 const visible = defineModel<boolean>()
 const { fields } = toRefs(useGlobalStore())
@@ -25,20 +24,24 @@ function addField() {
 
 <template>
   <el-dialog v-model="visible" :title="$t('assignField')" :width="width">
-    <div class='flex gap-3'>
-      <el-input ref="inputRef" class='flex-1' v-model.trim="inputValue" :placeholder="$t('fieldPlaceholder')" size="small"
-        @keyup.enter="addField" />
+    <div class="flex gap-3">
+      <el-input
+        ref="inputRef" v-model.trim="inputValue" class="flex-1" :placeholder="$t('fieldPlaceholder')" size="small"
+        @keyup.enter="addField"
+      />
       <el-button size="small" @click="addField">
         +
       </el-button>
     </div>
-    <div class="flex gap-4 flex-wrap my-4">
-      <el-tag v-for="(field, index) in fields" :key="index" :type="handleType(index)" closable
-        :disable-transitions="false" @close="handleClose(index)">
+    <div class="my-4 flex flex-wrap gap-4">
+      <el-tag
+        v-for="(field, index) in fields" :key="index" :type="handleType(index)" closable
+        :disable-transitions="false" @close="handleClose(index)"
+      >
         {{ field }}
       </el-tag>
     </div>
-    <p class="bg-gray/10 text-gray rounded p3 text-xs">
+    <p class="rounded bg-gray/10 p3 text-xs text-gray">
       <span class="text-amber">{{ $t('infoName') }}</span>
       {{ $t('info') }}
     </p>

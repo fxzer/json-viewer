@@ -1,26 +1,26 @@
 {
   "compilerOptions": {
-    "module": "esnext",
     "target": "ES2017",
     "jsx": "preserve",
-    "esModuleInterop": true,
     "lib": ["esnext", "dom"],
-    "baseUrl": "./",
     "useDefineForClassFields": true,
+    "baseUrl": "./",
+    "module": "esnext",
     "moduleResolution": "node",
     "paths": {
       "@": ["src"],
       "@/*": ["src/*"]
     },
-    "resolveJsonModule": true, // 不对第三方依赖类型检查 ，element-plus 生产打包报错
+    "resolveJsonModule": true, // 默认导入
     "types": [
       "element-plus/global"
     ],
     "allowJs": false,
     "strict": false,
     "sourceMap": true,
-    "allowSyntheticDefaultImports": true, // 默认导入
-    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

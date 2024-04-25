@@ -1,12 +1,8 @@
 <script lang="ts" setup>
-import { type LayoutConfig } from '@/types/global'
-import { dealDataToTree, registerBehaviors, registerNodes,updateStylle} from '@/utils'
-import { useGlobalStore, useLayoutStore, useCodeStore } from '@/store'
-const { json } = toRefs(useCodeStore())
-const { isDark, colors, themeColor, keyword, focusCount,autoRender } = toRefs(useGlobalStore())
+// import { LayoutConfig } from '@/types/global'
+import { dealDataToTree, registerBehaviors, registerNodes, updateStylle } from '@/utils'
+import { useCodeStore, useGlobalStore, useLayoutStore } from '@/store'
 
-const graph = ref()
-const ratio = defineModel<number>('ratio')
 const props = defineProps({
   isExpand: {
     type: Boolean,
@@ -18,8 +14,14 @@ const props = defineProps({
   },
 })
 const emit = defineEmits(['nodeClick'])
+const { json } = toRefs(useCodeStore())
+const { isDark, colors, themeColor, keyword, focusCount, autoRender } = toRefs(useGlobalStore())
+
+const graph = ref()
+const ratio = defineModel<number>('ratio')
 const { activeConfig } = toRefs(useLayoutStore())
 const jsonCanvas = ref<HTMLElement | null>(null)
+const { width, height } = useElementSize(jsonCanvas)
 
 function render() {
   drawGraph(json.value, true)
@@ -39,13 +41,12 @@ watch(themeColor, () => {
   window.location.reload()
 })
 
-
 // function updateTheme(g) {
 //   const nodes = g.getNodes()
 //   nodes.forEach(node => {
-//     g.clearItemStates(node, ['dark', 'light','hover','focus','theme-change']); 
+//     g.clearItemStates(node, ['dark', 'light','hover','focus','theme-change']);
 //     g.setItemState(node, 'theme-change', true)
-//   }) 
+//   })
 //   g.paint()
 // }
 // 转换配置:两种布局特殊处理 把vgap/hgap转化为箭头函数返回形式
@@ -65,26 +66,21 @@ function convertLayoutConfig(config: LayoutConfig) {
   return config
 }
 
-
 // 监听到布局配置变化,重新布局
-watch(activeConfig,
-  (val: any) => {
-    if (!graph.value)
-      return
-    const layoutConfig = convertLayoutConfig(val)
-    // 重新布局后居中展示
-    graph.value.updateLayout(layoutConfig)
-    graph.value.fitView(20)
-  },
-  { deep: true },
-)
+watch(activeConfig, (val: any) => {
+  if (!graph.value)
+    return
+  const layoutConfig = convertLayoutConfig(val)
+  // 重新布局后居中展示
+  graph.value.updateLayout(layoutConfig)
+  graph.value.fitView(20)
+}, { deep: true })
 
 const nodeDetail = ref({})
 function openNodeDetail(node) {
   nodeDetail.value = node.getModel()
   emit('nodeClick', nodeDetail.value)
 }
-
 
 // 初始化
 const toolbar = new G6.ToolBar({
@@ -128,9 +124,7 @@ function initGraph() {
   })
   registerNodes(colors.value, themeColor.value) // 注册节点
   registerBehaviors(graph.value, openNodeDetail) // 注册行为
-  graph.value?.on('wheel', (e) => {
-    ratio.value = graph.value?.getZoom()
-  });
+  graph.value?.on('wheel', () => ratio.value = graph.value?.getZoom())
 }
 function drawGraph(data, isUpdate = true) {
   if (!data)
@@ -157,7 +151,6 @@ function drawGraph(data, isUpdate = true) {
     graph.value?.zoom(0.85)
 }
 
-const { width, height } = useElementSize(jsonCanvas)
 watchDebounced([width, height], ([w, h]) => {
   if (graph.value)
     graph.value.changeSize(w, h)
@@ -254,7 +247,7 @@ function focusNode(keyword: string) {
     }
   }
 }
-watchDebounced(keyword, focusNode,{ debounce: 300 })
+watchDebounced(keyword, focusNode, { debounce: 300 })
 onUnmounted(() => {
   graph.value?.clear()
   graph.value?.destroy()
@@ -263,7 +256,7 @@ defineExpose({
   saveImage,
   toolbar,
   graph,
-  render
+  render,
 })
 </script>
 

@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 import { useDialogWidth } from '@/hooks'
-const visible = defineModel<boolean>()
+
 const props = defineProps({
   nodeDetail: {
     type: Object,
     default: () => ({}),
   },
 })
+const visible = defineModel<boolean>()
 const code = computed(() => {
-  let { keyName, entries, id } = props.nodeDetail
-  let node = id === 'root' ? {} : keyName || entries
+  const { keyName, entries, id } = props.nodeDetail
+  const node = id === 'root' ? {} : keyName || entries
   return JSON.stringify(node, null, 2)
 })
 const width = useDialogWidth(640)

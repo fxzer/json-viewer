@@ -1,4 +1,6 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { setupI18n } from './utils'
 import './main.scss'
 
@@ -8,9 +10,7 @@ import '@unocss/reset/tailwind-compat.css'
 import 'splitpanes/dist/splitpanes.css'
 // 引入pinia
 import 'element-plus/theme-chalk/dark/css-vars.css'
-import { createPinia } from 'pinia'
 import App from './App.vue'
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 // 创建pinia实例
 const pinia = createPinia()

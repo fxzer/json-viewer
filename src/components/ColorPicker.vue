@@ -1,17 +1,20 @@
 <script setup lang='ts'>
 import { useGlobalStore } from '@/store'
+
 const { colors, colorName } = toRefs(useGlobalStore())
 </script>
 
 <template>
   <el-popover trigger="click">
     <template #reference>
-      <slot name="icon"></slot>
+      <slot name="icon" />
     </template>
-    <div class='grid  grid-cols-5 justify-items-center gap-1'>
-      <div class='wh-5 flex-center  rounded-sm cursor-pointer' v-for="(color, name) in colors"
-        :class="{ 'bg-gray/20': name === colorName }" @click="colorName = name" :title="name">
-        <span class='wh-3 rounded-full ' :style="{ backgroundColor: color }"></span>
+    <div class="grid grid-cols-5 justify-items-center gap-1">
+      <div
+        v-for="(color, name) in colors" :key="name" class="wh-5 flex-center cursor-pointer rounded-sm"
+        :class="{ 'bg-gray/20': name === colorName }" :title="name" @click="colorName = name"
+      >
+        <span class="wh-3 rounded-full" :style="{ backgroundColor: color }" />
       </div>
     </div>
   </el-popover>

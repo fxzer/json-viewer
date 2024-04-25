@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { Pane, Splitpanes } from 'splitpanes'
-import { useGlobalStore, useCodeStore} from '@/store'
+import { useCodeStore, useGlobalStore } from '@/store'
 import { toggleDarkAnimate, useMobile } from '@/hooks'
 import { isObject } from '@/utils'
 import 'splitpanes/dist/splitpanes.css'
-const {originCode, formatCode, json,jsonValid} = toRefs(useCodeStore())
-const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(useGlobalStore())
+
+const { originCode, formatCode, json, jsonValid } = toRefs(useCodeStore())
+const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(
+  useGlobalStore(),
+)
 const { toggleEditor, toggleExecuteMode, toggleLanguage } = useGlobalStore()
 const drawerVisible = ref(false)
 function openLayoutConfig() {
@@ -20,23 +23,25 @@ const isMobile = useMobile()
 const [isExpandNode, toggleNode] = useToggle(true)
 const editorIconStyle = computed(() => {
   if (isMobile.value) {
-    return { transform: `rotate(${isExpandEditor.value ? '90deg' : '270deg'})` }
-  } else {
+    return {
+      transform: `rotate(${isExpandEditor.value ? '90deg' : '270deg'})`,
+    }
+  }
+  else {
     return { transform: `rotate(${isExpandEditor.value ? '0deg' : '180deg'})` }
   }
 })
-function onUpdateCode(codeStr:string) {
-  originCode.value =  codeStr
+function onUpdateCode(codeStr: string) {
+  originCode.value = codeStr
 }
 const debounceUpdate = useDebounceFn(onUpdateCode, 500)
 
 // 导出json
 function onExport() {
   const filename = 'json-viewer.json'
-  const jsonStr
-    = isObject(json.value)
-      ? JSON.stringify(json.value, undefined, 2)
-      : json.value
+  const jsonStr = isObject(json.value)
+    ? JSON.stringify(json.value, undefined, 2)
+    : json.value
   const blob = new Blob([jsonStr as any], { type: 'text/plain' })
   const link = document.createElement('a')
   link.setAttribute('style', 'display: none')
@@ -110,8 +115,7 @@ function onFullScreen() {
   isFullScreen.value = !isFullScreen.value
   if (isFullScreen.value)
     document.documentElement.requestFullscreen()
-  else
-    document.exitFullscreen()
+  else document.exitFullscreen()
 }
 // 自定义需要额外解析的字段
 const fieldsVisible = ref(false)
@@ -176,68 +180,135 @@ const canvasIconList = [
   },
 ]
 </script>
+
 <template>
   <div>
-    <Splitpanes class="default-theme" style="height: 100vh" :horizontal="isMobile">
+    <Splitpanes
+      class="default-theme"
+      style="height: 100vh"
+      :horizontal="isMobile"
+    >
       <Pane max-size="50" :size="paneSize[0]">
-        <div border="b gray/20" class="flex items-center px-2  bg-gray/10 h-10 space-x-3">
-          <template v-for="item in editorIconList">
+        <div
+          border="b gray/20"
+          class="h-10 flex items-center bg-gray/10 px-2 space-x-3"
+        >
+          <template v-for="item, idx in editorIconList" :key="idx">
             <el-tooltip :content="$t(item.content)">
               <span class="iconfont" :class="item.icon" @click="item.onClick" />
             </el-tooltip>
           </template>
 
           <el-tooltip :content="$t(autoRender ? 'autoRender' : 'manualRender')">
-            <span class="iconfont icon-auto" @click="toggleExecuteMode()"
-              :class="autoRender ? '!text-green-500' : ''" />
+            <span
+              class="iconfont icon-auto"
+              :class="autoRender ? '!text-green-500' : ''"
+              @click="toggleExecuteMode()"
+            />
           </el-tooltip>
           <el-tooltip content="渲染">
             <Transition name="slide">
-              <el-button class="iconfont icon-execute" v-show="!autoRender" @click="onRender" :class="[
-                !autoRender && jsonValid ? '!text-green-500' : '',
-                jsonValid ? '' : '!text-gray-300'
-              ]" link :disabled="!jsonValid" />
+              <el-button
+                v-show="!autoRender"
+                class="iconfont icon-execute"
+                :class="[
+                  !autoRender && jsonValid ? '!text-green-500' : '',
+                  jsonValid ? '' : '!text-gray-300',
+                ]"
+                link
+                :disabled="!jsonValid"
+                @click="onRender"
+              />
             </Transition>
           </el-tooltip>
         </div>
 
-        <VueCodeMirror :value="formatCode" @update-code="debounceUpdate" :style="{ height: '100%' }" />
+        <VueCodeMirror
+          :value="formatCode"
+          :style="{ height: '100%' }"
+          @update-code="debounceUpdate"
+        />
       </Pane>
       <Pane :size="paneSize[1]">
         <div h-full>
-          <div border="b gray/20" class="md:(h-10 flex-between-center) px-2   bg-gray/10 ">
-            <div class='flex-y-center space-x-3'>
-
-              <el-tooltip :content="`${isExpandEditor ? $t('collapse') : $t('expand')}${$t('editor')}`">
-                <span class="iconfont icon-editor-expand" :style="editorIconStyle" @click="toggleEditor()" />
+          <div
+            border="b gray/20"
+            class="bg-gray/10 px-2 md:(h-10 flex-between-center)"
+          >
+            <div class="flex-y-center space-x-3">
+              <el-tooltip
+                :content="`${
+                  isExpandEditor ? $t('collapse') : $t('expand')
+                }${$t('editor')}`"
+              >
+                <span
+                  class="iconfont icon-editor-expand"
+                  :style="editorIconStyle"
+                  @click="toggleEditor()"
+                />
               </el-tooltip>
-              <el-tooltip :content="`${isExpandNode ? $t('collapse') : $t('expand')}${$t('nodes')}`">
-                <span class="iconfont" :class="isExpandNode ? 'icon-node-collapse' : 'icon-node-expand'"
-                  @click="toggleNode()" />
+              <el-tooltip
+                :content="`${isExpandNode ? $t('collapse') : $t('expand')}${$t(
+                  'nodes',
+                )}`"
+              >
+                <span
+                  class="iconfont"
+                  :class="
+                    isExpandNode ? 'icon-node-collapse' : 'icon-node-expand'
+                  "
+                  @click="toggleNode()"
+                />
               </el-tooltip>
 
-              <template v-for="item in canvasIconList">
+              <template v-for="item, idx in canvasIconList" :key="idx">
                 <el-tooltip :content="$t(item.content)">
-                  <span class="iconfont" :class="item.icon" @click="item.onClick" />
+                  <span
+                    class="iconfont"
+                    :class="item.icon"
+                    @click="item.onClick"
+                  />
                 </el-tooltip>
               </template>
 
-              <el-tooltip :content="`${isFullScreen ? $t('exit') : $t('enter')}${$t('fullscreen')}`">
-                <span class="iconfont" :class="isFullScreen ? 'icon-exit-fullscreen' : 'icon-enter-fullscreen'
-                  " @click="onFullScreen" />
+              <el-tooltip
+                :content="`${isFullScreen ? $t('exit') : $t('enter')}${$t(
+                  'fullscreen',
+                )}`"
+              >
+                <span
+                  class="iconfont"
+                  :class="
+                    isFullScreen
+                      ? 'icon-exit-fullscreen'
+                      : 'icon-enter-fullscreen'
+                  "
+                  @click="onFullScreen"
+                />
               </el-tooltip>
-              <span class="iconfont" @click="toggleDarkAnimate" :class="isDark ? 'icon-night' : 'icon-day'" />
+              <span
+                class="iconfont"
+                :class="isDark ? 'icon-night' : 'icon-day'"
+                @click="toggleDarkAnimate"
+              />
               <ColorPicker>
                 <template #icon>
                   <span class="iconfont icon-theme" />
                 </template>
               </ColorPicker>
-              <div op60>{{ ratioText }}</div>
+              <div op60>
+                {{ ratioText }}
+              </div>
             </div>
-              <SearchInput />
+            <SearchInput />
           </div>
-          <JsonCanvas ref="jsonCanvasRef" :is-expand="isExpandNode" :is-expand-editor="isExpandEditor"
-            @node-click="nodeClickHandler" v-model:ratio="ratio" />
+          <JsonCanvas
+            ref="jsonCanvasRef"
+            v-model:ratio="ratio"
+            :is-expand="isExpandNode"
+            :is-expand-editor="isExpandEditor"
+            @node-click="nodeClickHandler"
+          />
         </div>
       </Pane>
     </Splitpanes>
@@ -246,7 +317,6 @@ const canvasIconList = [
     <NodeDialog v-model="nodeDetailVisible" :node-detail="nodeDetail" />
     <LayoutCustom v-model="drawerVisible" />
   </div>
-
 </template>
 
 <style lang="scss" scoped>
@@ -264,7 +334,6 @@ const canvasIconList = [
       background-color: #d1d5db26;
       border-color: #d1d5db26 !important;
     }
-
   }
 }
 
@@ -295,5 +364,4 @@ const canvasIconList = [
 .slide-leave-to {
   transform: translateY(-100%);
 }
-
 </style>

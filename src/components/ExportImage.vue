@@ -1,6 +1,11 @@
 <script lang="ts" setup>
-const isDark = useDark()
 import { useDialogWidth } from '@/hooks'
+
+const emit = defineEmits<{
+  // confirm: [val: ImageConfig]
+  (event: 'confirm', val: ImageConfig): void
+}>()
+const isDark = useDark()
 interface ImageConfig {
   name: string
   type: string
@@ -9,9 +14,6 @@ interface ImageConfig {
 }
 const width = useDialogWidth()
 const visible = defineModel<boolean>()
-const emit = defineEmits({
-  'confirm': (val: ImageConfig) => true,
-})
 const imageTypes = reactive({
   PNG: 'image/png',
   JPEG: 'image/jpeg',
@@ -26,10 +28,9 @@ const exportConfig = ref<ImageConfig> ({
 })
 
 function confirm() {
-  
-  emit('confirm',{
+  emit('confirm', {
     ...exportConfig.value,
-    backgroundColor: isDark.value ? '#000' : '#fff'
+    backgroundColor: isDark.value ? '#000' : '#fff',
   })
   visible.value = false
 }
@@ -60,7 +61,7 @@ function confirm() {
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button  @click="confirm">{{ $t('export') }}</el-button>
+        <el-button @click="confirm">{{ $t('export') }}</el-button>
       </span>
     </template>
   </el-dialog>

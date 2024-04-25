@@ -1,4 +1,4 @@
-import type { LayoutConfig, LayoutState } from '@/types/global'
+// import type { LayoutState } from '@/types/global'
 
 export const useLayoutStore = defineStore('layout', (): LayoutState => {
   const activeLayout = ref('mindmap')
@@ -49,4 +49,4 @@ export const useLayoutStore = defineStore('layout', (): LayoutState => {
     return layoutList[activeLayout.value]
   })
   return { activeLayout, activeConfig, layoutList }
-},{  persist: true})
+}, { persist: true })

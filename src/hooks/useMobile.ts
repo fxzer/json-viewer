@@ -8,5 +8,5 @@ export function useMobile() {
     isMobile.value = breakpoints.isSmaller('md')
   }, 300)
   useResizeObserver(document.body, debounceResize)
-  return  isMobile 
+  return isMobile
 }

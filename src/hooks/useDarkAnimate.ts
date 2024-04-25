@@ -1,4 +1,3 @@
-
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 // @ts-expect-error: Transition API

@@ -1,5 +1,5 @@
 // 生成随机id
- function generateRandomId(count = 8): string {
+function generateRandomId(count = 8): string {
   return Math.random()
     .toString(36)
     .substring(2, 2 + count)

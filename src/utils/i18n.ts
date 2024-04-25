@@ -4,7 +4,7 @@ import { createI18n } from 'vue-i18n'
 import zh from '@/locales/zh-CN'
 import en from '@/locales/en-US'
 
-const locale = JSON.parse(localStorage.getItem('global'))?.language ||  'zh-CN'
+const locale = JSON.parse(localStorage.getItem('global'))?.language || 'zh-CN'
 const i18n = createI18n({
   allowComposition: true,
   legacy: false,
