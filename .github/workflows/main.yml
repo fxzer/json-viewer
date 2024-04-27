@@ -24,8 +24,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: latest
-        run: |
-          node -v
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -36,6 +34,7 @@ jobs:
       - name: Build 🔧
         run: |
           pnpm run build
+          node -v
 
       - name: 📲 Push To GitHub Pages
         uses: ftnext/action-push-ghpages@v1.0.0
