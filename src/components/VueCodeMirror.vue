@@ -13,14 +13,14 @@ const props = defineProps({
     default: () => ({ height: '100%' }),
   },
 })
-const emit = defineEmits(['updatCcode'])
+const emit = defineEmits(['updateCode'])
 const code = ref<string>()
 const isDark = useDark()
 const extensions = computed(() => isDark.value ? [json(), oneDark] : [json()])
 
 watch(() => props.value, val => code.value = val, { immediate: true })
 
-watch(code, val => emit('updatCcode', val))
+watch(code, val => emit('updateCode', val))
 </script>
 
 <template>
