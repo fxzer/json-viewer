@@ -1,5 +1,3 @@
-// import type { LayoutState } from '@/types/global'
-
 export const useLayoutStore = defineStore('layout', (): LayoutState => {
   const activeLayout = ref('mindmap')
   const layoutList = reactive({
@@ -21,7 +19,6 @@ export const useLayoutStore = defineStore('layout', (): LayoutState => {
       type: 'mindmap',
       direction: 'LR',
       directions: ['LR', 'RL', 'H'],
-      // getHGap: 150,//官网写了可以是Number或function,但是改为数字后一直报错Uncaught TypeError: options.getHGap is not a function
       hgap: 100,
       vgap: 100,
       getHGap: () => {
