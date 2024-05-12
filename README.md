@@ -22,7 +22,7 @@
 
 2. 使用原子化框架 UnoCSS，减小样式文件体积
 
-3. 使用 `oxlint`、`lint-staged`提升语法检查速度
+3. 使用 `@antfu/esling-config`、`lint-staged`提升语法检查速度
 
 ## 主要功能
 
@@ -42,7 +42,7 @@
 
 ## 预览地址：
 
-### Bilibili演示：[Bilibili演示视频地址](https://www.bilibili.com/video/BV1cG4y117Rw/?vd_source=0e300a3720f58f257ff36648c263c668)
+### Bilibili演示：[Bilibili演示视频地址](https://www.bilibili.com/video/BV18i42117Fa/?spm_id_from=333.999.0.0)
 
 ### Github：[https://fxzer.github.io/json-viewer/](https://fxzer.github.io/json-viewer/)
 
