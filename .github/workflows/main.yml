@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest # 部署运行环境搭建
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
 
       - name: Set USERNAME and REPO_NAME
         run: |
@@ -21,12 +21,12 @@ jobs:
           echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: latest
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: latest
           run_install: true
