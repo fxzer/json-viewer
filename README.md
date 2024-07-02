@@ -2,7 +2,7 @@
 
 # JSON-Viewer（JSON可视化工具）
 
-## 技术栈：Vue 3 + Vite +TS + [Antv/G6](https://g6.antv.vision/) + Pinia +[CodeMirror](codemirror.net)
+## 技术栈：Vue 3 + Vite +TS + [Antv/G6](https://g6.antv.vision/) + Pinia +[CodeMirror](https://codemirror.net/)
 
 ## 全新版本（2.x.x） 新特性
 
@@ -23,6 +23,16 @@
 2. 使用原子化框架 UnoCSS，减小样式文件体积
 
 3. 使用 `@antfu/esling-config`、`lint-staged`提升语法检查速度
+
+
+
+| 构建资源                        | 重构前打包体积 | 重构后打包体积 | 提升                                    |
+| :------------------------------ | -------------- | -------------- | --------------------------------------- |
+| dist/assets/iconfont-xxxxxx.ttf | 4.68 kB        | 无             | 4.68 kB                                 |
+| dist/assets/index-xxxxxx.css    | 107.92 kB      | 81.94 kB       | 25.98 kB                                |
+| dist/assets/index-xxxxxx.js     | 3,325.04 kB    | 2,324.82 kB    | 1,000.22 kB   （**共减小1,030.88 kB**） |
+
+  
 
 ## 主要功能
 
