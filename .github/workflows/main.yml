@@ -42,16 +42,16 @@ jobs:
           build_dir: dist
           github_token: ${{ secrets.DEPLOY_TOKEN }}
 
-      - name: Sync to Gitee
-        uses: wearerequired/git-mirror-action@master
-        env:
-          # 注意在 Settings->Secrets 配置 GITEE_RSA_PRIVATE_KEY（复制本机生成的 ~/.ssh/gitee ）
-          SSH_PRIVATE_KEY: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
-        with:
-          # GitHub 源仓库地址
-          source-repo: git@github.com:${{ env.REPO_NAME }}.git
-          #  Gitee 目标仓库地址
-          destination-repo: git@gitee.com:${{ env.REPO_NAME }}.git
+      # - name: Sync to Gitee
+      #   uses: wearerequired/git-mirror-action@master
+      #   env:
+      #     # 注意在 Settings->Secrets 配置 GITEE_RSA_PRIVATE_KEY（复制本机生成的 ~/.ssh/gitee ）
+      #     SSH_PRIVATE_KEY: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+      #   with:
+      #     # GitHub 源仓库地址
+      #     source-repo: git@github.com:${{ env.REPO_NAME }}.git
+      #     #  Gitee 目标仓库地址
+      #     destination-repo: git@gitee.com:${{ env.REPO_NAME }}.git
 
       # 首次必须手动 Gitee 部署，否则会出错
       # - name: Build Gitee Pages
