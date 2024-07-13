@@ -18,6 +18,12 @@ export default defineConfig(({ _, mode }) => {
     base: env.VITE_BASE_URL,
     plugins: [
       vue(),
+      // {
+      //   name: 'html-transform',
+      //   transformIndexHtml(html) {
+      //     return html
+      //   },
+      // },
       UnoCSS(),
       // visualizer(),//打包分析
       lifecycle === 'report'
@@ -49,6 +55,7 @@ export default defineConfig(({ _, mode }) => {
       Components({
         resolvers: [ElementPlusResolver()],
         dts: 'src/types/auto-components.d.ts',
+
       }),
       VitePWA({
         outDir: 'dist',
@@ -118,6 +125,26 @@ export default defineConfig(({ _, mode }) => {
     // 打包配置
     build: {
       outDir: env.VITE_OUTDIR,
+      // 手动分包，把第三方库单独打包
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('@antv/g6')) {
+                return 'antv-g6'
+              }
+              if (id.includes('element-plus')) {
+                return 'element-plus'
+              }
+              if (id.includes('codemirror')) {
+                return 'codemirror'
+              }
+              // 默认所有node_modules库都放到vendor包中
+              return 'vendor'
+            }
+          },
+        },
+      },
     },
   }
 })
