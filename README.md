@@ -66,7 +66,7 @@
 
 ## 预览截图
 
-![image.png](./public/screenshot.svg)
+![image.png](./public/preview.svg)
 
 ## 灵感来源
 
