@@ -21,3 +21,14 @@
 .dark::view-transition-old(root) {
   z-index: 9999;
 }
+
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+width: 8px;
+height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: #9ca3af28;
+}

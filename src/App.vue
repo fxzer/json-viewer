@@ -225,7 +225,7 @@ const canvasIconList = [
 
         <VueCodeMirror
           :value="formatCode"
-          :style="{ height: '100%' }"
+          :style="{ height: 'calc(100% - 40px);' }"
           @update-code="debounceUpdate"
         />
       </Pane>
