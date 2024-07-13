@@ -1,6 +1,12 @@
+<p align="center">
 <img src="./public/favicon.svg" width="100" height="100" align="center" style="margin:0 auto;" />
+</p>
 
-# JSON-Viewer（JSON可视化工具）
+<h1 align="center">JSON-Viewer</h1>
+
+<p align="center">
+一个JSON可视化工具
+</p>
 
 ## 技术栈：Vue 3 + Vite +TS + [Antv/G6](https://g6.antv.vision/) + Pinia +[CodeMirror](https://codemirror.net/)
 
@@ -24,15 +30,11 @@
 
 3. 使用 `@antfu/esling-config`、`lint-staged`提升语法检查速度
 
-
-
-| 构建资源                        | 重构前打包体积 | 重构后打包体积 | 提升                                    |
-| :------------------------------ | -------------- | -------------- | --------------------------------------- |
-| dist/assets/iconfont-xxxxxx.ttf | 4.68 kB        | 无             | 4.68 kB                                 |
-| dist/assets/index-xxxxxx.css    | 107.92 kB      | 81.94 kB       | 25.98 kB                                |
-| dist/assets/index-xxxxxx.js     | 3,325.04 kB    | 2,324.82 kB    | 1,000.22 kB   （**共减小1,030.88 kB**） |
-
-  
+| 构建资源                        | 重构前打包体积 | 重构后打包体积 | 提升                                  |
+| :------------------------------ | -------------- | -------------- | ------------------------------------- |
+| dist/assets/iconfont-xxxxxx.ttf | 4.68 kB        | 无             | 4.68 kB                               |
+| dist/assets/index-xxxxxx.css    | 107.92 kB      | 81.94 kB       | 25.98 kB                              |
+| dist/assets/index-xxxxxx.js     | 3,325.04 kB    | 2,324.82 kB    | 1,000.22 kB （**共减小1,030.88 kB**） |
 
 ## 主要功能
 
@@ -66,7 +68,7 @@
 
 ## 预览截图
 
-![image.png](./public/preview.svg)
+<img src="./public/preview.svg" width="100%" height="100%" align="center" style="margin:10px auto;" />
 
 ## 灵感来源
 
