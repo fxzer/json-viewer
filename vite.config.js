@@ -9,6 +9,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { visualizer } from 'rollup-plugin-visualizer'
 import UnoCSS from 'unocss/vite'
+import { setupPrintBuildInfo } from './build/print-build-info'
 
 const lifecycle = process.env.npm_lifecycle_event
 // 获取npm命令
@@ -24,6 +25,7 @@ export default defineConfig(({ _, mode }) => {
       //     return html
       //   },
       // },
+      setupPrintBuildInfo(),
       UnoCSS(),
       // visualizer(),//打包分析
       lifecycle === 'report'
@@ -55,7 +57,7 @@ export default defineConfig(({ _, mode }) => {
       Components({
         resolvers: [ElementPlusResolver()],
         dts: 'src/types/auto-components.d.ts',
-
+        dirs: ['src/components/sync'],
       }),
       VitePWA({
         outDir: 'dist',
@@ -130,15 +132,15 @@ export default defineConfig(({ _, mode }) => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('@antv/g6')) {
-                return 'antv-g6'
-              }
-              if (id.includes('element-plus')) {
-                return 'element-plus'
-              }
-              if (id.includes('codemirror')) {
-                return 'codemirror'
-              }
+              // if (id.includes('@antv/g6')) {
+              //   return 'antv-g6'
+              // }
+              // if (id.includes('element-plus')) {
+              //   return 'element-plus'
+              // }
+              // if (id.includes('codemirror')) {
+              //   return 'codemirror'
+              // }
               // 默认所有node_modules库都放到vendor包中
               return 'vendor'
             }

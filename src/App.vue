@@ -5,6 +5,12 @@ import { toggleDarkAnimate, useMobile } from '@/hooks'
 import { isObject } from '@/utils'
 import 'splitpanes/dist/splitpanes.css'
 
+const ExportImage = defineAsyncComponent(() => import('@/components/async/ExportImage.vue'))
+const FieldsCustom = defineAsyncComponent(() => import('@/components/async/FieldsCustom.vue'))
+const NodeDialog = defineAsyncComponent(() => import('@/components/async/NodeDialog.vue'))
+const LayoutCustom = defineAsyncComponent(() => import('@/components/async/LayoutCustom.vue'))
+const ColorPicker = defineAsyncComponent(() => import('@/components/async/ColorPicker.vue'))
+
 const { originCode, formatCode, json, jsonValid } = toRefs(useCodeStore())
 const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(
   useGlobalStore(),
@@ -312,10 +318,10 @@ const canvasIconList = [
         </div>
       </Pane>
     </Splitpanes>
-    <ExportImage v-model="exportVisible" @confirm="confirmExport" />
-    <FieldsCustom v-model="fieldsVisible" />
-    <NodeDialog v-model="nodeDetailVisible" :node-detail="nodeDetail" />
-    <LayoutCustom v-model="drawerVisible" />
+    <ExportImage v-if="exportVisible" v-model="exportVisible" @confirm="confirmExport" />
+    <FieldsCustom v-if="fieldsVisible"  v-model="fieldsVisible" />
+    <NodeDialog v-if="nodeDetailVisible" v-model="nodeDetailVisible" :node-detail="nodeDetail" />
+    <LayoutCustom v-model="drawerVisible"  v-if="drawerVisible"/>
   </div>
 </template>
 

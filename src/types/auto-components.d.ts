@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    ColorPicker: typeof import('./../components/ColorPicker.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
@@ -20,13 +19,8 @@ declare module 'vue' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
-    ExportImage: typeof import('./../components/ExportImage.vue')['default']
-    FieldsCustom: typeof import('./../components/FieldsCustom.vue')['default']
-    JsonCanvas: typeof import('./../components/JsonCanvas.vue')['default']
-    LayoutCustom: typeof import('./../components/LayoutCustom.vue')['default']
-    LayoutOptions: typeof import('./../components/LayoutOptions.vue')['default']
-    NodeDialog: typeof import('./../components/NodeDialog.vue')['default']
-    SearchInput: typeof import('./../components/SearchInput.vue')['default']
-    VueCodeMirror: typeof import('./../components/VueCodeMirror.vue')['default']
+    JsonCanvas: typeof import('./../components/sync/JsonCanvas.vue')['default']
+    SearchInput: typeof import('./../components/sync/SearchInput.vue')['default']
+    VueCodeMirror: typeof import('./../components/sync/VueCodeMirror.vue')['default']
   }
 }
