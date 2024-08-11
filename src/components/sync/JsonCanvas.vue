@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 // import { LayoutConfig } from '@/types/global'
+// import G6 from '@antv/g6'
 import { dealDataToTree, registerBehaviors, registerNodes, updateStylle } from '@/utils'
 import { useCodeStore, useGlobalStore, useLayoutStore } from '@/store'
 

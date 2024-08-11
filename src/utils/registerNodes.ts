@@ -1,4 +1,4 @@
-// import G6  from "@antv/g6";
+// import G6 from '@antv/g6'
 import type { GraphOptions } from '@antv/g6'
 
 import chroma from 'chroma-js'

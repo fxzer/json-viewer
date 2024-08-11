@@ -9,6 +9,7 @@ import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { visualizer } from 'rollup-plugin-visualizer'
 import UnoCSS from 'unocss/vite'
+// import cdn from 'vite-plugin-cdn-import'
 import { setupPrintBuildInfo } from './build/print-build-info'
 
 const lifecycle = process.env.npm_lifecycle_event
@@ -59,6 +60,15 @@ export default defineConfig(({ _, mode }) => {
         dts: 'src/types/auto-components.d.ts',
         dirs: ['src/components/sync'],
       }),
+      // cdn({
+      //   modules: [
+      //     {
+      //       name: '@antv/g6',
+      //       var: 'G6',
+      //       path: `https://unpkg.com/@antv/g6@4.8.24/dist/g6.min.js`,
+      //     },
+      //   ],
+      // }),
       VitePWA({
         outDir: 'dist',
         manifest: {
@@ -129,12 +139,16 @@ export default defineConfig(({ _, mode }) => {
       outDir: env.VITE_OUTDIR,
       // 手动分包，把第三方库单独打包
       rollupOptions: {
+        // external: ['@antv/g6'],
         output: {
+          entryFileNames: 'entries/[name]-[hash].js',
+          chunkFileNames: 'chunks/[name]-[hash].js',
+          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              // if (id.includes('@antv/g6')) {
-              //   return 'antv-g6'
-              // }
+              if (id.includes('@antv/g6')) {
+                return 'antv-g6'
+              }
               // if (id.includes('element-plus')) {
               //   return 'element-plus'
               // }

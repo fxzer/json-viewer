@@ -9,7 +9,6 @@ const ExportImage = defineAsyncComponent(() => import('@/components/async/Export
 const FieldsCustom = defineAsyncComponent(() => import('@/components/async/FieldsCustom.vue'))
 const NodeDialog = defineAsyncComponent(() => import('@/components/async/NodeDialog.vue'))
 const LayoutCustom = defineAsyncComponent(() => import('@/components/async/LayoutCustom.vue'))
-const ColorPicker = defineAsyncComponent(() => import('@/components/async/ColorPicker.vue'))
 
 const { originCode, formatCode, json, jsonValid } = toRefs(useCodeStore())
 const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(
@@ -319,9 +318,9 @@ const canvasIconList = [
       </Pane>
     </Splitpanes>
     <ExportImage v-if="exportVisible" v-model="exportVisible" @confirm="confirmExport" />
-    <FieldsCustom v-if="fieldsVisible"  v-model="fieldsVisible" />
+    <FieldsCustom v-if="fieldsVisible" v-model="fieldsVisible" />
     <NodeDialog v-if="nodeDetailVisible" v-model="nodeDetailVisible" :node-detail="nodeDetail" />
-    <LayoutCustom v-model="drawerVisible"  v-if="drawerVisible"/>
+    <LayoutCustom v-if="drawerVisible" v-model="drawerVisible" />
   </div>
 </template>
 
