@@ -20,12 +20,6 @@ export default defineConfig(({ _, mode }) => {
     base: env.VITE_BASE_URL,
     plugins: [
       vue(),
-      // {
-      //   name: 'html-transform',
-      //   transformIndexHtml(html) {
-      //     return html
-      //   },
-      // },
       setupPrintBuildInfo(),
       UnoCSS(),
       // visualizer(),//打包分析
@@ -63,7 +57,7 @@ export default defineConfig(({ _, mode }) => {
       // cdn({
       //   modules: [
       //     {
-      //       name: '@antv/g6',
+      //       name: '@antv/g6', //不是用 cdn 2.4M 93分，使用后 2.8M，89 分
       //       var: 'G6',
       //       path: `https://unpkg.com/@antv/g6@4.8.24/dist/g6.min.js`,
       //     },
@@ -146,9 +140,9 @@ export default defineConfig(({ _, mode }) => {
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('@antv/g6')) {
-                return 'antv-g6'
-              }
+              // if (id.includes('@antv/g6')) {
+              //   return 'antv-g6'
+              // }
               // if (id.includes('element-plus')) {
               //   return 'element-plus'
               // }
