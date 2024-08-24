@@ -1,4 +1,4 @@
-import { updateStyle } from './registerNodes'
+import { updateStyle } from './helper'
 // 注册行为
 export function registerBehaviors(graph, nodeClickCb: (node: any) => void) {
   const handleCollapse = (e) => {

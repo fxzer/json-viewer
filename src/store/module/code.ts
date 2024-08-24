@@ -1,5 +1,4 @@
 import { decompressFromEncodedURIComponent as decode, compressToEncodedURIComponent as encode } from 'lz-string'
-import { useGlobalStore } from './global'
 import exampleJson from '@/example.json'
 import {isObject } from '@/utils'
 

@@ -1,3 +1,5 @@
+import { isObject } from './typeis'
+
 interface NodeItem {
   id: string
   keyName?: string
@@ -8,11 +10,6 @@ interface NodeItem {
 // 生成随机id
 function generateRandomId(count = 8): string {
   return Math.random().toString(36).substring(2, 2 + count)
-}
-
-// 判断是否为对象
-function isObject(value: any): boolean {
-  return typeof value === 'object' && value !== null
 }
 
 // 创建或获取普通节点

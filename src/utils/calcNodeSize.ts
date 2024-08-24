@@ -21,8 +21,9 @@ const getWidth = (() => {
 
   return (text: string, font: string = 'normal 12px Arial'): number => {
     const cacheKey = `${font}:${text}`
-    if (cache.has(cacheKey)) return cache.get(cacheKey)!
-    
+    if (cache.has(cacheKey))
+      return cache.get(cacheKey)!
+
     context.font = font
     const width = Math.ceil(context.measureText(text).width)
     cache.set(cacheKey, width)
@@ -32,7 +33,7 @@ const getWidth = (() => {
 
 const fittingString = fittingStringFn()
 
-export function computeNodeSize(cfg: {
+export function calcNodeSize(cfg: {
   entries: Record<string, any>
   keyName?: string
 }): [number, number, string] {
