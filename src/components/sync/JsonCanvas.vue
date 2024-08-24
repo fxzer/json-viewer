@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 // import { LayoutConfig } from '@/types/global'
 // import G6 from '@antv/g6'
-import { dealDataToTree, registerBehaviors, registerNodes, updateStylle } from '@/utils'
+import { dealDataToTree, registerBehaviors, registerNodes, updateStyle } from '@/utils'
 import { useCodeStore, useGlobalStore, useLayoutStore } from '@/store'
 
 const props = defineProps({
@@ -16,7 +16,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['nodeClick'])
 const { json } = toRefs(useCodeStore())
-const { isDark, colors, themeColor, keyword, focusCount, autoRender } = toRefs(useGlobalStore())
+const { isDark, colors, themeColor, keyword, focusCount, autoRender, fields } = toRefs(useGlobalStore())
 
 const graph = ref()
 const ratio = defineModel<number>('ratio')
@@ -24,19 +24,24 @@ const { activeConfig } = toRefs(useLayoutStore())
 const jsonCanvas = ref<HTMLElement | null>(null)
 const { width, height } = useElementSize(jsonCanvas)
 
+let focusTimer = null
 function render() {
   drawGraph(json.value, true)
-  updateStylle(graph.value)
+  updateStyle(graph.value)
   // 触发聚焦搜索
-  setTimeout(() => {
-    focusNode(keyword.value)
-  }, 500)
+  if (keyword.value) {
+    clearTimeout(focusTimer)
+    focusTimer = setTimeout(() => {
+      focusNode(keyword.value)
+    }, 500)
+  }
 }
-watch(json, () => {
-  autoRender.value && render()
+watch([json, fields], () => {
+  if (autoRender.value)
+    render()
 }, { deep: true })
 watch(isDark, () => {
-  updateStylle(graph.value)
+  updateStyle(graph.value)
 })
 watch(themeColor, () => {
   window.location.reload()
@@ -130,7 +135,7 @@ function initGraph() {
 function drawGraph(data, isUpdate = true) {
   if (!data)
     return
-  data = dealDataToTree(data)
+  data = dealDataToTree(data, fields.value)
   // 判断是否为空对象
   const isEmpty = Object.keys(data).length === 0
   const rootConfig = {

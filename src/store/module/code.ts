@@ -1,17 +1,16 @@
 import { decompressFromEncodedURIComponent as decode, compressToEncodedURIComponent as encode } from 'lz-string'
 import { useGlobalStore } from './global'
 import exampleJson from '@/example.json'
-import { deepFormat, isObject } from '@/utils'
+import {isObject } from '@/utils'
 
 const params = new URLSearchParams(window.location.search || '')
 const baseUrl = import.meta.env.VITE_BASE_URL as string
 const url = new URL(baseUrl, window.location.origin)
 export const queryKey = 'code'
 export const useCodeStore = defineStore('code', () => {
-  const { fields } = storeToRefs(useGlobalStore())
   const exmapleCode = JSON.stringify(exampleJson, null, 2)
   const originCode = ref(decode(params.get(queryKey) || '') || exmapleCode)
-  const json = ref(deepFormat(JSON.parse(originCode.value), fields.value))
+  const json = ref(JSON.parse(originCode.value))
   const formatCode = ref<string>(JSON.stringify(json.value, null, 2))
 
   watch(json, (val) => {
@@ -27,9 +26,6 @@ export const useCodeStore = defineStore('code', () => {
     }
   })
 
-  watch(fields, (val) => {
-    json.value = deepFormat(JSON.parse(originCode.value), val)
-  }, { deep: true })
 
   const jsonValid = ref(true)
   watch(originCode, (codeStr) => {
@@ -41,7 +37,7 @@ export const useCodeStore = defineStore('code', () => {
     try {
       const mybeObj = JSON.parse(codeStr)
       if (isObject(mybeObj)) {
-        json.value = deepFormat(mybeObj, fields.value)
+        json.value = mybeObj
         jsonValid.value = true
       }
       else {
