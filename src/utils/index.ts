@@ -1,6 +1,5 @@
 export * from './computeNodeSize'
 export * from './dealDataToTree'
-export * from './deepFormat'
 export * from './fittingString'
 export * from './registerNodes'
 export * from './registerBehaviors'
