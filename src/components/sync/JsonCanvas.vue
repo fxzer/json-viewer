@@ -16,7 +16,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['nodeClick'])
 const { json } = toRefs(useCodeStore())
-const { isDark, colors, themeColor, keyword, focusCount, autoRender, fields } = toRefs(useGlobalStore())
+const { isDark, themeColor, keyword, focusCount, autoRender, fields } = toRefs(useGlobalStore())
 
 const graph = ref()
 const ratio = defineModel<number>('ratio')
@@ -128,7 +128,7 @@ function initGraph() {
     plugins: [toolbar],
     layout: convertLayoutConfig(activeConfig.value),
   })
-  registerNodes(colors.value, themeColor.value) // 注册节点
+  registerNodes(themeColor.value) // 注册节点
   registerBehaviors(graph.value, openNodeDetail) // 注册行为
   graph.value?.on('wheel', () => ratio.value = graph.value?.getZoom())
 }

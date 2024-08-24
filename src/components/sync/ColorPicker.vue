@@ -1,7 +1,8 @@
 <script setup lang='ts'>
 import { useGlobalStore } from '@/store'
+import { THEME_COLORS } from '@/constants'
 
-const { colors, colorName } = toRefs(useGlobalStore())
+const { colorName } = toRefs(useGlobalStore())
 </script>
 
 <template>
@@ -11,7 +12,7 @@ const { colors, colorName } = toRefs(useGlobalStore())
     </template>
     <div class="grid grid-cols-5 justify-items-center gap-1">
       <div
-        v-for="(color, name) in colors" :key="name" class="wh-5 flex-center cursor-pointer rounded-sm"
+        v-for="(color, name) in THEME_COLORS" :key="name" class="wh-5 flex-center cursor-pointer rounded-sm"
         :class="{ 'bg-gray/20': name === colorName }" :title="name" @click="colorName = name"
       >
         <span class="wh-3 rounded-full" :style="{ backgroundColor: color }" />
