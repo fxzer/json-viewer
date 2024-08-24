@@ -17,7 +17,7 @@ function getPrimaryColor() {
   return document.documentElement.style.getPropertyValue('--el-color-primary')
 }
 
-export function updateStylle(g) {
+export function updateStyle(g) {
   const nodes = g.getNodes()
   const isDark = useDark()
   const state = isDark.value ? 'dark' : 'light'
