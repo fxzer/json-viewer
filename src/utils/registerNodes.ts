@@ -14,6 +14,7 @@ interface GraphOptionsPlus extends GraphOptions {
 type bos = boolean | string
 
 const isDark = useDark()
+const textColor = computed(() => isDark.value ? '#fff' : '#333')
 export function updateStyle(g) {
   const nodes = g.getNodes()
   const state = isDark.value ? 'dark' : 'light'
@@ -31,18 +32,14 @@ export function handleColors(themeColor) {
   }
   const clevels = Array.from({ length: 10 }).fill(0).map((_, i) => chroma(themeColor).alpha(i / 10).hex())
 
-  const rectColorMap = {
-    stroke: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.stroke : (isHover ? themeColor : clevels[8]),
-    fill: (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[3] : clevels[2]),
-  }
-  const textColor = isDark.value ? '#fff' : '#333'
-  const foldColor = chroma(textColor).alpha(0.8).hex()
-
-  return { focusColorMap, clevels, textColor, foldColor, rectColorMap }
+  const stokeColor = (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.stroke : (isHover ? themeColor : clevels[8])
+  const rootFill = (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[6] : clevels[9])
+  const rectFill = (isHover: bos, isFocus: bos) => isFocus ? focusColorMap.fill : (isHover ? clevels[3] : clevels[2])
+  return { focusColorMap, clevels, rootFill, rectFill, stokeColor }
 }
 
 export function registerNodes(themeColor: string) {
-  const { focusColorMap, clevels, textColor, foldColor } = handleColors(themeColor)
+  const { clevels, rootFill, rectFill, stokeColor } = handleColors(themeColor)
   // 注册根节点
   G6.registerNode(
     'root-icon',
@@ -92,8 +89,15 @@ export function registerNodes(themeColor: string) {
       setState(name, value, item) {
         const group = item?.getContainer()
         const nodeRect = group?.get('children')[1] // 顺序根据 draw 时确定
-        if (name === 'focus')
-          nodeRect.attr('fill', value ? focusColorMap.fill : clevels[8])
+        if (name === 'hover') {
+          const isFocus = item.hasState('focus')
+          nodeRect.attr('stroke', stokeColor(value, isFocus))
+          nodeRect.attr('fill', rootFill(value, isFocus))
+        }
+        else if (name === 'focus') {
+          nodeRect.attr('stroke', stokeColor(false, value))
+          nodeRect.attr('fill', rootFill(false, value))
+        }
       },
     },
     'circle',
@@ -146,7 +150,7 @@ export function registerNodes(themeColor: string) {
             text: entriesStr,
             fontSize: 12,
             lineHeight: 12 * 1.5,
-            fill: textColor,
+            fill: textColor.value,
             cursor: 'pointer',
             fontFamily: 'Arial',
           } as any,
@@ -182,7 +186,8 @@ export function registerNodes(themeColor: string) {
               text: collapsed ? '+' : '-',
               fontSize: 16,
               cursor: 'pointer',
-              fill: foldColor,
+              fill: textColor.value,
+              opacity: 0.6,
             },
             modelId: id,
           })
@@ -195,14 +200,13 @@ export function registerNodes(themeColor: string) {
         const nodeRect = group.find(e => byName(e, 'bg-rect'))
         const nodeText = group.find(e => byName(e, 'node-text'))
         const collapseText = group.find(e => byName(e, 'collapse-text'))
-        const { textColor, rectColorMap, foldColor } = handleColors(themeColor)
         if (value) {
           /* 暗黑模式切换 */
           if (['dark', 'light'].includes(name)) {
-            nodeText.attr('fill', textColor)
+            nodeText.attr('fill', textColor.value)
             // 折叠按钮
             if (collapseText)
-              collapseText.attr('fill', foldColor)
+              collapseText.attr('fill', textColor.value)
           }
           else if (name === 'collapse') {
             if (collapseText)
@@ -212,12 +216,12 @@ export function registerNodes(themeColor: string) {
 
         if (name === 'hover') {
           const isFocus = item.hasState('focus')
-          nodeRect.attr('stroke', rectColorMap.stroke(value, isFocus))
-          nodeRect.attr('fill', rectColorMap.fill(value, isFocus))
+          nodeRect.attr('stroke', stokeColor(value, isFocus))
+          nodeRect.attr('fill', rectFill(value, isFocus))
         }
         else if (name === 'focus') {
-          nodeRect.attr('stroke', rectColorMap.stroke(false, value))
-          nodeRect.attr('fill', rectColorMap.fill(false, value))
+          nodeRect.attr('stroke', stokeColor(false, value))
+          nodeRect.attr('fill', rectFill(false, value))
         }
       },
       getAnchorPoints() {
