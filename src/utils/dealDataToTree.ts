@@ -1,4 +1,3 @@
-import { isObject } from './typeis'
 
 interface NodeItem {
   id: string
@@ -26,7 +25,7 @@ function getOrCreateNormalNode(parent: NodeItem): NodeItem {
   return normalNode
 }
 function handleValue(key, value, parent, formatFields) {
-  if (isObject(value)) {
+  if (typeof value === 'object' && value !== null) {
     handleObjectNode(key, value, parent, formatFields)
   }
   else {
