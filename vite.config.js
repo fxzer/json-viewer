@@ -140,15 +140,15 @@ export default defineConfig(({ _, mode }) => {
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              // if (id.includes('@antv/g6')) {
-              //   return 'antv-g6'
-              // }
-              // if (id.includes('element-plus')) {
-              //   return 'element-plus'
-              // }
-              // if (id.includes('codemirror')) {
-              //   return 'codemirror'
-              // }
+              if (id.includes('@antv/g6')) {
+                return 'antv-g6'
+              }
+              if (id.includes('element-plus')) {
+                return 'element-plus'
+              }
+              if (id.includes('codemirror')) {
+                return 'codemirror'
+              }
               // 默认所有node_modules库都放到vendor包中
               return 'vendor'
             }
