@@ -5,6 +5,10 @@
 <h1 align="center">JSON-Viewer</h1>
 
 <p align="center">
+  <a href="./README_EN.md">English</a> | 中文
+</p>
+
+<p align="center">
 一个JSON可视化工具
 </p>
 
