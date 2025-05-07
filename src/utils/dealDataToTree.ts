@@ -1,79 +1,99 @@
-
 interface NodeItem {
   id: string
-  keyName?: string
-  entries?: Record<string, any>
+  label?: string
+  name?: string
   children?: NodeItem[]
+  style?: {
+    collapsed?: boolean
+    [key: string]: any
+  }
 }
 
-// 生成随机id
+// 缓存相关变量
+const ID_CACHE_SIZE = 1000
+const idCache: string[] = []
+
+// 生成随机id (使用缓存减少计算)
 function generateRandomId(count = 8): string {
+  if (idCache.length > 0) {
+    return idCache.pop()
+  }
+
+  // 批量生成ID并缓存，提高性能
+  if (idCache.length === 0) {
+    for (let i = 0; i < ID_CACHE_SIZE; i++) {
+      idCache.push(Math.random().toString(36).substring(2, 2 + count))
+    }
+    return idCache.pop()
+  }
+
   return Math.random().toString(36).substring(2, 2 + count)
 }
 
-// 创建或获取普通节点
-function getOrCreateNormalNode(parent: NodeItem): NodeItem {
-  let normalNode = parent.children.find(child => !child.keyName)
-  if (!normalNode) {
-    normalNode = {
-      id: generateRandomId(),
-      entries: {},
-      children: [],
-    }
-    parent.children.push(normalNode)
-  }
-  return normalNode
-}
-function handleValue(key, value, parent, formatFields) {
-  if (typeof value === 'object' && value !== null) {
-    handleObjectNode(key, value, parent, formatFields)
-  }
-  else {
-    handlePrimitiveValue(key, value, parent, formatFields)
-  }
-}
-// 处理并递归子节点
-function handleObjectNode(key: string, value: any, parent: NodeItem, formatFields: string[]): void {
-  const child: NodeItem = {
+// 处理值并创建节点
+function createNode(key: string, value: any, formatFields: string[] = []): NodeItem {
+  const node: NodeItem = {
     id: generateRandomId(),
-    keyName: key,
-    children: [],
+    label: String(key),
+    style: {
+      collapsed: false,
+    },
   }
-  parent.children.push(child)
-  processNode(value, child, formatFields)
-}
 
-// 处理普通值
-function handlePrimitiveValue(key: string, value: any, parent: NodeItem, formatFields: string[]): void {
-  // 如果是 JSON 字符串并且在 formatFields 中，尝试解析
+  // 处理数组
+  if (Array.isArray(value)) {
+    node.children = value.map((item, index) => createNode(String(index), item, formatFields))
+    return node
+  }
+
+  // 处理对象
+  if (typeof value === 'object' && value !== null) {
+    node.children = Object.entries(value).map(([k, v]) => createNode(k, v, formatFields))
+    return node
+  }
+
+  // 处理JSON字符串
   if (typeof value === 'string' && formatFields.includes(key)) {
     try {
       const parsedValue = JSON.parse(value)
-      // 如果解析成功且是对象，递归处理
-      handleValue(key, parsedValue, parent, formatFields)
+      if (typeof parsedValue === 'object' && parsedValue !== null) {
+        const parsedNode = createNode(key, parsedValue, formatFields)
+        return parsedNode
+      }
     }
     catch {
-      getOrCreateNormalNode(parent).entries[key] = value
+      // 解析失败，作为普通字符串处理
     }
   }
-  else {
-    getOrCreateNormalNode(parent).entries[key] = value
-  }
-}
 
-// 递归处理数据结构
-function processNode(node: Record<string, any>, parent: NodeItem, formatFields: string[]): void {
-  for (const key in node) {
-    handleValue(key, node[key], parent, formatFields)
-  }
+  // 处理基本类型
+  node.label = `${key}: ${value}`
+  return node
 }
 
 // 处理数据结构的入口函数
 export function dealDataToTree(data: Record<string, any>, formatFields: string[] = []): NodeItem {
-  const result: NodeItem = {
+  // 重置ID缓存
+  idCache.length = 0
+
+  // 创建根节点
+  const rootNode: NodeItem = {
     id: generateRandomId(),
-    children: [],
+    name: 'Root',
+    label: 'Root',
+    style: {
+      collapsed: false,
+    },
   }
-  processNode(data, result, formatFields)
-  return result
+
+  if (!data || Object.keys(data).length === 0) {
+    return rootNode
+  }
+
+  // 处理数据并创建子节点
+  rootNode.children = Object.entries(data).map(([key, value]) =>
+    createNode(key, value, formatFields),
+  )
+
+  return rootNode
 }

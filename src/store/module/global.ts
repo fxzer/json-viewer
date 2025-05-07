@@ -1,20 +1,32 @@
-import { useI18n } from 'vue-i18n'
-import chroma from 'chroma-js'
-import { setHtmlProperty } from '@/utils'
-import { useMobile } from '@/hooks'
 import { LANGUAGES, THEME_COLORS } from '@/constants'
+import { useMobile } from '@/hooks'
+import { setHtmlProperty } from '@/utils'
+import chroma from 'chroma-js'
+import { useI18n } from 'vue-i18n'
 
 export const useGlobalStore = defineStore('global', () => {
   const i18n = useI18n()
   const language = ref(LANGUAGES.CN)
   const keyword = ref('')
   const focusCount = ref(0)
+  const foundCount = ref(0)
   const isDark = useDark()
   const fields = ref(['result'])
   const autoRender = ref(true)
 
   function toggleLanguage() {
     language.value = i18n.locale.value = language.value === LANGUAGES.CN ? LANGUAGES.EN : LANGUAGES.CN
+  }
+
+  function setFoundCount(count: number) {
+    foundCount.value = count
+    focusCount.value = 0
+  }
+
+  function updateFocusIndex() {
+    if (foundCount.value > 0) {
+      focusCount.value = (focusCount.value + 1) % foundCount.value
+    }
   }
 
   const toggleExecuteMode = useToggle(autoRender)
@@ -41,6 +53,7 @@ export const useGlobalStore = defineStore('global', () => {
     keyword,
     language,
     focusCount,
+    foundCount,
     colorName,
     themeColor,
     autoRender,
@@ -49,5 +62,7 @@ export const useGlobalStore = defineStore('global', () => {
     toggleEditor,
     paneSize,
     toggleLanguage,
+    setFoundCount,
+    updateFocusIndex,
   }
 }, { persist: true })

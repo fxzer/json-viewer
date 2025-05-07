@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import { useGlobalStore } from '@/store'
 import { THEME_COLORS } from '@/constants'
+import { useGlobalStore } from '@/store'
 
 const { colorName } = toRefs(useGlobalStore())
 </script>

@@ -33,10 +33,10 @@ A JSON visualization tool
 3. Using `@antfu/esling-config` and `lint-staged` to improve syntax checking speed
 
 | Build Resources                 | Before Refactor | After Refactor | Improvement                           |
-| :----------------------------- | --------------- | -------------- | ------------------------------------- |
-| dist/assets/iconfont-xxxxxx.ttf| 4.68 kB        | None           | 4.68 kB                               |
-| dist/assets/index-xxxxxx.css   | 107.92 kB      | 81.94 kB       | 25.98 kB                              |
-| dist/assets/index-xxxxxx.js    | 3,325.04 kB    | 2,324.82 kB    | 1,000.22 kB (**Total: -1,030.88 kB**) |
+| :------------------------------ | --------------- | -------------- | ------------------------------------- |
+| dist/assets/iconfont-xxxxxx.ttf | 4.68 kB         | None           | 4.68 kB                               |
+| dist/assets/index-xxxxxx.css    | 107.92 kB       | 81.94 kB       | 25.98 kB                              |
+| dist/assets/index-xxxxxx.js     | 3,325.04 kB     | 2,324.82 kB    | 1,000.22 kB (**Total: -1,030.88 kB**) |
 
 ## Main Features
 

@@ -1,7 +1,7 @@
 <script setup lang='ts'>
-import { Codemirror } from 'vue-codemirror'
 import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { Codemirror } from 'vue-codemirror'
 
 const props = defineProps({
   value: {
@@ -25,7 +25,8 @@ watch(code, val => emit('updateCode', val))
 
 <template>
   <Codemirror
-    v-model="code" :placeholder="$t('editorPlaceholder')" :style="style" :indent-with-tab="true" :tab-size="2"
+    v-model="code" :placeholder="$t('editorPlaceholder')"
+    :style="style" :indent-with-tab="true" :tab-size="2"
     :extensions="extensions"
   />
 </template>

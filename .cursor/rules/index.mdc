@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# JSON Viewer - 规则索引
+
+这是JSON Viewer项目的规则索引，提供项目结构和开发指南的概览。
+
+## 核心和项目结构
+
+| 规则文件 | 描述 |
+| :------ | :--- |
+| @project-structure.mdc | 项目结构和文件组织指南 |
+| @cursor-rules.mdc | 如何添加和编辑Cursor规则 |
+
+## 前端与UI
+
+| 规则文件 | 描述 |
+| :------ | :--- |
+| @components.mdc | 组件开发和使用指南 |
+| @vue-usage.mdc | Vue框架使用规范 |
+| @styling.mdc | 样式和主题管理 |
+
+## 状态管理
+
+| 规则文件 | 描述 |
+| :------ | :--- |
+| @pinia-store.mdc | Pinia状态管理指南 |
+
+## 功能模块
+
+| 规则文件 | 描述 |
+| :------ | :--- |
+| @json-visualization.mdc | JSON可视化实现指南 |
+| @g6-usage.mdc | AntV G6库使用指南 |

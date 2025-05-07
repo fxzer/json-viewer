@@ -1,0 +1,70 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 项目结构
+
+## 主要结构
+
+JSON Viewer是一个基于Vue 3和AntV G6的JSON可视化工具。
+
+```tree
+.
+├── src/
+│   ├── assets/             # 静态资源文件
+│   │   └── iconfont/       # 图标字体
+│   ├── components/         # 组件目录
+│   │   ├── async/          # 异步加载的组件
+│   │   │   ├── ExportImage.vue    # 导出图片组件
+│   │   │   ├── FieldsCustom.vue   # 字段自定义组件
+│   │   │   ├── LayoutCustom.vue   # 布局自定义组件
+│   │   │   ├── LayoutOptions.vue  # 布局选项组件
+│   │   │   └── NodeDialog.vue     # 节点对话框组件
+│   │   └── sync/           # 同步加载的组件
+│   │       ├── ColorPicker.vue    # 颜色选择器组件
+│   │       ├── JsonCanvas.vue     # JSON画布组件
+│   │       ├── SearchInput.vue    # 搜索输入组件
+│   │       └── VueCodeMirror.vue  # 代码编辑器组件
+│   ├── constants/          # 常量定义
+│   ├── hooks/              # 自定义钩子
+│   ├── locales/            # 国际化文件
+│   ├── registers/          # 注册器相关
+│   ├── store/              # 状态管理
+│   │   ├── module/         # 状态模块
+│   │   │   ├── code.ts     # 代码相关状态
+│   │   │   ├── global.ts   # 全局状态
+│   │   │   ├── index.ts    # 模块索引
+│   │   │   └── layout.ts   # 布局相关状态
+│   │   └── index.ts        # 状态管理入口
+│   ├── types/              # 类型定义
+│   ├── utils/              # 工具函数
+│   ├── App.vue             # 应用根组件
+│   ├── env.d.ts            # 环境类型声明
+│   ├── main.scss           # 全局样式
+│   └── main.ts             # 应用入口
+├── public/                 # 公共静态资源
+├── G6/                     # AntV G6依赖
+├── .env                    # 环境变量
+├── .gitignore              # Git忽略文件
+├── index.html              # HTML入口
+├── package.json            # 项目配置
+├── tsconfig.json           # TypeScript配置
+├── uno.config.ts           # UnoCSS配置
+└── vite.config.js          # Vite配置
+```
+
+## 文件命名和组织
+
+- 使用PascalCase命名Vue组件文件（例如`JsonCanvas.vue`）
+- 使用camelCase命名JavaScript/TypeScript文件（例如`global.ts`）
+- 组件分为同步加载组件（sync）和异步加载组件（async）
+- 状态管理使用Pinia，按模块组织在`store/module`目录下
+
+## 开发规范
+
+- 所有组件应使用Vue 3 Composition API
+- 使用TypeScript进行类型检查
+- 使用UnoCSS（Tailwind兼容模式）进行样式管理
+- 国际化使用i18n实现，支持中英文切换
+- 使用Pinia进行状态管理，支持持久化存储

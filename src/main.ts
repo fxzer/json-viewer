@@ -1,8 +1,8 @@
-import { createApp } from 'vue'
+import { setupI18n } from '@/locales/i18n'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { createApp } from 'vue'
 import App from './App.vue'
-import { setupI18n } from '@/locales/i18n'
 import './main.scss'
 
 // Tailwind 紧凑型样式重置

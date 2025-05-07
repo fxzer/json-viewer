@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useGlobalStore } from '@/store'
 import { useDialogWidth } from '@/hooks'
+import { useGlobalStore } from '@/store'
 
 const width = useDialogWidth()
 const visible = defineModel<boolean>()

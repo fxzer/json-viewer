@@ -1,5 +1,5 @@
-import type { Plugin } from 'vite'
 import type { Dayjs } from 'dayjs'
+import type { Plugin } from 'vite'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import pc from 'picocolors'

@@ -1,0 +1,203 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Vue框架使用规范
+
+JSON Viewer项目使用Vue 3作为前端框架，本规范提供使用Vue 3的最佳实践。
+
+## 基础架构
+
+- 项目使用Vue 3 + TypeScript + Vite构建
+- 主入口文件为[main.ts](mdc:src/main.ts)
+- 主应用组件为[App.vue](mdc:src/App.vue)
+
+## Composition API使用
+
+优先使用Vue 3的Composition API（`<script setup lang="ts">`语法），例如：
+
+```vue
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+// 响应式状态
+const count = ref(0)
+
+// 生命周期钩子
+onMounted(() => {
+  console.log('组件已挂载')
+})
+
+// 方法
+function increment() {
+  count.value++
+}
+</script>
+```
+
+## 响应式数据
+
+- 使用`ref()`和`reactive()`创建响应式状态
+- 使用`computed()`创建计算属性
+- 使用`watch()`和`watchEffect()`监听响应式变化
+
+```vue
+<script setup lang="ts">
+import { ref, reactive, computed, watch } from 'vue'
+
+// 基本类型使用ref
+const name = ref('张三')
+
+// 复杂对象使用reactive
+const user = reactive({
+  id: 1,
+  age: 30,
+  email: 'zhangsan@example.com'
+})
+
+// 计算属性
+const displayName = computed(() => {
+  return `${name.value} (${user.age}岁)`
+})
+
+// 监听响应式变化
+watch(name, (newValue, oldValue) => {
+  console.log(`名字从 ${oldValue} 变为 ${newValue}`)
+})
+</script>
+```
+
+## 组件通信
+
+1. **Props向下传递数据**：
+```vue
+<!-- 父组件 -->
+<ChildComponent :title="pageTitle" :items="dataList" />
+
+<!-- 子组件 -->
+<script setup lang="ts">
+const { title = '',items=[] } = defineProps({
+  title: String,
+  items: Array
+})
+</script>
+```
+
+2. **事件向上传递数据**：
+```vue
+<!-- 子组件 -->
+<script setup lang="ts">
+const emit = defineEmits(['update', 'select'])
+
+function handleClick(item) {
+  emit('select', item)
+}
+</script>
+
+<!-- 父组件 -->
+<ChildComponent @select="handleItemSelected" />
+```
+
+3. **使用provide/inject跨层级传递数据**：
+```vue
+<!-- 祖先组件 -->
+<script setup lang="ts">
+import { provide, ref } from 'vue'
+
+const theme = ref('dark')
+provide('theme', theme) // 可传递响应式数据
+</script>
+
+<!-- 后代组件 -->
+<script setup lang="ts">
+import { inject } from 'vue'
+
+const theme = inject('theme', 'light') // 提供默认值
+</script>
+```
+
+## 状态管理
+
+对于复杂状态管理，项目使用Pinia：
+
+```ts
+// 定义store
+// src/store/module/user.ts
+import { defineStore } from 'pinia'
+
+export const useUserStore = defineStore('user', () => 
+{
+  const name = ref('张三')
+  const isLoggedIn= ref(false)
+  const displayName= computed((state) => `用户: ${state.name}`) 
+      function login(username: string) {
+      isLoggedIn.value = true
+      name.value = username
+    }
+},
+ {
+  persist: true 
+ })
+
+// 使用store
+// MyComponent.vue
+<script setup lang="ts">
+import { useUserStore } from '@/store/module/user'
+
+const userStore = useUserStore()
+
+function login() {
+  userStore.login('李四')
+}
+</script>
+```
+
+## 生命周期钩子
+
+在`<script setup>`中使用生命周期钩子：
+
+```vue
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount, onUpdated } from 'vue'
+
+onMounted(() => {
+  console.log('组件已挂载')
+  // 执行初始化逻辑
+})
+
+onUpdated(() => {
+  console.log('组件已更新')
+})
+
+onBeforeUnmount(() => {
+  console.log('组件即将卸载')
+  // 执行清理逻辑
+})
+</script>
+```
+
+## 异步组件
+
+对于大型组件，使用异步导入以提高性能：
+
+```vue
+<script setup lang="ts">
+import { defineAsyncComponent } from 'vue'
+
+const HeavyComponent = defineAsyncComponent(() => 
+  import('@/components/async/HeavyComponent.vue')
+)
+</script>
+
+<template>
+  <Suspense>
+    <template #default>
+      <HeavyComponent />
+    </template>
+    <template #fallback>
+      <div>加载中...</div>
+    </template>
+  </Suspense>
+</template>
+```

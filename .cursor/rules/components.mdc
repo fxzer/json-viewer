@@ -1,0 +1,121 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 组件开发指南
+
+JSON Viewer项目使用Vue 3的组件系统，以提供可复用和可组合的UI元素。
+
+## 组件分类
+
+项目中的组件分为两类：
+
+1. **同步组件**：放在`src/components/sync/`目录下，这些组件会在应用启动时立即加载。
+   - 适用于关键UI组件或频繁使用的组件
+   - 示例：`JsonCanvas.vue`, `SearchInput.vue`
+
+2. **异步组件**：放在`src/components/async/`目录下，这些组件会在需要时才加载。
+   - 适用于不常用或较大的组件，以减少初始加载时间
+   - 示例：`ExportImage.vue`, `LayoutCustom.vue`
+
+## 组件命名规范
+
+- 使用PascalCase命名组件文件（例如：`ColorPicker.vue`）
+- 组件名应当描述性地表达其功能
+- 避免使用太通用的名称（如：`Common.vue`, `Utils.vue`）
+
+## 组件结构示例
+
+```vue
+<script setup lang="ts">
+// 导入
+import { ref, computed } from 'vue'
+import type { PropType } from 'vue'
+
+// 定义props
+const props = defineProps({
+  title: {
+    type: String,
+    required: true
+  },
+  items: {
+    type: Array as PropType<string[]>,
+    default: () => []
+  }
+})
+
+// 定义emit事件
+const emit = defineEmits(['update', 'select'])
+
+// 响应式状态
+const isOpen = ref(false)
+
+// 计算属性
+const displayText = computed(() => {
+  return props.title.toUpperCase()
+})
+
+// 方法
+function handleClick() {
+  isOpen.value = !isOpen.value
+  emit('update', isOpen.value)
+}
+</script>
+
+<template>
+  <div class="component-container">
+    <h2>{{ displayText }}</h2>
+    <button @click="handleClick">
+      {{ isOpen ? '关闭' : '打开' }}
+    </button>
+    <ul v-if="isOpen">
+      <li 
+        v-for="(item, index) in items" 
+        :key="index"
+        @click="emit('select', item)"
+      >
+        {{ item }}
+      </li>
+    </ul>
+  </div>
+</template>
+
+<style scoped>
+.component-container {
+  /* 样式定义 */
+}
+</style>
+```
+
+## 组件最佳实践
+
+1. **使用组合式API**：优先使用Vue 3的Composition API（`<script setup>`）
+2. **类型定义**：使用TypeScript类型定义所有props和函数参数
+3. **Props验证**：为所有props提供适当的类型、默认值和验证
+4. **事件命名**：使用kebab-case为事件命名，如`item-selected`
+5. **保持组件专注**：每个组件应只负责一个功能，避免过度复杂
+6. **样式封装**：使用`scoped`属性限定样式范围，避免全局样式污染
+
+## 组件文档
+
+新组件应包含简短的文档注释，说明其用途、props和事件：
+
+```vue
+<script setup lang="ts">
+/**
+ * 搜索输入组件
+ * 
+ * 提供带有清除按钮的搜索输入框
+ * 
+ * Props:
+ * - placeholder: 输入框提示文本
+ * - modelValue: v-model绑定值
+ * 
+ * Events:
+ * - update:modelValue: 当输入值变化时触发
+ * - search: 当用户提交搜索时触发
+ * - clear: 当用户清除输入时触发
+ */
+</script>
+```

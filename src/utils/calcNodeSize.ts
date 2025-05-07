@@ -33,11 +33,17 @@ const getWidth = (() => {
 
 const fittingString = fittingStringFn()
 
+// 更新函数参数类型以适应G6 5.0数据结构
 export function calcNodeSize(cfg: {
-  entries: Record<string, any>
-  keyName?: string
+  data?: {
+    entries?: Record<string, any>
+    keyName?: string
+  }
 }): [number, number, string] {
-  const { entries, keyName = '' } = cfg
+  // 适配G6 5.0数据结构
+  const { data } = cfg
+  const entries = data?.entries || {}
+  const keyName = data?.keyName || ''
   const hasKeyName = Boolean(keyName)
 
   const maxWidth = 400

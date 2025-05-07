@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import LayoutOptions from './LayoutOptions.vue'
-import { useLayoutStore } from '@/store'
 import { useDialogWidth } from '@/hooks'
+import { useLayoutStore } from '@/store'
+import LayoutOptions from './LayoutOptions.vue'
 
 const visible = defineModel<boolean>()
 

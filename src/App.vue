@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Pane, Splitpanes } from 'splitpanes'
-import { useCodeStore, useGlobalStore } from '@/store'
 import { toggleDarkAnimate, useMobile } from '@/hooks'
+import { useCodeStore, useGlobalStore } from '@/store'
 import { isObject } from '@/utils'
+import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
 const ExportImage = defineAsyncComponent(() => import('@/components/async/ExportImage.vue'))
@@ -14,28 +14,28 @@ const { originCode, formatCode, json, jsonValid } = toRefs(useCodeStore())
 const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(
   useGlobalStore(),
 )
-const { toggleEditor, toggleExecuteMode, toggleLanguage } = useGlobalStore()
+// const { toggleEditor, toggleExecuteMode, toggleLanguage } = useGlobalStore()
 const drawerVisible = ref(false)
-function openLayoutConfig() {
-  drawerVisible.value = !drawerVisible.value
-}
+// function openLayoutConfig() {
+//   drawerVisible.value = !drawerVisible.value
+// }
 const ratio = ref(1)
 const ratioText = computed(() => {
   return `${(ratio.value * 100).toFixed(2)}%`
 })
 const isMobile = useMobile()
 // 节点展开/收起
-const [isExpandNode, toggleNode] = useToggle(true)
-const editorIconStyle = computed(() => {
-  if (isMobile.value) {
-    return {
-      transform: `rotate(${isExpandEditor.value ? '90deg' : '270deg'})`,
-    }
-  }
-  else {
-    return { transform: `rotate(${isExpandEditor.value ? '0deg' : '180deg'})` }
-  }
-})
+// const [isExpandNode, toggleNode] = useToggle(true)
+// const editorIconStyle = computed(() => {
+//   if (isMobile.value) {
+//     return {
+//       transform: `rotate(${isExpandEditor.value ? '90deg' : '270deg'})`,
+//     }
+//   }
+//   else {
+//     return { transform: `rotate(${isExpandEditor.value ? '0deg' : '180deg'})` }
+//   }
+// })
 function onUpdateCode(codeStr: string) {
   originCode.value = codeStr
 }
@@ -75,38 +75,35 @@ function onImport() {
 
 const jsonCanvasRef = ref()
 const exportVisible = ref(false)
-function onRender() {
-  jsonCanvasRef.value.render()
-}
-function showExportImage() {
-  exportVisible.value = true
-}
-function confirmExport(config: any) {
-  exportVisible.value = false
-  const { name, type, padding, backgroundColor } = config
-  jsonCanvasRef?.value?.graph?.downloadFullImage(name, type, {
-    padding,
-    backgroundColor,
-  })
-}
-function onZoomOut() {
-  if (jsonCanvasRef?.value) {
-    (jsonCanvasRef?.value?.toolbar as any).zoomOut()
-    ratio.value = jsonCanvasRef?.value?.graph.getZoom()
-  }
-}
-function onZoomIn() {
-  if (jsonCanvasRef?.value) {
-    (jsonCanvasRef?.value?.toolbar as any).zoomIn()
-    ratio.value = jsonCanvasRef?.value?.graph.getZoom()
-  }
-}
-function onAutoZoom() {
-  if (jsonCanvasRef?.value) {
-    (jsonCanvasRef?.value?.toolbar as any).autoZoom()
-    ratio.value = jsonCanvasRef?.value?.graph.getZoom()
-  }
-}
+// function onRender() {
+//   jsonCanvasRef.value.render()
+// }
+// function showExportImage() {
+//   exportVisible.value = true
+// }
+// function confirmExport(config: any) {
+//   exportVisible.value = false
+//   const { name, type } = config
+//   jsonCanvasRef?.value?.saveImage(name, type)
+// }
+// function onZoomOut() {
+//   if (jsonCanvasRef?.value) {
+//     (jsonCanvasRef?.value?.toolbar as any).zoomOut()
+//     ratio.value = jsonCanvasRef?.value?.graph.getZoom()
+//   }
+// }
+// function onZoomIn() {
+//   if (jsonCanvasRef?.value) {
+//     (jsonCanvasRef?.value?.toolbar as any).zoomIn()
+//     ratio.value = jsonCanvasRef?.value?.graph.getZoom()
+//   }
+// }
+// function onAutoZoom() {
+//   if (jsonCanvasRef?.value) {
+//     (jsonCanvasRef?.value?.toolbar as any).autoZoom()
+//     ratio.value = jsonCanvasRef?.value?.graph.getZoom()
+//   }
+// }
 // 关键词搜索
 const nodeDetailVisible = ref(false)
 const nodeDetail = ref({})
@@ -128,62 +125,62 @@ function openFieldsDialog() {
   fieldsVisible.value = true
 }
 
-const editorIconList = [
-  {
-    icon: 'icon-node-layout',
-    content: 'layoutConfig',
-    onClick: openLayoutConfig,
-  },
-  {
-    icon: 'icon-zidingyi',
-    content: 'parseField',
-    onClick: openFieldsDialog,
-  },
-  {
-    icon: 'icon-import-json',
-    content: 'import',
-    onClick: onImport,
-  },
-  {
-    icon: 'icon-export-json',
-    content: 'export',
-    onClick: onExport,
-  },
-  {
-    icon: 'icon-clear-json',
-    content: 'clear',
-    onClick: () => {
-      originCode.value = ''
-    },
-  },
-]
-const canvasIconList = [
-  {
-    icon: 'icon-jia',
-    content: 'zoomIn',
-    onClick: onZoomOut,
-  },
-  {
-    icon: 'icon-jian',
-    content: 'zoomOut',
-    onClick: onZoomIn,
-  },
-  {
-    icon: 'icon-center-focus',
-    content: 'center',
-    onClick: onAutoZoom,
-  },
-  {
-    icon: 'icon-save-image',
-    content: 'saveImage',
-    onClick: showExportImage,
-  },
-  {
-    icon: 'icon-language',
-    content: 'language',
-    onClick: toggleLanguage,
-  },
-]
+// const editorIconList = [
+//   {
+//     icon: 'icon-node-layout',
+//     content: 'layoutConfig',
+//     onClick: openLayoutConfig,
+//   },
+//   {
+//     icon: 'icon-zidingyi',
+//     content: 'parseField',
+//     onClick: openFieldsDialog,
+//   },
+//   {
+//     icon: 'icon-import-json',
+//     content: 'import',
+//     onClick: onImport,
+//   },
+//   {
+//     icon: 'icon-export-json',
+//     content: 'export',
+//     onClick: onExport,
+//   },
+//   {
+//     icon: 'icon-clear-json',
+//     content: 'clear',
+//     onClick: () => {
+//       originCode.value = ''
+//     },
+//   },
+// ]
+// const canvasIconList = [
+//   {
+//     icon: 'icon-jia',
+//     content: 'zoomIn',
+//     onClick: onZoomIn,
+//   },
+//   {
+//     icon: 'icon-jian',
+//     content: 'zoomOut',
+//     onClick: onZoomOut,
+//   },
+//   {
+//     icon: 'icon-center-focus',
+//     content: 'center',
+//     onClick: onAutoZoom,
+//   },
+//   {
+//     icon: 'icon-save-image',
+//     content: 'saveImage',
+//     onClick: showExportImage,
+//   },
+//   {
+//     icon: 'icon-language',
+//     content: 'language',
+//     onClick: toggleLanguage,
+//   },
+// ]
 </script>
 
 <template>
@@ -194,7 +191,7 @@ const canvasIconList = [
       :horizontal="isMobile"
     >
       <Pane max-size="50" :size="paneSize[0]">
-        <div
+        <!-- <div
           border="b gray/20"
           class="h-10 flex items-center bg-gray/10 px-2 space-x-3"
         >
@@ -226,7 +223,7 @@ const canvasIconList = [
               />
             </Transition>
           </el-tooltip>
-        </div>
+        </div> -->
 
         <VueCodeMirror
           :value="formatCode"
@@ -241,7 +238,7 @@ const canvasIconList = [
             class="bg-gray/10 px-2 md:(h-10 flex-between-center)"
           >
             <div class="flex-y-center space-x-3">
-              <el-tooltip
+              <!-- <el-tooltip
                 :content="`${
                   isExpandEditor ? $t('collapse') : $t('expand')
                 }${$t('editor')}`"
@@ -264,9 +261,9 @@ const canvasIconList = [
                   "
                   @click="toggleNode()"
                 />
-              </el-tooltip>
+              </el-tooltip> -->
 
-              <template v-for="item, idx in canvasIconList" :key="idx">
+              <!-- <template v-for="item, idx in canvasIconList" :key="idx">
                 <el-tooltip :content="$t(item.content)">
                   <span
                     class="iconfont"
@@ -274,7 +271,7 @@ const canvasIconList = [
                     @click="item.onClick"
                   />
                 </el-tooltip>
-              </template>
+              </template> -->
 
               <el-tooltip
                 :content="`${isFullScreen ? $t('exit') : $t('enter')}${$t(
@@ -310,7 +307,6 @@ const canvasIconList = [
           <JsonCanvas
             ref="jsonCanvasRef"
             v-model:ratio="ratio"
-            :is-expand="isExpandNode"
             :is-expand-editor="isExpandEditor"
             @node-click="nodeClickHandler"
           />

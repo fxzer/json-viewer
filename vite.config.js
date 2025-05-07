@@ -1,14 +1,14 @@
 import path from 'node:path'
 import process from 'node:process'
-import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
-// 引入element-plus自动按需导入插件
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { visualizer } from 'rollup-plugin-visualizer'
 import UnoCSS from 'unocss/vite'
+// 引入element-plus自动按需导入插件
+import AutoImport from 'unplugin-auto-import/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig, loadEnv } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 // import cdn from 'vite-plugin-cdn-import'
 import { setupPrintBuildInfo } from './build/print-build-info'
 
@@ -122,7 +122,7 @@ export default defineConfig(({ _, mode }) => {
       globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
     },
     esbuild: {
-      pure: ['console', 'debugger'],
+      pure: ['console'],
     },
     server: {
       host: true,
