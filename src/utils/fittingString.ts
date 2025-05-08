@@ -1,6 +1,6 @@
 // 实现自己的文本测量工具
 // 计算文本宽度的函数
-const measureTextWidth = (() => {
+export const measureTextWidth = (() => {
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
 

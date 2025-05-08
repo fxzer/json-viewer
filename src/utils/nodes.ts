@@ -1,3 +1,5 @@
+import type { BadgeStyleProps, LabelStyleProps } from '@antv/g6'
+import { Text as GText } from '@antv/g'
 import {
   Badge,
   CommonEvent,
@@ -13,7 +15,7 @@ const COLORS = {
   G: '#60C42D',
   DI: '#A7A7A7',
 }
-const GREY_COLOR = '#CED4D9'
+const GREY_COLOR = '#DB9D0D'
 
 class TreeNode extends Rect {
   get data() {
@@ -24,34 +26,38 @@ class TreeNode extends Rect {
     return this.context.model.getChildrenData(this.id)
   }
 
-  getLabelStyle(attributes) {
-    const [width, height] = this.getSize(attributes)
-    // 获取node的label
-    const label = this.data.label
+  getContentStyle(attributes): false | LabelStyleProps {
+    const [width] = this.getSize(attributes)
+    const content = this.data.content
     return {
-      x: -width / 2 + 4,
-      y: -height / 2 + 12,
-
-      text: label,
-      fontSize: 12,
-      opacity: 0.85,
+      x: -width / 2 + 8,
+      y: 0,
+      text: String(content),
+      fontSize: 16,
       fill: '#000',
-      cursor: 'pointer',
+      opacity: 0.85,
+      textAlign: 'left',
+      textBaseline: 'middle',
     }
   }
 
-  getCollapseStyle(attributes) {
+  drawContentShape(attributes, container) {
+    const contentStyle = this.getContentStyle(attributes)
+    this.upsert('content', GText, contentStyle, container)
+  }
+
+  getCollapseStyle(attributes): false | BadgeStyleProps {
     if (this.childrenData.length === 0)
       return false
     const { collapsed } = attributes
-    const [width, height] = this.getSize(attributes)
+    const [width] = this.getSize(attributes)
     return {
-      backgroundFill: '#fff',
+      backgroundFill: '#000',
+      backgroundWidth: 16,
       backgroundHeight: 16,
       backgroundLineWidth: 1,
-      backgroundRadius: 0,
+      backgroundRadius: 4,
       backgroundStroke: GREY_COLOR,
-      backgroundWidth: 16,
       cursor: 'pointer',
       fill: GREY_COLOR,
       fontSize: 16,
@@ -81,11 +87,8 @@ class TreeNode extends Rect {
 
   getKeyStyle(attributes) {
     const keyStyle = super.getKeyStyle(attributes)
-    // 步骤1: 获取所有键的数组
     const keys = Object.keys(COLORS)
-    // 步骤2: 生成随机索引
     const randomIndex = Math.floor(Math.random() * keys.length)
-    // 步骤3: 获取随机颜色值
     const stroke = COLORS[keys[randomIndex]]
     return {
       ...keyStyle,
@@ -97,7 +100,7 @@ class TreeNode extends Rect {
 
   render(attributes = this.parsedAttributes, container) {
     super.render(attributes, container)
-
+    this.drawContentShape(attributes, container)
     this.drawCollapseShape(attributes, container)
   }
 }

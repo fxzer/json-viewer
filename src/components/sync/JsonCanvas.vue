@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useCodeStore, useGlobalStore } from '@/store'
-import { dealDataToTree } from '@/utils'
+import { jsonToTree } from '@/utils'
+import { measureTextWidth } from '@/utils/fittingString'
 import { Graph, treeToGraphData } from '@antv/g6'
 
 const props = defineProps({
@@ -15,18 +16,15 @@ const props = defineProps({
 })
 
 const { json } = toRefs(useCodeStore())
-const { isDark, themeColor, keyword, focusCount, autoRender, fields } = toRefs(useGlobalStore())
+const { isDark, keyword, focusCount, autoRender, fields } = toRefs(useGlobalStore())
 
 let graph
 const ratio = defineModel<number>('ratio')
 const jsonCanvas = ref<HTMLElement | null>(null)
 const { width, height } = useElementSize(jsonCanvas)
 
-// 性能优化相关配置
-// const optimizationEnabled = ref(true)
-
 // 添加日志开关
-const debug = ref(true)
+const debug = ref(false)
 
 // 调试日志函数
 function logDebug(...args) {
@@ -52,7 +50,7 @@ async function render() {
   }
 
   try {
-    await drawGraph(json.value, true)
+    await drawGraph(json.value)
     // 不再使用updateStyle，避免错误
     // 触发聚焦搜索
     if (keyword.value) {
@@ -67,16 +65,8 @@ async function render() {
   }
 }
 
-watch([json, fields], () => {
-  if (autoRender.value)
-    render()
-}, { deep: true })
-watch(isDark, () => {
-  // 主题变化时重新渲染整个图，而不是调用updateStyle
-  if (graph) {
-    render()
-  }
-})
+watch([json, fields], () => autoRender.value && render(), { deep: true })
+watch(isDark, () => autoRender.value && render())
 
 async function initGraph() {
   try {
@@ -103,7 +93,11 @@ async function initGraph() {
       node: {
         type: 'flow-rect', // 默认使用矩形节点
         style: {
-          size: [200, 60],
+          // 根据节点标签长度动态计算节点大小
+          size: (d) => {
+            const { data } = d
+            return [data.width, data.height]
+          },
           ports: [{ placement: 'left' }, { placement: 'right' }],
           radius: 4,
         },
@@ -122,10 +116,10 @@ async function initGraph() {
   }
 }
 
-async function drawGraph(data: any, _isUpdate = true) {
-  if (!data) {
+async function drawGraph(json: any) {
+  if (!json) {
     logDebug('没有数据，跳过绘制')
-    return false
+    return
   }
 
   if (!graph) {
@@ -136,9 +130,8 @@ async function drawGraph(data: any, _isUpdate = true) {
   try {
     // 清空现有图数据
     graph.clear()
-    // 克隆数据以避免直接使用Vue响应式对象
-    const jsonData = JSON.parse(JSON.stringify(data))
-    const tree = dealDataToTree(jsonData)
+    // const jsonData = structuredClone(data)
+    const tree = jsonToTree(json)
 
     const treeData = treeToGraphData(tree)
     // 设置图数据
@@ -146,26 +139,17 @@ async function drawGraph(data: any, _isUpdate = true) {
 
     // 渲染图
     graph.render()
-
-    return true
   }
   catch (error) {
     console.error('图形渲染失败:', error)
-    return false
   }
 }
 
-watchDebounced([width, height], ([w, h]) => {
-  if (graph) {
-    graph.setSize(w, h)
-  }
-}, { debounce: 600 })
+watchDebounced([width, height], ([w, h]) => graph?.setSize(w, h), { debounce: 600 })
 
 onMounted(() => {
-  // 确保iconfont已经在App.vue中加载
   render()
 
-  // 添加关键词搜索监听
   const keywordWatcher = watch(() => keyword.value, (newKeyword) => {
     if (newKeyword) {
       setTimeout(() => {
@@ -225,46 +209,6 @@ watch(
     }
   },
 )
-// 保存为图片
-async function saveImage(name = 'json-viewer', type = 'image/png') {
-  if (!graph)
-    return
-
-  try {
-    // 使用G6 5.0的toDataURL方法
-    const dataURL = await graph.toDataURL({
-      mode: 'overall', // 导出整个画布
-      type: type as 'image/png' | 'image/jpeg' | 'image/webp' | 'image/bmp',
-      encoderOptions: 1, // 最高质量
-    })
-
-    // 将dataURL转换为Blob并下载
-    const [head, content] = dataURL.split(',')
-    const contentType = head.match(/:(.*?);/)![1]
-
-    const bstr = atob(content)
-    let length = bstr.length
-    const u8arr = new Uint8Array(length)
-
-    while (length--) {
-      u8arr[length] = bstr.charCodeAt(length)
-    }
-
-    const blob = new Blob([u8arr], { type: contentType })
-
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${name}.${type.split('/')[1]}`
-    a.click()
-
-    // 释放URL对象
-    URL.revokeObjectURL(url)
-  }
-  catch (error) {
-    console.error('导出图片失败:', error)
-  }
-}
 
 // 等视图和G6实例准备好后进行缩放
 watch(ratio, (val) => {
@@ -404,7 +348,6 @@ onUnmounted(() => {
 })
 defineExpose({
   render,
-  saveImage,
   graph,
   toolbar: {
     zoomIn: () => {
