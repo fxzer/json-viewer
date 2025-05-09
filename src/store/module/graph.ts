@@ -1,5 +1,5 @@
 import { jsonToTree, saveImage } from '@/utils'
-import { Graph, treeToGraphData } from '@antv/g6'
+import { CanvasEvent, EdgeEvent, Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
 import { useCodeStore } from './code'
 import { useGlobalStore } from './global'
 
@@ -9,7 +9,9 @@ export const useGraphStore = defineStore('graph', () => {
   const logDebug = (...args) => debug.value && console.warn('[JsonCanvas]', ...args)
   const { json } = toRefs(useCodeStore())
   const { setFoundCount } = useGlobalStore()
-  const { isExpandNode, keyword, focusCount } = storeToRefs(useGlobalStore())
+  const [isExpandNode, toggleNode] = useToggle(true)
+
+  const { keyword, focusCount } = storeToRefs(useGlobalStore())
   const jsonCanvasRef = ref<HTMLElement | null>(null)
   const { width, height } = useElementSize(jsonCanvasRef)
   const ratio = ref(1)
@@ -26,6 +28,10 @@ export const useGraphStore = defineStore('graph', () => {
       focusTimer = setTimeout(() => focusNode(newKeyword), 300)
     }
   })
+
+  // 节点点击
+  const nodeDetailVisible = ref(false)
+  const nodeDetail = ref({})
 
   let graph: Graph | null = null
   function initGraph(container: HTMLElement) {
@@ -109,7 +115,7 @@ export const useGraphStore = defineStore('graph', () => {
       const treeData = treeToGraphData(tree)
       graph.setData(treeData)
       graph.render()
-
+      bindEvents()
       // 处理搜索关键词
       // if (keyword.value) {
       //   clearTimeout(focusTimer)
@@ -120,21 +126,14 @@ export const useGraphStore = defineStore('graph', () => {
       console.error('渲染图失败:', error)
     }
   }
-  function zoomIn() {
+  function zoomBy(value: number) {
     if (!graph)
       return
 
-    graph.zoomBy(1.2)
+    graph.zoomBy(value)
     ratio.value = graph.getZoom()
   }
 
-  function zoomOut() {
-    if (!graph)
-      return
-
-    graph.zoomBy(0.8)
-    ratio.value = graph.getZoom()
-  }
   function fitView() {
     graph.fitView(
       {
@@ -147,6 +146,25 @@ export const useGraphStore = defineStore('graph', () => {
     )
     ratio.value = graph.getZoom()
   }
+
+  function bindEvents() {
+    // 监听画布缩放事件
+    // graph.on(GraphEvent.AFTER_TRANSFORM, () => {
+    //   if (graph && typeof graph.getZoom === 'function') {
+    //     ratio.value = graph.getZoom()
+    //     logDebug('画布缩放比例更新为:', ratio.value)
+    //   }
+    // })
+    /* 节点点击 */
+    graph.on(NodeEvent.CLICK, (e) => {
+      const { targetType, target } = e
+      if (targetType === 'node') {
+        nodeDetail.value = graph.getNodeData(target.id)
+        nodeDetailVisible.value = true
+      }
+    })
+  }
+
   /**
    * 搜索并聚焦包含关键词的节点
    */
@@ -165,7 +183,7 @@ export const useGraphStore = defineStore('graph', () => {
       const foundNodes = nodes.filter((node) => {
         if (!node || !node.data)
           return false
-        const nodeText = (node.data.label || JSON.stringify(node.data)).toLowerCase()
+        const nodeText = String(node.data.label || JSON.stringify(node.data)).toLowerCase()
         return nodeText.includes(newKeyword.toLowerCase())
       })
 
@@ -179,7 +197,6 @@ export const useGraphStore = defineStore('graph', () => {
         // 聚焦到节点
           graph.focusElement(focusedNodeId, {
             duration: 300,
-            padding: 60,
             easing: 'ease',
           })
 
@@ -187,12 +204,12 @@ export const useGraphStore = defineStore('graph', () => {
           try {
             graph.setElementState(focusedNodeId, 'selected', true)
           }
-          catch (_) {
+          catch {
             console.warn('设置节点状态失败，尝试备用方法')
             try {
               graph.setElementState(focusedNodeId, ['selected'])
             }
-            catch (_) {
+            catch {
             // 忽略备用方法失败
             }
           }
@@ -258,5 +275,5 @@ export const useGraphStore = defineStore('graph', () => {
       console.error('展开/收起节点失败:', error)
     }
   }) */
-  return { ratio, ratioText, initGraph, render, zoomIn, zoomOut, fitView, jsonCanvasRef, exportImage }
+  return { ratio, ratioText, initGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail }
 }, { persist: true })

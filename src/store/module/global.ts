@@ -1,7 +1,5 @@
-import { LANGUAGES, THEME_COLORS } from '@/constants'
+import { LANGUAGES } from '@/constants'
 import { useMobile } from '@/hooks'
-import { setHtmlProperty } from '@/utils'
-import chroma from 'chroma-js'
 import { useI18n } from 'vue-i18n'
 
 export const useGlobalStore = defineStore('global', () => {
@@ -13,7 +11,6 @@ export const useGlobalStore = defineStore('global', () => {
   const isDark = useDark()
   const fields = ref(['result'])
   const autoRender = ref(true)
-  const [isExpandNode, toggleNode] = useToggle(true)
   function toggleLanguage() {
     language.value = i18n.locale.value = language.value === LANGUAGES.CN ? LANGUAGES.EN : LANGUAGES.CN
   }
@@ -39,14 +36,6 @@ export const useGlobalStore = defineStore('global', () => {
     else
       return isExpandEditor.value ? [30, 70] : [0, 100]
   })
-  const colorName = ref('orange')
-  const themeColor = computed(() => {
-    const color = THEME_COLORS[colorName.value]
-    setHtmlProperty('--el-color-primary', color)
-    setHtmlProperty('--el-color-primary-light-9', chroma(color).alpha(0.1).hex())
-    setHtmlProperty('--el-color-primary-light-7', chroma(color).alpha(0.3).hex())
-    return color
-  })
   return {
     isDark,
     fields,
@@ -54,11 +43,7 @@ export const useGlobalStore = defineStore('global', () => {
     language,
     focusCount,
     foundCount,
-    colorName,
-    themeColor,
     autoRender,
-    isExpandNode,
-    toggleNode,
     toggleExecuteMode,
     isExpandEditor,
     toggleEditor,

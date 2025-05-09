@@ -14,7 +14,6 @@ export const useCodeStore = defineStore('code', () => {
   const formatCode = ref<string>(JSON.stringify(json.value, null, 2))
 
   watch(json, (val) => {
-    console.log('[ val ]-17', val)
     if (Object.keys(val).length === 0) {
       // url.searchParams.delete(queryKey)
       // window.history.replaceState('', '', `${url.pathname}`)

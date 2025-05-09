@@ -1,3 +1,4 @@
+import { COLORS } from '@/constants/theme-colors'
 import { getWidth } from './get-width'
 import { cacheIdList, randomId } from './random-id'
 
@@ -31,13 +32,21 @@ function formatValue(value: any): string {
   return String(value)
 }
 
+const NODE_COLORS = {
+  array: COLORS.blue,
+  string: COLORS.lime,
+  boolean: COLORS.rose,
+  object: COLORS.orange,
+  other: COLORS.purple,
+}
 // 创建基本节点结构
-function createBaseNode(content: string, width?: number, height: number = 40): NodeItem {
+function createBaseNode(content: string, type: string = 'object', width?: number, height: number = 40): NodeItem {
   return {
     id: randomId(),
     content,
     style: {
       collapsed: false,
+      stroke: NODE_COLORS[type],
     },
     data: {
       width: width || nodeWidth(content),
@@ -82,30 +91,31 @@ function createBasicPropsNode(basicProps: [string, any][]): NodeItem {
   const width = maxWidth + PADDING * 2
   const height = basicProps.length * LINE_HEIGHT + PADDING * 2
 
-  return createBaseNode(basicContent, width, height)
+  return createBaseNode(basicContent, 'other', width, height)
 }
 
 // 处理值并创建节点
 function createNode(key: string, value: any, formatFields: string[] = []): NodeItem {
   let content = String(key)
+  let type = 'object'
 
   // 处理基本类型
   if (value === null || typeof value !== 'object') {
     content = `${key}: ${formatValue(value)}`
-    return createBaseNode(content)
+    type = typeof value
+    return createBaseNode(content, type)
   }
-
-  // 创建节点
-  const node = createBaseNode(content)
 
   // 处理数组
   if (Array.isArray(value)) {
+    const node = createBaseNode(content, 'array')
     node.children = value.map((item, index) => createNode(String(index), item, formatFields))
     return node
   }
 
   // 处理对象
   if (typeof value === 'object' && value !== null) {
+    const node = createBaseNode(content, 'object')
     const { basicProps, complexProps } = categorizeProperties(value)
 
     // 创建子节点
@@ -138,7 +148,7 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
     }
   }
 
-  return node
+  return createBaseNode(content, type)
 }
 
 // 处理数据结构的入口函数
@@ -153,6 +163,7 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
     content: 'ROOT',
     style: {
       collapsed: false,
+      stroke: COLORS.orange,
     },
     data: {
       width: 64,

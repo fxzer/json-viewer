@@ -4,8 +4,6 @@ import { useCodeStore, useGlobalStore } from '@/store'
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
-const NodeDialog = defineAsyncComponent(() => import('@/components/async/NodeDialog.vue'))
-
 const { originCode, formatCode } = toRefs(useCodeStore())
 const { paneSize } = storeToRefs(
   useGlobalStore(),
@@ -15,14 +13,6 @@ function onUpdateCode(codeStr: string) {
   originCode.value = codeStr
 }
 const debounceUpdate = useDebounceFn(onUpdateCode, 500)
-
-// 关键词搜索
-const nodeDetailVisible = ref(false)
-const nodeDetail = ref({})
-function nodeClickHandler(node: any) {
-  nodeDetail.value = node
-  nodeDetailVisible.value = true
-}
 
 const isMobile = useMobile()
 </script>
@@ -45,17 +35,14 @@ const isMobile = useMobile()
       <Pane :size="paneSize[1]">
         <div h-full>
           <CanvasToolBar />
-          <JsonCanvas @node-click="nodeClickHandler" />
+          <JsonCanvas />
         </div>
       </Pane>
     </Splitpanes>
-    <NodeDialog v-if="nodeDetailVisible" v-model="nodeDetailVisible" :node-detail="nodeDetail" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-
-
 .splitpanes {
   &.default-theme {
     .splitpanes__pane {
@@ -68,7 +55,4 @@ const isMobile = useMobile()
     }
   }
 }
-
-
-
 </style>

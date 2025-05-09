@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { useCodeStore, useGlobalStore, useGraphStore } from '@/store'
 
-const { jsonCanvasRef } = storeToRefs(useGraphStore())
+const NodeDialog = defineAsyncComponent(() => import('@/components/async/NodeDialog.vue'))
+const { jsonCanvasRef, nodeDetailVisible, nodeDetail } = storeToRefs(useGraphStore())
 const { json } = toRefs(useCodeStore())
 const { isDark, autoRender, fields } = toRefs(useGlobalStore())
 const { render } = useGraphStore()
@@ -14,4 +15,5 @@ onMounted(() => render())
 
 <template>
   <div ref="jsonCanvasRef" class="wh-full" />
+  <NodeDialog v-model="nodeDetailVisible" :node-detail="nodeDetail" />
 </template>

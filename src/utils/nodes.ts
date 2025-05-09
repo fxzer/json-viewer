@@ -1,4 +1,5 @@
 import type { BadgeStyleProps, LabelStyleProps } from '@antv/g6'
+import { COLORS } from '@/constants/theme-colors'
 import { Text as GText } from '@antv/g'
 import {
   Badge,
@@ -8,14 +9,7 @@ import {
   register,
 } from '@antv/g6'
 
-const COLORS = {
-  B: '#1783FF',
-  R: '#F46649',
-  Y: '#DB9D0D',
-  G: '#60C42D',
-  DI: '#A7A7A7',
-}
-const GREY_COLOR = '#DB9D0D'
+const GREY_COLOR = '#00000020'
 const FONT_FAMILY = 'monospace'
 
 class TreeNode extends Rect {
@@ -90,14 +84,14 @@ class TreeNode extends Rect {
 
   getKeyStyle(attributes) {
     const keyStyle = super.getKeyStyle(attributes)
-    const keys = Object.keys(COLORS)
-    const randomIndex = Math.floor(Math.random() * keys.length)
-    const stroke = COLORS[keys[randomIndex]]
+    // const keys = Object.keys(COLORS)
+    // const randomIndex = Math.floor(Math.random() * keys.length)
+    // const stroke = COLORS[keys[randomIndex]]
     return {
       ...keyStyle,
       fill: '#fff',
       lineWidth: 1,
-      stroke,
+      // stroke,
     }
   }
 

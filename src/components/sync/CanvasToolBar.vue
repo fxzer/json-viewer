@@ -3,12 +3,10 @@ import { toggleDarkAnimate, useMobile } from '@/hooks'
 import { useGlobalStore, useGraphStore } from '@/store'
 
 const ExportImage = defineAsyncComponent(() => import('@/components/async/ExportImage.vue'))
-const { zoomIn, zoomOut, fitView } = useGraphStore()
-const { ratioText } = storeToRefs(useGraphStore())
-const { toggleEditor, toggleLanguage, toggleNode } = useGlobalStore()
-const { isDark, isExpandEditor, isExpandNode } = toRefs(
-  useGlobalStore(),
-)
+const { zoomBy, fitView, toggleNode } = useGraphStore()
+const { ratioText, isExpandNode } = storeToRefs(useGraphStore())
+const { toggleEditor, toggleLanguage } = useGlobalStore()
+const { isDark, isExpandEditor } = toRefs(useGlobalStore())
 const isMobile = useMobile()
 // 节点展开/收起
 const editorIconStyle = computed(() => {
@@ -19,26 +17,19 @@ const editorIconStyle = computed(() => {
   return { transform: `rotate(${rotateAngle})` }
 })
 
-// 全屏/退出全屏
-const isFullScreen = ref(false)
-function onFullScreen() {
-  isFullScreen.value = !isFullScreen.value
-  if (isFullScreen.value)
-    document.documentElement.requestFullscreen()
-  else document.exitFullscreen()
-}
+const { isFullscreen, toggle } = useFullscreen()
 
 const exportVisible = ref(false)
 const canvasIconList = [
   {
     icon: 'icon-jia',
     content: 'zoomIn',
-    onClick: zoomIn,
+    onClick: () => zoomBy(1.2),
   },
   {
     icon: 'icon-jian',
     content: 'zoomOut',
-    onClick: zoomOut,
+    onClick: () => zoomBy(0.8),
   },
   {
     icon: 'icon-center-focus',
@@ -101,18 +92,18 @@ const canvasIconList = [
       </template>
 
       <el-tooltip
-        :content="`${isFullScreen ? $t('exit') : $t('enter')}${$t(
+        :content="`${isFullscreen ? $t('exit') : $t('enter')}${$t(
           'fullscreen',
         )}`"
       >
         <span
           class="iconfont"
           :class="
-            isFullScreen
+            isFullscreen
               ? 'icon-exit-fullscreen'
               : 'icon-enter-fullscreen'
           "
-          @click="onFullScreen"
+          @click="toggle"
         />
       </el-tooltip>
       <span

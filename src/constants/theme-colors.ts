@@ -1,4 +1,4 @@
-export const THEME_COLORS = {
+export const COLORS = {
   orange: '#fb923c',
   amber: '#fbbf24',
   yellow: '#facc15',
