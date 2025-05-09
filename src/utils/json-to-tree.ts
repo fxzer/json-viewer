@@ -1,4 +1,5 @@
 import { getWidth } from './get-width'
+import { cacheIdList, randomId } from './random-id'
 
 interface NodeItem {
   id: string
@@ -20,31 +21,6 @@ const PADDING = 10
 
 function nodeWidth(content: string) {
   return getWidth(content) + PADDING * 2
-}
-
-// 缓存相关变量
-const ID_CACHE_SIZE = 50
-const cacheIdList: string[] = []
-
-// 生成随机id (使用缓存减少计算)
-function randomId(): string {
-  if (cacheIdList.length > 0) {
-    return cacheIdList.pop()
-  }
-  function makeId(count = 8): string {
-    return Math.random().toString(36).substring(2, 2 + count)
-  }
-  function fillIdList(idList: string[]) {
-    for (let i = 0; i < ID_CACHE_SIZE; i++) {
-      idList.push(makeId())
-    }
-  }
-  // 批量生成ID并缓存，提高性能
-  if (cacheIdList.length === 0) {
-    fillIdList(cacheIdList)
-  }
-
-  return makeId()
 }
 
 // 格式化值，保留字符串的双引号
@@ -204,7 +180,5 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
     rootNode.children.push(createNode(k, v, formatFields))
   })
 
-  // 使用console.warn替代console.log
-  console.warn('[ rootNode ]', rootNode)
   return rootNode
 }

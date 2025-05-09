@@ -1,7 +1,7 @@
 export * from './get-width'
-export * from './jsonToTree'
+export * from './json-to-tree'
 export * from './nodes'
-export * from './saveImage'
+export * from './save-image'
 export * from './typeis'
 
 export function setHtmlProperty(key: string, value: string) {

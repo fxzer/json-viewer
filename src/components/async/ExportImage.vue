@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { useDialogWidth } from '@/hooks'
+import { useGraphStore } from '@/store'
 
-const emit = defineEmits<{
-  (event: 'confirm', val: ImageConfig): void
-}>()
+const { exportImage } = useGraphStore()
 interface ImageConfig {
   name: string
   type: string
@@ -22,10 +21,11 @@ const exportConfig = ref<ImageConfig> ({
 })
 
 function confirm() {
-  emit('confirm', {
-    ...exportConfig.value,
-  })
+
+  const { name, type } = exportConfig.value
+  exportImage(name, type)
   visible.value = false
+
 }
 </script>
 

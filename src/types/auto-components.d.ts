@@ -8,7 +8,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CanvasToolBar: typeof import('./../components/sync/CanvasToolBar.vue')['default']
     ColorPicker: typeof import('./../components/sync/ColorPicker.vue')['default']
+    EditorToolBar: typeof import('./../components/sync/EditorToolBar.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
@@ -22,6 +24,7 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     JsonCanvas: typeof import('./../components/sync/JsonCanvas.vue')['default']
+    Layout: typeof import('./../components/sync/Layout.vue')['default']
     SearchInput: typeof import('./../components/sync/SearchInput.vue')['default']
     VueCodeMirror: typeof import('./../components/sync/VueCodeMirror.vue')['default']
   }
