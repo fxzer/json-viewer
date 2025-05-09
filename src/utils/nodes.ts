@@ -16,6 +16,7 @@ const COLORS = {
   DI: '#A7A7A7',
 }
 const GREY_COLOR = '#DB9D0D'
+const FONT_FAMILY = 'monospace'
 
 class TreeNode extends Rect {
   get data() {
@@ -34,6 +35,7 @@ class TreeNode extends Rect {
       y: 0,
       text: String(content),
       fontSize: 16,
+      fontFamily: FONT_FAMILY,
       fill: '#000',
       opacity: 0.85,
       textAlign: 'left',
@@ -62,6 +64,7 @@ class TreeNode extends Rect {
       fill: GREY_COLOR,
       fontSize: 16,
       text: collapsed ? '+' : '-',
+      fontFamily: FONT_FAMILY,
       textAlign: 'center',
       textBaseline: 'middle',
       x: width / 2,
@@ -101,7 +104,7 @@ class TreeNode extends Rect {
   render(attributes = this.parsedAttributes, container) {
     super.render(attributes, container)
     this.drawContentShape(attributes, container)
-    this.drawCollapseShape(attributes, container)
+    // this.drawCollapseShape(attributes, container)
   }
 }
 

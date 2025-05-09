@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useCodeStore, useGlobalStore } from '@/store'
-import { jsonToTree } from '@/utils'
-import { measureTextWidth } from '@/utils/fittingString'
+import { jsonToTree, saveImage } from '@/utils'
 import { Graph, treeToGraphData } from '@antv/g6'
 
 const props = defineProps({
@@ -16,87 +15,78 @@ const props = defineProps({
 })
 
 const { json } = toRefs(useCodeStore())
-const { isDark, keyword, focusCount, autoRender, fields } = toRefs(useGlobalStore())
+const { isDark, keyword, focusCount, autoRender, fields, isExpandNode } = toRefs(useGlobalStore())
+const globalStore = useGlobalStore()
 
-let graph
+let graph = null
 const ratio = defineModel<number>('ratio')
 const jsonCanvas = ref<HTMLElement | null>(null)
 const { width, height } = useElementSize(jsonCanvas)
 
-// 添加日志开关
+// TODO: 收起/展开节点(综合节点深度、子节点数量、节点内容复杂度)
+watch(isExpandNode, (val) => {
+  if (graph) {
+    // 收起并保证展开/收起的节点位置不变
+    val
+      ? graph.expandElement('ROOT', {
+          align: true,
+          // animation: true,
+        })
+      : graph.collapseElement('ROOT', {
+          align: true,
+          // animation: true,
+        })
+  }
+})
+// 调试设置
 const debug = ref(false)
+const logDebug = (...args) => debug.value && console.warn('[JsonCanvas]', ...args)
 
-// 调试日志函数
-function logDebug(...args) {
-  if (debug.value) {
-    console.warn('[JsonCanvas]', ...args)
-  }
-}
-
-// 存储事件处理函数引用
-const eventHandlers = {
-  nodeClick: null,
-  afterTransform: null,
-  dragStart: null,
-  dragEnd: null,
-}
-
+// 避免内存泄漏的计时器引用
 let focusTimer = null
-async function render() {
-  logDebug('执行render()，数据:', json.value)
-  if (!graph) {
-    logDebug('图实例不存在，初始化')
-    await initGraph()
-  }
+
+/**
+ * 初始化图实例
+ */
+function initGraph() {
+  if (graph)
+    return graph
+
+  logDebug('初始化图实例, container:', jsonCanvas.value)
 
   try {
-    await drawGraph(json.value)
-    // 不再使用updateStyle，避免错误
-    // 触发聚焦搜索
-    if (keyword.value) {
-      clearTimeout(focusTimer)
-      focusTimer = setTimeout(() => {
-        focusNode(keyword.value)
-      }, 500)
-    }
-  }
-  catch (error) {
-    console.error('渲染图失败:', error)
-  }
-}
-
-watch([json, fields], () => autoRender.value && render(), { deep: true })
-watch(isDark, () => autoRender.value && render())
-
-async function initGraph() {
-  try {
-    logDebug('初始化图实例, container:', jsonCanvas.value)
-
-    // 直接使用标准方式创建图实例
     graph = new Graph({
       container: jsonCanvas.value,
       width: width.value,
       height: height.value,
-      autoFit: 'view', //
+      autoFit: 'view',
       padding: [30, 30, 30, 30],
       zoomRange: [0.1, 3],
       animation: false,
       layout: {
-        type: 'indented',
+        type: 'mindmap',
         direction: 'LR',
-        dropCap: false,
-        indent: 300,
-        getHeight: () => 60,
         preLayout: false,
+        getHeight: (d) => {
+          // 根据内容行数动态调整高度
+          return d.data?.height
+        },
+        getWidth: (d) => {
+          return d.data.width
+        },
+        getVGap: (d) => {
+          return d.data?.height
+        },
+        getHGap: (d) => {
+          return d.data?.width * 2
+        },
       },
-      // 使用简单内置节点类型
       node: {
-        type: 'flow-rect', // 默认使用矩形节点
+        type: 'flow-rect',
         style: {
-          // 根据节点标签长度动态计算节点大小
           size: (d) => {
             const { data } = d
-            return [data.width, data.height]
+            return [data.width, data.height] as [number, number]
           },
           ports: [{ placement: 'left' }, { placement: 'right' }],
           radius: 4,
@@ -105,188 +95,104 @@ async function initGraph() {
       edge: {
         type: 'cubic-horizontal',
       },
-      // 使用最基本的交互行为，简化配置
-      behaviors: [
-        'zoom-canvas',
-      ],
+      behaviors: ['zoom-canvas', 'drag-canvas'],
     })
+
+    return graph
   }
   catch (error) {
     console.error('初始化图实例出错:', error)
+    return null
   }
 }
 
-async function drawGraph(json: any) {
-  if (!json) {
+/**
+ * 渲染JSON数据到图形
+ */
+function render() {
+  logDebug('执行render()，数据:', json.value)
+
+  if (!json.value) {
     logDebug('没有数据，跳过绘制')
     return
   }
 
-  if (!graph) {
-    logDebug('图实例不存在，初始化后再绘制')
-    await initGraph()
-  }
-
   try {
-    // 清空现有图数据
+    // 确保图实例已初始化
+    if (!graph) {
+      graph = initGraph()
+      if (!graph)
+        return
+    }
+
+    // 数据处理与渲染
     graph.clear()
-    // const jsonData = structuredClone(data)
-    const tree = jsonToTree(json)
-
+    const tree = jsonToTree(json.value)
     const treeData = treeToGraphData(tree)
-    // 设置图数据
     graph.setData(treeData)
-
-    // 渲染图
     graph.render()
+
+    // 处理搜索关键词
+    if (keyword.value) {
+      clearTimeout(focusTimer)
+      focusTimer = setTimeout(() => focusNode(keyword.value), 300)
+    }
   }
   catch (error) {
-    console.error('图形渲染失败:', error)
+    console.error('渲染图失败:', error)
   }
 }
 
-watchDebounced([width, height], ([w, h]) => graph?.setSize(w, h), { debounce: 600 })
-
-onMounted(() => {
-  render()
-
-  const keywordWatcher = watch(() => keyword.value, (newKeyword) => {
-    if (newKeyword) {
-      setTimeout(() => {
-        focusNode(newKeyword)
-      }, 300)
-    }
-  })
-
-  // 在组件卸载时清理watcher
-  onUnmounted(() => {
-    keywordWatcher()
-  })
-})
-
-// 展开/收起
-watch(
-  () => props.isExpand,
-  (newVal) => {
-    // 获取图数据,修改collapsed属性,重新布局
-    if (!graph) {
-      return
-    }
-
-    try {
-      // 简化逻辑，避免不必要的操作
-
-      // 直接触发布局
-      if (typeof graph.layout === 'function') {
-        graph.layout()
-      }
-
-      // 视图调整
-      setTimeout(() => {
-        if (graph) {
-          if (newVal) {
-            // 展开时，使用autoFit
-            graph.autoFit('view')
-          }
-          else {
-            // 收起时，使用translateTo
-            const currentWidth = graph.getSize?.()?.[0] || width.value
-            const currentHeight = graph.getSize?.()?.[1] || height.value
-
-            if (typeof graph.translateTo === 'function') {
-              // 正确的translateTo参数格式 - 数组
-              graph.translateTo([currentWidth / 2, currentHeight / 2], {
-                duration: 300,
-                easing: 'ease',
-              })
-            }
-          }
-        }
-      }, 300)
-    }
-    catch (error) {
-      console.error('展开/收起节点失败:', error)
-    }
-  },
-)
-
-// 等视图和G6实例准备好后进行缩放
-watch(ratio, (val) => {
-  if (!graph || val <= 0)
-    return
-
-  try {
-    // 使用transform方法替代zoomTo
-    if (typeof graph.transform === 'function') {
-      graph.transform({
-        zoom: val,
-        type: 'zoom',
-      })
-    }
-  }
-  catch (error) {
-    console.error('缩放图形失败:', error)
-  }
-})
-
-// 搜索聚焦节点
+/**
+ * 搜索并聚焦包含关键词的节点
+ */
 function focusNode(newKeyword?: string): void {
-  if (!graph || !newKeyword) {
+  if (!graph || !newKeyword)
     return
-  }
 
   try {
-    // 查找包含关键字的节点
     const nodes = graph.getNodeData()
     if (!nodes || nodes.length === 0) {
-      useGlobalStore().setFoundCount(0)
+      globalStore.setFoundCount(0)
       return
     }
 
+    // 查找包含关键字的节点
     const foundNodes = nodes.filter((node) => {
-      // 检查节点数据中是否包含关键字
       if (!node || !node.data)
         return false
-
-      // 使用label或整个节点数据进行搜索
       const nodeText = (node.data.label || JSON.stringify(node.data)).toLowerCase()
       return nodeText.includes(newKeyword.toLowerCase())
     })
 
-    if (foundNodes.length > 0) {
-      const globalStore = useGlobalStore()
-      globalStore.setFoundCount(foundNodes.length)
+    globalStore.setFoundCount(foundNodes.length)
 
-      // 使用常量避免直接访问响应式对象
+    if (foundNodes.length > 0) {
       const currentFocusIndex = focusCount.value % foundNodes.length
       const focusedNodeId = foundNodes[currentFocusIndex]?.id
 
       if (focusedNodeId) {
-        // 使用focusElement方法将视图中心对准该节点
+        // 聚焦到节点
         graph.focusElement(focusedNodeId, {
           duration: 300,
           padding: 60,
           easing: 'ease',
         })
 
-        // 设置节点状态为选中，确保参数格式正确
+        // 尝试设置节点状态
         try {
           graph.setElementState(focusedNodeId, 'selected', true)
         }
-        catch (e) {
-          console.warn('设置节点状态失败:', e)
-          // 尝试另一种写法
+        catch (_) {
+          console.warn('设置节点状态失败，尝试备用方法')
           try {
             graph.setElementState(focusedNodeId, ['selected'])
           }
-          catch (e2) {
-            console.warn('另一种方式设置节点状态也失败:', e2)
+          catch (_) {
+            // 忽略备用方法失败
           }
         }
       }
-    }
-    else {
-      useGlobalStore().setFoundCount(0)
     }
   }
   catch (error) {
@@ -294,112 +200,182 @@ function focusNode(newKeyword?: string): void {
   }
 }
 
-onUnmounted(() => {
-  try {
-    // 解除事件监听
-    if (focusTimer) {
-      clearTimeout(focusTimer)
-      focusTimer = null
+/**
+ * 工具栏方法
+ */
+const toolbar = {
+  zoomIn: () => {
+    if (!graph)
+      return
+
+    try {
+      const currentZoom = graph.getViewportTransform?.()?.zoom || 1
+      graph.transform({
+        zoom: currentZoom * 1.1,
+        type: 'zoom',
+      })
     }
-
-    // 移除事件监听
-    if (graph) {
-      try {
-        // 移除事件监听器
-        if (eventHandlers.nodeClick) {
-          try {
-            graph.off('node:click', eventHandlers.nodeClick)
-          }
-          catch {
-            // 忽略错误
-          }
-        }
-
-        if (eventHandlers.afterTransform) {
-          try {
-            graph.off('aftertransform', eventHandlers.afterTransform)
-          }
-          catch {
-            // 忽略错误
-          }
-        }
-
-        // 安全地销毁图实例 - 添加延迟确保不发生冲突
-        setTimeout(() => {
-          if (graph) {
-            try {
-              graph.destroy()
-            }
-            catch (e) {
-              console.warn('销毁图实例时出错:', e)
-            }
-            graph = null
-          }
-        }, 100)
-      }
-      catch (error) {
-        console.error('销毁图实例失败:', error)
-      }
+    catch (error) {
+      console.error('放大图形失败:', error)
     }
-  }
-  catch (error) {
-    console.error('组件卸载清理出错：', error)
+  },
+
+  zoomOut: () => {
+    if (!graph)
+      return
+
+    try {
+      const currentZoom = graph.getViewportTransform?.()?.zoom || 1
+      graph.transform({
+        zoom: currentZoom * 0.9,
+        type: 'zoom',
+      })
+    }
+    catch (error) {
+      console.error('缩小图形失败:', error)
+    }
+  },
+
+  autoZoom: () => {
+    if (!graph)
+      return
+
+    try {
+      graph.autoFit?.('view')
+    }
+    catch (error) {
+      console.error('自适应视图失败:', error)
+    }
+  },
+}
+
+// 监听数据和主题变化触发渲染
+watch([json, fields], () => autoRender.value && render(), { deep: true })
+watch(isDark, () => autoRender.value && render())
+
+// 监听画布尺寸变化
+watchDebounced([width, height], ([w, h]) => graph?.setSize(w, h), { debounce: 300 })
+
+// 监听搜索关键词变化
+watch(() => keyword.value, (newKeyword) => {
+  if (newKeyword) {
+    clearTimeout(focusTimer)
+    focusTimer = setTimeout(() => focusNode(newKeyword), 300)
   }
 })
+
+// 监听展开/收起状态
+watch(() => props.isExpand, (newVal) => {
+  if (!graph)
+    return
+
+  try {
+    // 触发布局更新
+    graph.layout?.()
+
+    // 视图调整
+    setTimeout(() => {
+      if (!graph)
+        return
+
+      if (newVal) {
+        // 展开时自适应视图
+        graph.autoFit?.('view')
+      }
+      else {
+        // 收起时居中
+        const [currentWidth, currentHeight] = graph.getSize?.() || [width.value, height.value]
+        graph.translateTo?.([currentWidth / 2, currentHeight / 2], {
+          duration: 300,
+          easing: 'ease',
+        })
+      }
+    }, 300)
+  }
+  catch (error) {
+    console.error('展开/收起节点失败:', error)
+  }
+})
+
+// 监听缩放比例变化
+watch(ratio, (val) => {
+  if (!graph || val <= 0)
+    return
+
+  try {
+    graph.transform?.({
+      zoom: val,
+      type: 'zoom',
+    })
+  }
+  catch (error) {
+    console.error('缩放图形失败:', error)
+  }
+})
+
+// 生命周期钩子
+onMounted(() => {
+  render()
+})
+
+// 清理资源
+onUnmounted(() => {
+  // 清理计时器
+  if (focusTimer) {
+    clearTimeout(focusTimer)
+    focusTimer = null
+  }
+
+  // 销毁图实例
+  if (graph) {
+    try {
+      graph.destroy()
+    }
+    catch (e) {
+      console.warn('销毁图实例时出错:', e)
+    }
+    graph = null
+  }
+})
+
+function zoomIn() {
+  if (!graph)
+    return
+
+  graph.zoomBy(1.2)
+  ratio.value = graph.getZoom()
+}
+
+function zoomOut() {
+  if (!graph)
+    return
+
+  graph.zoomBy(0.8)
+  ratio.value = graph.getZoom()
+}
+function fitView() {
+  graph.fitView(
+    {
+      when: 'always', // 始终进行适配
+      direction: 'both', // 在两个方向上适配
+    },
+    {
+      duration: 1000, // 带动画效果
+    },
+  )
+  ratio.value = graph.getZoom()
+}
+function exportImage(name: string, type: string) {
+  saveImage(graph, name, type)
+}
+// 暴露方法和对象
 defineExpose({
   render,
-  graph,
-  toolbar: {
-    zoomIn: () => {
-      if (!graph)
-        return
-
-      try {
-        // 使用transform方法替代zoomBy
-        if (typeof graph.transform === 'function') {
-          const currentZoom = graph.getViewportTransform?.()?.zoom || 1
-          graph.transform({
-            zoom: currentZoom * 1.1,
-            type: 'zoom',
-          })
-        }
-      }
-      catch (error) {
-        console.error('放大图形失败:', error)
-      }
-    },
-    zoomOut: () => {
-      if (!graph)
-        return
-
-      try {
-        // 使用transform方法替代zoomBy
-        if (typeof graph.transform === 'function') {
-          const currentZoom = graph.getViewportTransform?.()?.zoom || 1
-          graph.transform({
-            zoom: currentZoom * 0.9,
-            type: 'zoom',
-          })
-        }
-      }
-      catch (error) {
-        console.error('缩小图形失败:', error)
-      }
-    },
-    autoZoom: () => {
-      if (!graph)
-        return
-
-      try {
-        if (typeof graph.autoFit === 'function') {
-          graph.autoFit('view')
-        }
-      }
-      catch (error) {
-        console.error('自适应视图失败:', error)
-      }
-    },
-  },
+  zoomIn,
+  zoomOut,
+  fitView,
+  exportImage,
+  // toolbar,
 })
 </script>
 

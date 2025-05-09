@@ -11,10 +11,10 @@ const NodeDialog = defineAsyncComponent(() => import('@/components/async/NodeDia
 const LayoutCustom = defineAsyncComponent(() => import('@/components/async/LayoutCustom.vue'))
 
 const { originCode, formatCode, json, jsonValid } = toRefs(useCodeStore())
-const { isDark, paneSize, autoRender, isExpandEditor } = toRefs(
+const { isDark, paneSize, autoRender, isExpandEditor, isExpandNode } = toRefs(
   useGlobalStore(),
 )
-// const { toggleEditor, toggleExecuteMode, toggleLanguage } = useGlobalStore()
+const { toggleEditor, toggleExecuteMode, toggleLanguage, toggleNode } = useGlobalStore()
 const drawerVisible = ref(false)
 // function openLayoutConfig() {
 //   drawerVisible.value = !drawerVisible.value
@@ -25,17 +25,13 @@ const ratioText = computed(() => {
 })
 const isMobile = useMobile()
 // 节点展开/收起
-// const [isExpandNode, toggleNode] = useToggle(true)
-// const editorIconStyle = computed(() => {
-//   if (isMobile.value) {
-//     return {
-//       transform: `rotate(${isExpandEditor.value ? '90deg' : '270deg'})`,
-//     }
-//   }
-//   else {
-//     return { transform: `rotate(${isExpandEditor.value ? '0deg' : '180deg'})` }
-//   }
-// })
+const editorIconStyle = computed(() => {
+  const rotateAngle = isMobile.value
+    ? isExpandEditor.value ? '90deg' : '270deg'
+    : isExpandEditor.value ? '0deg' : '180deg'
+
+  return { transform: `rotate(${rotateAngle})` }
+})
 function onUpdateCode(codeStr: string) {
   originCode.value = codeStr
 }
@@ -78,32 +74,29 @@ const exportVisible = ref(false)
 // function onRender() {
 //   jsonCanvasRef.value.render()
 // }
-// function showExportImage() {
-//   exportVisible.value = true
-// }
-// function confirmExport(config: any) {
-//   exportVisible.value = false
-//   const { name, type } = config
-//   jsonCanvasRef?.value?.saveImage(name, type)
-// }
-// function onZoomOut() {
-//   if (jsonCanvasRef?.value) {
-//     (jsonCanvasRef?.value?.toolbar as any).zoomOut()
-//     ratio.value = jsonCanvasRef?.value?.graph.getZoom()
-//   }
-// }
-// function onZoomIn() {
-//   if (jsonCanvasRef?.value) {
-//     (jsonCanvasRef?.value?.toolbar as any).zoomIn()
-//     ratio.value = jsonCanvasRef?.value?.graph.getZoom()
-//   }
-// }
-// function onAutoZoom() {
-//   if (jsonCanvasRef?.value) {
-//     (jsonCanvasRef?.value?.toolbar as any).autoZoom()
-//     ratio.value = jsonCanvasRef?.value?.graph.getZoom()
-//   }
-// }
+function showExportImage() {
+  exportVisible.value = true
+}
+function confirmExport(config: any) {
+  exportVisible.value = false
+  const { name, type } = config
+  jsonCanvasRef.value.exportImage(name, type)
+}
+function onZoomOut() {
+  if (jsonCanvasRef?.value) {
+    jsonCanvasRef?.value.zoomOut()
+  }
+}
+function onZoomIn() {
+  if (jsonCanvasRef?.value) {
+    jsonCanvasRef?.value.zoomIn()
+  }
+}
+function onAutoZoom() {
+  if (jsonCanvasRef?.value) {
+    jsonCanvasRef?.value.fitView()
+  }
+}
 // 关键词搜索
 const nodeDetailVisible = ref(false)
 const nodeDetail = ref({})
@@ -154,33 +147,33 @@ function openFieldsDialog() {
 //     },
 //   },
 // ]
-// const canvasIconList = [
-//   {
-//     icon: 'icon-jia',
-//     content: 'zoomIn',
-//     onClick: onZoomIn,
-//   },
-//   {
-//     icon: 'icon-jian',
-//     content: 'zoomOut',
-//     onClick: onZoomOut,
-//   },
-//   {
-//     icon: 'icon-center-focus',
-//     content: 'center',
-//     onClick: onAutoZoom,
-//   },
-//   {
-//     icon: 'icon-save-image',
-//     content: 'saveImage',
-//     onClick: showExportImage,
-//   },
-//   {
-//     icon: 'icon-language',
-//     content: 'language',
-//     onClick: toggleLanguage,
-//   },
-// ]
+const canvasIconList = [
+  {
+    icon: 'icon-jia',
+    content: 'zoomIn',
+    onClick: onZoomIn,
+  },
+  {
+    icon: 'icon-jian',
+    content: 'zoomOut',
+    onClick: onZoomOut,
+  },
+  {
+    icon: 'icon-center-focus',
+    content: 'center',
+    onClick: onAutoZoom,
+  },
+  {
+    icon: 'icon-save-image',
+    content: 'saveImage',
+    onClick: showExportImage,
+  },
+  {
+    icon: 'icon-language',
+    content: 'language',
+    onClick: toggleLanguage,
+  },
+]
 </script>
 
 <template>
@@ -238,7 +231,7 @@ function openFieldsDialog() {
             class="bg-gray/10 px-2 md:(h-10 flex-between-center)"
           >
             <div class="flex-y-center space-x-3">
-              <!-- <el-tooltip
+              <el-tooltip
                 :content="`${
                   isExpandEditor ? $t('collapse') : $t('expand')
                 }${$t('editor')}`"
@@ -249,6 +242,7 @@ function openFieldsDialog() {
                   @click="toggleEditor()"
                 />
               </el-tooltip>
+
               <el-tooltip
                 :content="`${isExpandNode ? $t('collapse') : $t('expand')}${$t(
                   'nodes',
@@ -261,9 +255,9 @@ function openFieldsDialog() {
                   "
                   @click="toggleNode()"
                 />
-              </el-tooltip> -->
+              </el-tooltip>
 
-              <!-- <template v-for="item, idx in canvasIconList" :key="idx">
+              <template v-for="item, idx in canvasIconList" :key="idx">
                 <el-tooltip :content="$t(item.content)">
                   <span
                     class="iconfont"
@@ -271,7 +265,7 @@ function openFieldsDialog() {
                     @click="item.onClick"
                   />
                 </el-tooltip>
-              </template> -->
+              </template>
 
               <el-tooltip
                 :content="`${isFullScreen ? $t('exit') : $t('enter')}${$t(
@@ -293,11 +287,6 @@ function openFieldsDialog() {
                 :class="isDark ? 'icon-night' : 'icon-day'"
                 @click="toggleDarkAnimate"
               />
-              <ColorPicker>
-                <template #icon>
-                  <span class="iconfont icon-theme" />
-                </template>
-              </ColorPicker>
               <div op60>
                 {{ ratioText }}
               </div>

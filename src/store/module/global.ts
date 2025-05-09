@@ -13,7 +13,7 @@ export const useGlobalStore = defineStore('global', () => {
   const isDark = useDark()
   const fields = ref(['result'])
   const autoRender = ref(true)
-
+  const [isExpandNode, toggleNode] = useToggle(true)
   function toggleLanguage() {
     language.value = i18n.locale.value = language.value === LANGUAGES.CN ? LANGUAGES.EN : LANGUAGES.CN
   }
@@ -57,6 +57,8 @@ export const useGlobalStore = defineStore('global', () => {
     colorName,
     themeColor,
     autoRender,
+    isExpandNode,
+    toggleNode,
     toggleExecuteMode,
     isExpandEditor,
     toggleEditor,
