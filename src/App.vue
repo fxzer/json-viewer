@@ -4,6 +4,7 @@ import { useCodeStore, useGlobalStore } from '@/store'
 import { isObject } from '@/utils'
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
+import { exportJSON, importJSON } from './utils/json'
 
 const ExportImage = defineAsyncComponent(() => import('@/components/async/ExportImage.vue'))
 const FieldsCustom = defineAsyncComponent(() => import('@/components/async/FieldsCustom.vue'))
@@ -16,9 +17,9 @@ const { isDark, paneSize, autoRender, isExpandEditor, isExpandNode } = toRefs(
 )
 const { toggleEditor, toggleExecuteMode, toggleLanguage, toggleNode } = useGlobalStore()
 const drawerVisible = ref(false)
-// function openLayoutConfig() {
-//   drawerVisible.value = !drawerVisible.value
-// }
+function openLayoutConfig() {
+  drawerVisible.value = !drawerVisible.value
+}
 const ratio = ref(1)
 const ratioText = computed(() => {
   return `${(ratio.value * 100).toFixed(2)}%`
@@ -39,41 +40,20 @@ const debounceUpdate = useDebounceFn(onUpdateCode, 500)
 
 // 导出json
 function onExport() {
-  const filename = 'json-viewer.json'
-  const jsonStr = isObject(json.value)
-    ? JSON.stringify(json.value, undefined, 2)
-    : json.value
-  const blob = new Blob([jsonStr as any], { type: 'text/plain' })
-  const link = document.createElement('a')
-  link.setAttribute('style', 'display: none')
-  link.href = URL.createObjectURL(blob)
-  link.download = filename
-  link.click()
+  exportJSON(json.value)
 }
 // 导入json
 function onImport() {
-  const input = document.createElement('input')
-  input.setAttribute('type', 'file')
-  input.setAttribute('accept', '.json')
-  input.click()
-  input.onchange = () => {
-    const file = input.files?.[0]
-    if (!file)
-      return
-    const reader = new FileReader()
-    reader.readAsText(file)
-    reader.onload = () => {
-      const jsonStr = reader.result
-      originCode.value = jsonStr as string
-    }
-  }
+  importJSON((json: any) => {
+    originCode.value = json
+  })
 }
 
 const jsonCanvasRef = ref()
 const exportVisible = ref(false)
-// function onRender() {
-//   jsonCanvasRef.value.render()
-// }
+function onRender() {
+  jsonCanvasRef.value.render()
+}
 function showExportImage() {
   exportVisible.value = true
 }
@@ -118,35 +98,35 @@ function openFieldsDialog() {
   fieldsVisible.value = true
 }
 
-// const editorIconList = [
-//   {
-//     icon: 'icon-node-layout',
-//     content: 'layoutConfig',
-//     onClick: openLayoutConfig,
-//   },
-//   {
-//     icon: 'icon-zidingyi',
-//     content: 'parseField',
-//     onClick: openFieldsDialog,
-//   },
-//   {
-//     icon: 'icon-import-json',
-//     content: 'import',
-//     onClick: onImport,
-//   },
-//   {
-//     icon: 'icon-export-json',
-//     content: 'export',
-//     onClick: onExport,
-//   },
-//   {
-//     icon: 'icon-clear-json',
-//     content: 'clear',
-//     onClick: () => {
-//       originCode.value = ''
-//     },
-//   },
-// ]
+const editorIconList = [
+  {
+    icon: 'icon-node-layout',
+    content: 'layoutConfig',
+    onClick: openLayoutConfig,
+  },
+  {
+    icon: 'icon-zidingyi',
+    content: 'parseField',
+    onClick: openFieldsDialog,
+  },
+  {
+    icon: 'icon-import-json',
+    content: 'import',
+    onClick: onImport,
+  },
+  {
+    icon: 'icon-export-json',
+    content: 'export',
+    onClick: onExport,
+  },
+  {
+    icon: 'icon-clear-json',
+    content: 'clear',
+    onClick: () => {
+      originCode.value = ''
+    },
+  },
+]
 const canvasIconList = [
   {
     icon: 'icon-jia',
@@ -184,7 +164,7 @@ const canvasIconList = [
       :horizontal="isMobile"
     >
       <Pane max-size="50" :size="paneSize[0]">
-        <!-- <div
+        <div
           border="b gray/20"
           class="h-10 flex items-center bg-gray/10 px-2 space-x-3"
         >
@@ -216,7 +196,7 @@ const canvasIconList = [
               />
             </Transition>
           </el-tooltip>
-        </div> -->
+        </div>
 
         <VueCodeMirror
           :value="formatCode"
