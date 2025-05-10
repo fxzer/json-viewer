@@ -1,4 +1,4 @@
-import { COLORS, NODE_COLORS } from '@/constants/theme-colors'
+import { COLORS_MAP } from '@/constants/colors'
 import { getWidth } from './get-width'
 import { cacheIdList, randomId } from './random-id'
 
@@ -14,15 +14,12 @@ interface NodeItem {
   data: {
     width?: number
     height?: number
-    mark?: 'object' | 'array'
+    badge?: 'object' | 'array'
   }
 }
 
-const LINE_HEIGHT = 20
 const PADDING = 10
-function nodeWidth(content: string) {
-  return getWidth(content) + PADDING * 2
-}
+const LINE_HEIGHT = 20
 
 // 格式化值，保留字符串的双引号
 function formatValue(value: any): string {
@@ -34,7 +31,7 @@ function formatValue(value: any): string {
 
 // 创建基本节点结构
 function createBaseNode(content: string, type: string = 'object', width?: number, height: number = 40): NodeItem {
-  const color = NODE_COLORS[type]
+  const color = COLORS_MAP[type]
   return {
     id: randomId(),
     content,
@@ -44,18 +41,19 @@ function createBaseNode(content: string, type: string = 'object', width?: number
       fill: color,
     },
     data: {
-      width: width || nodeWidth(content),
+      width: width || getWidth(content) + PADDING * 2,
       height,
-      mark: type as 'object' | 'array',
+      badge: type as 'object' | 'array',
     },
   }
 }
 
 // 将对象属性分为基本类型和复杂类型
-function categorizeProperties(obj: Record<string, any>): {
+interface CategorizeProperties {
   basicProps: [string, any][]
   complexProps: [string, any][]
-} {
+}
+function categorizeProperties(obj: Record<string, any>): CategorizeProperties {
   const basicProps: [string, any][] = []
   const complexProps: [string, any][] = []
 
@@ -186,13 +184,13 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
     content: 'ROOT',
     style: {
       collapsed: false,
-      stroke: COLORS.orange,
-      fill: COLORS.orange,
+      stroke: COLORS_MAP.object,
+      fill: COLORS_MAP.object,
     },
     data: {
       width: 64,
       height: 64,
-      mark: 'object',
+      badge: 'object',
     },
   }
 

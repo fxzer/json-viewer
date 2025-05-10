@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { useCodeStore, useGlobalStore, useGraphStore } from '@/store'
-import { exportJSON, importJSON } from '@/utils/json'
+import { exportJSON, importJSON } from '@/utils'
 
 const FieldsCustom = defineAsyncComponent(() => import('@/components/async/FieldsCustom.vue'))
 
@@ -70,7 +70,7 @@ const editorIconList = [
     <el-tooltip :content="$t(autoRender ? 'autoRender' : 'manualRender')">
       <span
         class="iconfont icon-auto"
-        :class="autoRender ? '!text-green-500' : ''"
+        :class="autoRender ? jsonValid ? '!text-green-500' : '!text-gray-300' : ''"
         @click="toggleExecuteMode()"
       />
     </el-tooltip>

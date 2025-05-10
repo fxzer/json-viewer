@@ -1,4 +1,5 @@
 export * from './get-width'
+export * from './import-export-json'
 export * from './json-to-tree'
 export * from './nodes'
 export * from './save-image'

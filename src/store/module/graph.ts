@@ -1,9 +1,6 @@
 import { LAYOUTS } from '@/constants'
-import { COLORS } from '@/constants/theme-colors'
 import { jsonToTree, saveImage } from '@/utils'
-import { isFunction, isNumber } from '@/utils/typeis'
-import { CanvasEvent, EdgeEvent, Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
-import chroma from 'chroma-js'
+import {Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
 import { useCodeStore } from './code'
 import { useGlobalStore } from './global'
 
@@ -87,9 +84,9 @@ export const useGraphStore = defineStore('graph', () => {
           // 状态样式
           state: {
             focused: {
-              haloStroke: COLORS.green,
+              haloStroke: '#4ac666',
               halo: true,
-              stroke: COLORS.green,
+              stroke: '#4ac666',
             },
           },
         },

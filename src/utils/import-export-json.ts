@@ -1,4 +1,6 @@
-import { isObject } from './typeis'
+function isObject(mybeObj: any) {
+  return Object.prototype.toString.call(mybeObj) === '[object Object]'
+}
 
 export function exportJSON(json: string | object, name = 'json-viewer.json') {
   const jsonStr = isObject(json)

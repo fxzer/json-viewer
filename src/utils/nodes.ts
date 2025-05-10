@@ -1,5 +1,5 @@
 import type { BadgeStyleProps, LabelStyleProps } from '@antv/g6'
-import { NODE_COLORS } from '@/constants/theme-colors'
+import { COLORS_MAP } from '@/constants/colors'
 import { Text as GText } from '@antv/g'
 import {
   Badge,
@@ -21,9 +21,11 @@ class TreeNode extends Rect {
   get isDark() {
     return this.context.graph.getTheme() === 'dark'
   }
+
   get textColor() {
     return this.isDark ? '#fff' : '#000'
   }
+
   get backgroundColor() {
     return this.isDark ? '#000' : '#fff'
   }
@@ -54,9 +56,9 @@ class TreeNode extends Rect {
     if (count === 0)
       return false
     const { collapsed } = attributes
-    const mark = this.data.data.mark as 'object' | 'array'
+    const badge = this.data.data.badge as 'object' | 'array'
     const [width] = this.getSize(attributes)
-    const text = collapsed ? (mark === 'object' ? `{${count}}` : `[${count}]`) : '-'
+    const text = collapsed ? (badge === 'object' ? `{${count}}` : `[${count}]`) : '-'
 
     return {
       backgroundFill: this.backgroundColor,
@@ -68,7 +70,7 @@ class TreeNode extends Rect {
       backgroundStroke: this.textColor,
       backgroundStrokeOpacity: 0.2,
       cursor: 'pointer',
-      fill:NODE_COLORS[mark],
+      fill: COLORS_MAP[badge],
       fontSize: collapsed ? 10 : 18,
       text,
       textAlign: 'center',

@@ -1,6 +1,9 @@
-import { LANGUAGES } from '@/constants'
 import { useMobile } from '@/hooks'
 import { useI18n } from 'vue-i18n'
+const LANGUAGES = {
+  EN: 'en-US',
+  CN: 'zh-CN',
+}
 
 export const useGlobalStore = defineStore('global', () => {
   const i18n = useI18n()

@@ -11,8 +11,6 @@ export const LAYOUTS = {
     },
     getVGap: 40,
     getHGap: 120,
-    // getVGap: () => 16,
-    // getHGap: () => 72,
   },
   'compact-box': {
     type: 'compact-box',
@@ -27,8 +25,6 @@ export const LAYOUTS = {
 
     getVGap: 40,
     getHGap: 120,
-    // getVGap: () => 16,
-    // getHGap: () => 40,
   },
   'indented': {
     type: 'indented',

@@ -1,12 +1,11 @@
 import type { App } from 'vue'
-import { LANGUAGES } from '@/constants'
 
 import en from '@/locales/en-US'
 
 import zh from '@/locales/zh-CN'
 import { createI18n } from 'vue-i18n'
 
-const locale = JSON.parse(localStorage.getItem('global'))?.language || LANGUAGES.CN
+const locale = JSON.parse(localStorage.getItem('global'))?.language ||  'zh-CN'
 const i18n = createI18n({
   allowComposition: true,
   legacy: false,
