@@ -1,18 +1,22 @@
 import { LAYOUTS } from '@/constants'
 import { jsonToTree, saveImage } from '@/utils'
-import {Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
-import { useCodeStore } from './code'
+import { Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
+import { compressToEncodedURIComponent as encode } from 'lz-string'
+import { queryKey, useCodeStore } from './code'
 import { useGlobalStore } from './global'
 
+const baseUrl = import.meta.env.VITE_BASE_URL as string
+const url = new URL(baseUrl, window.location.origin)
 export const useGraphStore = defineStore('graph', () => {
   // 调试设置
   const debug = ref(false)
   const logDebug = (...args) => debug.value && console.warn('[JsonCanvas]', ...args)
-  const { json } = toRefs(useCodeStore())
+  const { json, originCode } = toRefs(useCodeStore())
   const { isDark } = toRefs(useGlobalStore())
   const [isExpandNode, toggleNode] = useToggle(true)
-
-  const { keyword, focusCount, fields } = storeToRefs(useGlobalStore())
+  const focusCount = ref(0)
+  const keyword = ref('')
+  const fields = ref(['result'])
   const jsonCanvasRef = ref<HTMLElement | null>(null)
   const { width, height } = useElementSize(jsonCanvasRef)
   const ratio = ref(1)
@@ -20,6 +24,26 @@ export const useGraphStore = defineStore('graph', () => {
     return `${(ratio.value * 100).toFixed(2)}%`
   })
 
+  const autoRender = ref(true)
+  // 添加一个标志变量，用于标记是否是首次加载
+  const isFirstLoad = ref(true)
+
+  watch([json, fields], () => {
+    autoRender.value && render()
+    if (Object.keys(json.value).length === 0) {
+      url.searchParams.delete(queryKey)
+      window.history.replaceState('', '', `${url.pathname}`)
+    }
+    else if (!isFirstLoad.value) {
+      // 只有在非首次加载时才更新 URL
+      url.searchParams.set(queryKey, encode(originCode.value))
+      window.history.replaceState('', '', `${url.pathname}${url.search}`)
+    }
+    // 首次加载后将标志设为 false
+    isFirstLoad.value = false
+  }, { deep: true })
+
+  const toggleExecuteMode = useToggle(autoRender)
   const activeLayout = ref('mindmap')
   const layoutList = reactive(LAYOUTS)
   const activeConfig = computed(() => {
@@ -57,6 +81,12 @@ export const useGraphStore = defineStore('graph', () => {
   function initGraph(container: HTMLElement) {
     if (graph)
       return graph
+
+    // 检查容器是否有效
+    if (!container || !container.offsetParent) {
+      console.error('容器元素无效或未挂载到DOM')
+      return null
+    }
 
     try {
       const layout = layoutFormat(activeConfig.value)
@@ -114,6 +144,12 @@ export const useGraphStore = defineStore('graph', () => {
 
     if (!json.value) {
       logDebug('没有数据，跳过绘制')
+      return
+    }
+
+    // 确保 jsonCanvasRef 存在且已挂载到 DOM
+    if (!jsonCanvasRef.value || !jsonCanvasRef.value.offsetParent) {
+      logDebug('容器元素未准备好，跳过绘制')
       return
     }
 
@@ -255,6 +291,7 @@ export const useGraphStore = defineStore('graph', () => {
       console.warn('节点聚焦失败:', error)
     }
   }
+
   watch(isDark, () => {
     if (graph) {
       graph.setTheme(isDark.value ? 'dark' : 'light')
@@ -286,5 +323,5 @@ export const useGraphStore = defineStore('graph', () => {
     graph?.destroy()
   }
 
-  return { ratio, ratioText, initGraph, destroyGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail, activeLayout, activeConfig }
+  return { ratio, ratioText, initGraph, destroyGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail, activeLayout, activeConfig, keyword, fields, focusCount, autoRender, toggleExecuteMode }
 }, { persist: true })

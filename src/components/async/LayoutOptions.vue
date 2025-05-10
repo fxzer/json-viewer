@@ -25,7 +25,7 @@ const typeList = [
 </script>
 
 <template>
-  <div class="grid grid-cols-4 mb-5 gap-5 -mt-4">
+  <div class="grid grid-cols-4 mb-5 gap-5">
     <div
       v-for="(ltype, index) in typeList" :key="index" class="cursor-pointer transition-all duration-200 ease-in-out hover:-translate-y-1"
       :class="{ selected: ltype.type === activeLayout }" @click="activeLayout = ltype.type"

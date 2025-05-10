@@ -2,35 +2,20 @@
 import { useCodeStore, useGlobalStore, useGraphStore } from '@/store'
 import { exportJSON, importJSON } from '@/utils'
 
-const FieldsCustom = defineAsyncComponent(() => import('@/components/async/FieldsCustom.vue'))
+const ConfigDrawer = defineAsyncComponent(() => import('@/components/async/ConfigDrawer.vue'))
 
-const LayoutCustom = defineAsyncComponent(() => import('@/components/async/LayoutCustom.vue'))
-
-// 自定义需要额外解析的字段
-const fieldsVisible = ref(false)
-function openFieldsDialog() {
-  fieldsVisible.value = true
-}
 const drawerVisible = ref(false)
-function openLayoutConfig() {
+function openConfig() {
   drawerVisible.value = !drawerVisible.value
 }
 const { originCode, json, jsonValid } = toRefs(useCodeStore())
-const { autoRender } = toRefs(
-  useGlobalStore(),
-)
-const { render } = useGraphStore()
-const { toggleExecuteMode } = useGlobalStore()
+const { autoRender } = toRefs(useGraphStore())
+const { render, toggleExecuteMode } = useGraphStore()
 const editorIconList = [
   {
-    icon: 'icon-node-layout',
-    content: 'layoutConfig',
-    onClick: openLayoutConfig,
-  },
-  {
-    icon: 'icon-zidingyi',
-    content: 'parseField',
-    onClick: openFieldsDialog,
+    icon: 'icon-config',
+    content: 'config',
+    onClick: openConfig,
   },
   {
     icon: 'icon-import-json',
@@ -90,8 +75,7 @@ const editorIconList = [
       </Transition>
     </el-tooltip>
   </div>
-  <FieldsCustom v-if="fieldsVisible" v-model="fieldsVisible" />
-  <LayoutCustom v-if="drawerVisible" v-model="drawerVisible" />
+  <ConfigDrawer v-if="drawerVisible" v-model="drawerVisible" />
 </template>
 
 <style scoped lang='scss'>

@@ -4,18 +4,11 @@ import { useCodeStore, useGlobalStore } from '@/store'
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
-const { originCode, formatCode } = toRefs(useCodeStore())
 const { paneSize } = storeToRefs(
   useGlobalStore(),
 )
 
-function onUpdateCode(codeStr: string) {
-  originCode.value = codeStr
-}
-const debounceUpdate = useDebounceFn(onUpdateCode, 500)
-
 const isMobile = useMobile()
-
 </script>
 
 <template>
@@ -27,11 +20,7 @@ const isMobile = useMobile()
     >
       <Pane max-size="50" :size="paneSize[0]">
         <EditorToolBar />
-        <VueCodeMirror
-          :value="formatCode"
-          :style="{ height: 'calc(100% - 40px);' }"
-          @update-code="debounceUpdate"
-        />
+        <VueCodeMirror/>
       </Pane>
       <Pane :size="paneSize[1]">
         <div h-full>

@@ -1,10 +1,7 @@
 <script lang="ts" setup>
-import { useDialogWidth } from '@/hooks'
-import { useGlobalStore } from '@/store'
+import { useGraphStore } from '@/store'
 
-const width = useDialogWidth()
-const visible = defineModel<boolean>()
-const { fields } = toRefs(useGlobalStore())
+const { fields } = toRefs(useGraphStore())
 function handleType(index: number) {
   return ['success', 'info', 'warning'][index % 3] as any
 }
@@ -19,17 +16,16 @@ function addField() {
     fields.value.push(inputValue.value)
   inputValue.value = ''
 }
-// 是否本地保存
 </script>
 
 <template>
-  <el-dialog v-model="visible" :title="$t('assignField')" :width="width">
+  <div class="fields-custom">
     <div class="flex gap-3">
       <el-input
-        ref="inputRef" v-model.trim="inputValue" class="flex-1" :placeholder="$t('fieldPlaceholder')" size="small"
+        ref="inputRef" v-model.trim="inputValue" class="flex-1" :placeholder="$t('fieldPlaceholder')"
         @keyup.enter="addField"
       />
-      <el-button size="small" @click="addField">
+      <el-button @click="addField">
         +
       </el-button>
     </div>
@@ -41,9 +37,9 @@ function addField() {
         {{ field }}
       </el-tag>
     </div>
-    <p class="rounded bg-gray/10 p3 text-xs text-gray">
-      <span class="text-amber">{{ $t('infoName') }}</span>
+    <p class="rounded bg-gray/10 p3 text-gray">
+      <span class="text-amber font-bold">{{ $t('infoName') }}</span>
       {{ $t('info') }}
     </p>
-  </el-dialog>
+  </div>
 </template>

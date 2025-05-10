@@ -18,6 +18,7 @@ export default {
   'export': '导出',
   'clear': '清空JSON',
   'parseField': '解析字段',
+  'config': '配置',
   'layoutConfig': '布局配置',
   'inputPlaceholder': '请输入内容',
   'editorPlaceholder': '请输入JSON',
@@ -46,6 +47,6 @@ export default {
   'assignField': '指定额外解析字段',
   'fieldPlaceholder': '请输入字段名,可按回车确认',
   'infoName': '额外解析字段：',
-  'info': '指定后，遇到此字段会将对应的值时，会将其解析为JSON并继续递归处理，并转化为子树。',
+  'info': '处理指定字段是，若可将其值解析为JSON，则继续递归处理，并转化为子树，否则不处理。',
 
 }

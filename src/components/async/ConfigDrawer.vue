@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useDialogWidth } from '@/hooks'
 import { useGraphStore } from '@/store'
+import FieldsCustom from './FieldsCustom.vue'
 import LayoutOptions from './LayoutOptions.vue'
 
 const visible = defineModel<boolean>()
@@ -13,7 +14,7 @@ const { activeLayout, activeConfig } = toRefs(useGraphStore())
 <template>
   <el-drawer
     v-model="visible"
-    :title="$t('layoutConfig')"
+    :title="$t('config')"
     :with-header="true"
     :modal="false"
     append-to-body
@@ -22,6 +23,9 @@ const { activeLayout, activeConfig } = toRefs(useGraphStore())
     :size="width"
     close-on-press-escape
   >
+    <el-divider>
+      {{ $t('layoutConfig') }}
+    </el-divider>
     <LayoutOptions v-model="activeLayout" />
     <div class="layout-custom">
       <el-form label-width="72" :inline="false">
@@ -113,11 +117,23 @@ const { activeLayout, activeConfig } = toRefs(useGraphStore())
         </div>
       </el-form>
     </div>
+
+    <el-divider>
+      {{ $t('parseField') }}
+    </el-divider>
+    <FieldsCustom />
   </el-drawer>
 </template>
 
+<style>
+.el-drawer__header {
+  margin-bottom: 0px !important;
+}
+</style>
+
 <style scoped lang="scss">
 .layout-custom {
+  margin-bottom: 40px;
   .el-form-item {
     margin-bottom: 12px;
   }

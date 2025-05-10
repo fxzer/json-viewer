@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useGlobalStore } from '@/store'
+import { useGraphStore } from '@/store'
 
-const { keyword, focusCount } = toRefs(useGlobalStore())
+const { keyword, focusCount } = toRefs(useGraphStore())
 </script>
 
 <template>
