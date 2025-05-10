@@ -195,7 +195,7 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
   }
 
   if (!data || Object.keys(data).length === 0) {
-    return rootNode
+    return {} as NodeItem
   }
 
   // 分类属性
