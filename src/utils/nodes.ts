@@ -1,5 +1,5 @@
 import type { BadgeStyleProps, LabelStyleProps } from '@antv/g6'
-import { COLORS } from '@/constants/theme-colors'
+import { NODE_COLORS } from '@/constants/theme-colors'
 import { Text as GText } from '@antv/g'
 import {
   Badge,
@@ -8,9 +8,6 @@ import {
   Rect,
   register,
 } from '@antv/g6'
-
-const GREY_COLOR = '#00000020'
-const FONT_FAMILY = 'monospace'
 
 class TreeNode extends Rect {
   get data() {
@@ -21,7 +18,17 @@ class TreeNode extends Rect {
     return this.context.model.getChildrenData(this.id)
   }
 
-  getContentStyle(attributes): false | LabelStyleProps {
+  get isDark() {
+    return this.context.graph.getTheme() === 'dark'
+  }
+  get textColor() {
+    return this.isDark ? '#fff' : '#000'
+  }
+  get backgroundColor() {
+    return this.isDark ? '#000' : '#fff'
+  }
+
+  getContentStyle(attributes): false | LabelStyleProps | any {
     const [width] = this.getSize(attributes)
     const content = this.data.content
     return {
@@ -29,9 +36,9 @@ class TreeNode extends Rect {
       y: 0,
       text: String(content),
       fontSize: 16,
-      fontFamily: FONT_FAMILY,
-      fill: '#000',
-      opacity: 0.85,
+      fill: this.textColor,
+      fontFamily: 'monospace',
+      opacity: 0.9,
       textAlign: 'left',
       textBaseline: 'middle',
     }
@@ -43,22 +50,27 @@ class TreeNode extends Rect {
   }
 
   getCollapseStyle(attributes): false | BadgeStyleProps {
-    if (this.childrenData.length === 0)
+    const count = this.childrenData.length
+    if (count === 0)
       return false
     const { collapsed } = attributes
+    const mark = this.data.data.mark as 'object' | 'array'
     const [width] = this.getSize(attributes)
+    const text = collapsed ? (mark === 'object' ? `{${count}}` : `[${count}]`) : '-'
+
     return {
-      backgroundFill: '#000',
+      backgroundFill: this.backgroundColor,
       backgroundWidth: 16,
       backgroundHeight: 16,
-      backgroundLineWidth: 1,
-      backgroundRadius: 4,
-      backgroundStroke: GREY_COLOR,
+      backgroundLineWidth: 0.5,
+      backgroundFillOpacity: 0.5,
+      backgroundRadius: 3,
+      backgroundStroke: this.textColor,
+      backgroundStrokeOpacity: 0.2,
       cursor: 'pointer',
-      fill: GREY_COLOR,
-      fontSize: 16,
-      text: collapsed ? '+' : '-',
-      fontFamily: FONT_FAMILY,
+      fill:NODE_COLORS[mark],
+      fontSize: collapsed ? 10 : 18,
+      text,
       textAlign: 'center',
       textBaseline: 'middle',
       x: width / 2,
@@ -72,7 +84,9 @@ class TreeNode extends Rect {
 
     if (btn && !Reflect.has(btn, '__bind__')) {
       Reflect.set(btn, '__bind__', true)
-      btn.addEventListener(CommonEvent.CLICK, () => {
+      btn.addEventListener(CommonEvent.CLICK, (e) => {
+        e.stopPropagation()
+
         const { collapsed } = this.attributes
         const graph = this.context.graph
         if (collapsed)
@@ -82,23 +96,18 @@ class TreeNode extends Rect {
     }
   }
 
+  // 节点
   getKeyStyle(attributes) {
     const keyStyle = super.getKeyStyle(attributes)
-    // const keys = Object.keys(COLORS)
-    // const randomIndex = Math.floor(Math.random() * keys.length)
-    // const stroke = COLORS[keys[randomIndex]]
     return {
       ...keyStyle,
-      fill: '#fff',
-      lineWidth: 1,
-      // stroke,
     }
   }
 
   render(attributes = this.parsedAttributes, container) {
     super.render(attributes, container)
     this.drawContentShape(attributes, container)
-    // this.drawCollapseShape(attributes, container)
+    this.drawCollapseShape(attributes, container)
   }
 }
 

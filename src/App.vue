@@ -15,6 +15,7 @@ function onUpdateCode(codeStr: string) {
 const debounceUpdate = useDebounceFn(onUpdateCode, 500)
 
 const isMobile = useMobile()
+
 </script>
 
 <template>

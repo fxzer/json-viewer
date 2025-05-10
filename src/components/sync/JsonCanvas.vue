@@ -5,12 +5,16 @@ const NodeDialog = defineAsyncComponent(() => import('@/components/async/NodeDia
 const { jsonCanvasRef, nodeDetailVisible, nodeDetail } = storeToRefs(useGraphStore())
 const { json } = toRefs(useCodeStore())
 const { isDark, autoRender, fields } = toRefs(useGlobalStore())
-const { render } = useGraphStore()
+const { render, destroyGraph } = useGraphStore()
 watch([json, fields], () => autoRender.value && render(), { deep: true })
-watch(isDark, () => autoRender.value && render())
+watch(isDark, () => render())
 
 // 生命周期钩子
 onMounted(() => render())
+
+onUnmounted(() => {
+  destroyGraph()
+})
 </script>
 
 <template>

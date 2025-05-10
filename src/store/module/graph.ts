@@ -1,5 +1,7 @@
+import { COLORS } from '@/constants/theme-colors'
 import { jsonToTree, saveImage } from '@/utils'
 import { CanvasEvent, EdgeEvent, Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
+import chroma from 'chroma-js'
 import { useCodeStore } from './code'
 import { useGlobalStore } from './global'
 
@@ -8,10 +10,10 @@ export const useGraphStore = defineStore('graph', () => {
   const debug = ref(false)
   const logDebug = (...args) => debug.value && console.warn('[JsonCanvas]', ...args)
   const { json } = toRefs(useCodeStore())
-  const { setFoundCount } = useGlobalStore()
+  const { isDark } = toRefs(useGlobalStore())
   const [isExpandNode, toggleNode] = useToggle(true)
 
-  const { keyword, focusCount } = storeToRefs(useGlobalStore())
+  const { keyword, focusCount, fields } = storeToRefs(useGlobalStore())
   const jsonCanvasRef = ref<HTMLElement | null>(null)
   const { width, height } = useElementSize(jsonCanvasRef)
   const ratio = ref(1)
@@ -19,15 +21,8 @@ export const useGraphStore = defineStore('graph', () => {
     return `${(ratio.value * 100).toFixed(2)}%`
   })
 
-  // 避免内存泄漏的计时器引用
-  let focusTimer = null
   // 监听搜索关键词变化
-  watch(() => keyword.value, (newKeyword) => {
-    if (newKeyword) {
-      clearTimeout(focusTimer)
-      focusTimer = setTimeout(() => focusNode(newKeyword), 300)
-    }
-  })
+  watchDebounced(() => keyword.value, newKeyword => focusNode(newKeyword), { debounce: 300 })
 
   // 节点点击
   const nodeDetailVisible = ref(false)
@@ -42,6 +37,7 @@ export const useGraphStore = defineStore('graph', () => {
       graph = new Graph({
         container,
         autoFit: 'view',
+        theme: isDark.value ? 'dark' : 'light',
         padding: [30, 30, 30, 30],
         zoomRange: [0.1, 3],
         animation: false,
@@ -66,16 +62,30 @@ export const useGraphStore = defineStore('graph', () => {
         node: {
           type: 'flow-rect',
           style: {
+            cursor: 'pointer',
             size: (d) => {
               const { data } = d
               return [data.width, data.height] as [number, number]
             },
             ports: [{ placement: 'left' }, { placement: 'right' }],
             radius: 4,
+            fillOpacity: 0.1,
+            lineWidth: 1,
+          },
+          // 状态样式
+          state: {
+            focused: {
+              haloStroke: COLORS.green,
+              halo: true,
+              stroke: COLORS.green,
+            },
           },
         },
         edge: {
           type: 'cubic-horizontal',
+          style: {
+            strokeOpacity: 0.5,
+          },
         },
         behaviors: ['zoom-canvas', 'drag-canvas'],
       })
@@ -111,16 +121,15 @@ export const useGraphStore = defineStore('graph', () => {
 
       // 数据处理与渲染
       graph.clear()
-      const tree = jsonToTree(json.value)
+      const tree = jsonToTree(json.value, fields.value)
       const treeData = treeToGraphData(tree)
       graph.setData(treeData)
       graph.render()
       bindEvents()
       // 处理搜索关键词
-      // if (keyword.value) {
-      //   clearTimeout(focusTimer)
-      //   focusTimer = setTimeout(() => focusNode(keyword.value), 300)
-      // }
+      if (keyword.value) {
+        focusNode(keyword.value)
+      }
     }
     catch (error) {
       console.error('渲染图失败:', error)
@@ -131,9 +140,11 @@ export const useGraphStore = defineStore('graph', () => {
       return
 
     graph.zoomBy(value)
-    ratio.value = graph.getZoom()
+    updateRatio()
   }
-
+  function updateRatio() {
+    ratio.value = graph?.getZoom() || 1
+  }
   function fitView() {
     graph.fitView(
       {
@@ -144,19 +155,16 @@ export const useGraphStore = defineStore('graph', () => {
         duration: 1000, // 带动画效果
       },
     )
-    ratio.value = graph.getZoom()
+    updateRatio()
   }
 
   function bindEvents() {
     // 监听画布缩放事件
-    // graph.on(GraphEvent.AFTER_TRANSFORM, () => {
-    //   if (graph && typeof graph.getZoom === 'function') {
-    //     ratio.value = graph.getZoom()
-    //     logDebug('画布缩放比例更新为:', ratio.value)
-    //   }
-    // })
+    graph.on(GraphEvent.AFTER_TRANSFORM, () => {
+      updateRatio()
+    })
     /* 节点点击 */
-    graph.on(NodeEvent.CLICK, (e) => {
+    graph.on(NodeEvent.CLICK, (e: any) => {
       const { targetType, target } = e
       if (targetType === 'node') {
         nodeDetail.value = graph.getNodeData(target.id)
@@ -167,61 +175,86 @@ export const useGraphStore = defineStore('graph', () => {
 
   /**
    * 搜索并聚焦包含关键词的节点
+   * @param newKeyword 搜索关键词
    */
   function focusNode(newKeyword?: string): void {
-    if (!graph || !newKeyword)
+    if (!graph)
       return
 
-    try {
-      const nodes = graph.getNodeData()
-      if (!nodes || nodes.length === 0) {
-        setFoundCount(0)
+    function toggleNodesState(nodes: any[], state: Array<string> = []) {
+      if (!nodes.length)
         return
-      }
+
+      const stateMap = nodes.reduce((acc, node) => {
+        acc[node.id] = state
+        return acc
+      }, {})
+      graph.setElementState(stateMap, true)
+    }
+    // 清除已有的聚焦状态
+    const clearFocusedNodes = () => {
+      const focusedNodes = graph.getElementDataByState('node', 'focused')
+      toggleNodesState(focusedNodes, [])
+    }
+
+    // 清除已存在的聚焦状态
+    clearFocusedNodes()
+
+    // 没有关键词时直接重置计数并返回
+    if (!newKeyword) {
+      focusCount.value = 0
+      fitView()
+      return
+    }
+
+    try {
+      const lowerKeyword = newKeyword.toLowerCase()
+      const nodes = graph.getNodeData()
 
       // 查找包含关键字的节点
       const foundNodes = nodes.filter((node) => {
         if (!node || !node.data)
           return false
-        const nodeText = String(node.data.label || JSON.stringify(node.data)).toLowerCase()
-        return nodeText.includes(newKeyword.toLowerCase())
+        return String(node.content).toLowerCase().includes(lowerKeyword)
       })
 
-      setFoundCount(foundNodes.length)
+      // 更新匹配计数
+      focusCount.value = foundNodes.length
 
-      if (foundNodes.length > 0) {
-        const currentFocusIndex = focusCount.value % foundNodes.length
-        const focusedNodeId = foundNodes[currentFocusIndex]?.id
+      const foundCount = foundNodes.length
 
-        if (focusedNodeId) {
+      if (foundCount > 0) {
+        toggleNodesState(foundNodes, ['focused'])
+
         // 聚焦到节点
-          graph.focusElement(focusedNodeId, {
+        if (foundCount === 1) {
+          // 单个节点时，直接聚焦到该节点
+          graph.focusElement(foundNodes[0].id, {
             duration: 300,
             easing: 'ease',
           })
-
-          // 尝试设置节点状态
-          try {
-            graph.setElementState(focusedNodeId, 'selected', true)
-          }
-          catch {
-            console.warn('设置节点状态失败，尝试备用方法')
-            try {
-              graph.setElementState(focusedNodeId, ['selected'])
-            }
-            catch {
-            // 忽略备用方法失败
-            }
-          }
         }
+        else {
+          fitView()
+        }
+      }
+      else {
+        fitView()
       }
     }
     catch (error) {
-      console.error('搜索节点出错:', error)
+      console.warn('节点聚焦失败:', error)
     }
   }
+  watch(isDark, () => {
+    if (graph) {
+      graph.setTheme(isDark.value ? 'dark' : 'light')
+      const currentTheme = graph.getTheme()
+      console.log('[ currentTheme ]-252', currentTheme)
+    }
+  })
 
-  // TODO: 收起/展开节点(综合节点深度、子节点数量、节点内容复杂度)
+  //  收起/展开节点
   watch(isExpandNode, (val) => {
     if (graph) {
     // 收起并保证展开/收起的节点位置不变
@@ -242,38 +275,9 @@ export const useGraphStore = defineStore('graph', () => {
   function exportImage(name: string, type: string) {
     saveImage(graph, name, type)
   }
+  function destroyGraph() {
+    graph?.destroy()
+  }
 
-  // 监听展开/收起状态
-  /* watch(() => props.isExpand, (newVal) => {
-    if (!graph)
-      return
-
-    try {
-    // 触发布局更新
-      graph.layout?.()
-
-      // 视图调整
-      setTimeout(() => {
-        if (!graph)
-          return
-
-        if (newVal) {
-        // 展开时自适应视图
-          graph.autoFit?.('view')
-        }
-        else {
-        // 收起时居中
-          const [currentWidth, currentHeight] = graph.getSize?.() || [width.value, height.value]
-          graph.translateTo?.([currentWidth / 2, currentHeight / 2], {
-            duration: 300,
-            easing: 'ease',
-          })
-        }
-      }, 300)
-    }
-    catch (error) {
-      console.error('展开/收起节点失败:', error)
-    }
-  }) */
-  return { ratio, ratioText, initGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail }
+  return { ratio, ratioText, initGraph, destroyGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail }
 }, { persist: true })

@@ -1,4 +1,4 @@
-import { COLORS } from '@/constants/theme-colors'
+import { COLORS, NODE_COLORS } from '@/constants/theme-colors'
 import { getWidth } from './get-width'
 import { cacheIdList, randomId } from './random-id'
 
@@ -14,12 +14,12 @@ interface NodeItem {
   data: {
     width?: number
     height?: number
+    mark?: 'object' | 'array'
   }
 }
 
 const LINE_HEIGHT = 20
 const PADDING = 10
-
 function nodeWidth(content: string) {
   return getWidth(content) + PADDING * 2
 }
@@ -32,25 +32,21 @@ function formatValue(value: any): string {
   return String(value)
 }
 
-const NODE_COLORS = {
-  array: COLORS.blue,
-  string: COLORS.lime,
-  boolean: COLORS.rose,
-  object: COLORS.orange,
-  other: COLORS.purple,
-}
 // 创建基本节点结构
 function createBaseNode(content: string, type: string = 'object', width?: number, height: number = 40): NodeItem {
+  const color = NODE_COLORS[type]
   return {
     id: randomId(),
     content,
     style: {
       collapsed: false,
-      stroke: NODE_COLORS[type],
+      stroke: color,
+      fill: color,
     },
     data: {
       width: width || nodeWidth(content),
       height,
+      mark: type as 'object' | 'array',
     },
   }
 }
@@ -76,11 +72,27 @@ function categorizeProperties(obj: Record<string, any>): {
 }
 
 // 创建包含基本属性的节点
-function createBasicPropsNode(basicProps: [string, any][]): NodeItem {
+function createBasicPropsNode(basicProps: [string, any][], formatFields: string[]): { basicNode: NodeItem, parsedNodes: NodeItem[] } {
   let maxWidth = 0
   const contentLines = []
+  const parsedNodes: NodeItem[] = []
 
   for (const [k, v] of basicProps) {
+    // 处理JSON字符串
+    if (typeof v === 'string' && formatFields.includes(k)) {
+      try {
+        const parsedValue = JSON.parse(v)
+        if (typeof parsedValue === 'object' && parsedValue !== null) {
+          const parsedNode = createNode(k, parsedValue, formatFields)
+          parsedNodes.push(parsedNode)
+          continue // 跳过添加到contentLines
+        }
+      }
+      catch {
+        console.warn('解析失败，作为普通字符串处理', v)
+      }
+    }
+
     const line = `${k}: ${formatValue(v)}`
     contentLines.push(line)
     const lineWidth = getWidth(line)
@@ -89,9 +101,11 @@ function createBasicPropsNode(basicProps: [string, any][]): NodeItem {
 
   const basicContent = contentLines.join('\n')
   const width = maxWidth + PADDING * 2
-  const height = basicProps.length * LINE_HEIGHT + PADDING * 2
+  const height = contentLines.length * LINE_HEIGHT + PADDING * 2
 
-  return createBaseNode(basicContent, 'other', width, height)
+  const basicNode = createBaseNode(basicContent, 'other', width, height)
+
+  return { basicNode, parsedNodes }
 }
 
 // 处理值并创建节点
@@ -123,7 +137,16 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
 
     // 如果有基础类型属性，创建一个基础属性节点
     if (basicProps.length > 0) {
-      node.children.push(createBasicPropsNode(basicProps))
+      const { basicNode, parsedNodes } = createBasicPropsNode(basicProps, formatFields)
+
+      if (basicNode.content && basicNode.content.trim() !== '') {
+        node.children.push(basicNode)
+      }
+
+      // 添加解析出的JSON节点
+      if (parsedNodes.length > 0) {
+        node.children.push(...parsedNodes)
+      }
     }
 
     // 添加复杂类型节点
@@ -144,7 +167,7 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
       }
     }
     catch {
-      // 解析失败，作为普通字符串处理
+      console.warn('解析失败，作为普通字符串处理', value)
     }
   }
 
@@ -164,10 +187,12 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
     style: {
       collapsed: false,
       stroke: COLORS.orange,
+      fill: COLORS.orange,
     },
     data: {
       width: 64,
       height: 64,
+      mark: 'object',
     },
   }
 
@@ -183,7 +208,16 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
 
   // 如果有基础类型属性，创建一个基础属性节点
   if (basicProps.length > 0) {
-    rootNode.children.push(createBasicPropsNode(basicProps))
+    const { basicNode, parsedNodes } = createBasicPropsNode(basicProps, formatFields)
+
+    if (basicNode.content && basicNode.content.trim() !== '') {
+      rootNode.children.push(basicNode)
+    }
+
+    // 添加解析出的JSON节点
+    if (parsedNodes.length > 0) {
+      rootNode.children.push(...parsedNodes)
+    }
   }
 
   // 添加复杂类型节点

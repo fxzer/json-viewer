@@ -15,10 +15,6 @@ export const useGlobalStore = defineStore('global', () => {
     language.value = i18n.locale.value = language.value === LANGUAGES.CN ? LANGUAGES.EN : LANGUAGES.CN
   }
 
-  function setFoundCount(count: number) {
-    foundCount.value = count
-    focusCount.value = 0
-  }
 
   function updateFocusIndex() {
     if (foundCount.value > 0) {
@@ -49,7 +45,6 @@ export const useGlobalStore = defineStore('global', () => {
     toggleEditor,
     paneSize,
     toggleLanguage,
-    setFoundCount,
     updateFocusIndex,
   }
 }, { persist: true })

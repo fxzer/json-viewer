@@ -3,7 +3,7 @@ export const COLORS = {
   amber: '#fbbf24',
   yellow: '#facc15',
   lime: '#a3e635',
-  green: '#00DC82',
+  green: '#4ac666',
   teal: '#2dd4bf',
   cyan: '#22d3ee',
   sky: '#38bdf8',
@@ -14,4 +14,12 @@ export const COLORS = {
   fuchsia: '#e879f9',
   pink: '#f472b6',
   rose: '#fb7185',
+}
+
+export const NODE_COLORS = {
+  array: COLORS.indigo,
+  string: COLORS.lime,
+  boolean: COLORS.rose,
+  object: COLORS.orange,
+  other: COLORS.purple,
 }
