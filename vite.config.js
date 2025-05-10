@@ -8,6 +8,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig, loadEnv } from 'vite'
+import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 // import cdn from 'vite-plugin-cdn-import'
 import { setupPrintBuildInfo } from './build/print-build-info'
@@ -21,6 +22,7 @@ export default defineConfig(({ _, mode }) => {
     plugins: [
       vue(),
       setupPrintBuildInfo(),
+      vueDevTools(),
       UnoCSS(),
       // visualizer(),//打包分析
       lifecycle === 'report'

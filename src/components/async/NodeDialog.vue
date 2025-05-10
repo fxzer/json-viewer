@@ -11,9 +11,9 @@ const visible = defineModel<boolean>()
 const code = computed(() => {
   const { id, content } = props.nodeDetail
   if (id === 'ROOT')
-    return JSON.stringify('{}', null, 2)
+    return '{}'
 
-  return JSON.stringify(content, null, 2)
+  return content
 })
 const width = useDialogWidth(640)
 </script>

@@ -28,7 +28,7 @@ export default {
   nodeDetail: 'Node Detail',
 
   indented: 'Indented',
-  compactBox: 'CompactBox',
+  'compact-box': 'CompactBox',
   mindmap: 'MindMap',
   dendrogram: 'Dendrogram',
 
@@ -39,8 +39,8 @@ export default {
   levelSpacing: 'LevelGap',
   nodeSpacing: 'NodeGap',
 
-  hgap: 'HGap',
-  vgap: 'VGap',
+  getHGap: 'HGap',
+  getVGap: 'VGap',
 
   assignField: 'Assign Field',
   fieldPlaceholder: 'Please enter the field name and press Enter to confirm',

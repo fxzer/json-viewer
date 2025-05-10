@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-const activeLayout = defineModel() as unknown as TypeOptionType
-const typeList: Array<TypeOption> = [
-  {
-    type: 'indented',
-    image:
-      'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*kbzRRZk2t2cAAAAAAAAAAABkARQnAQ',
-  },
+const activeLayout = defineModel()
+const typeList = [
   {
     type: 'mindmap',
     image:
       'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*wRZjTL3fCbEAAAAAAAAAAABkARQnAQ',
   },
   {
-    type: 'compactBox',
+    type: 'compact-box',
     image:
       'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*XlXOR5pmM3oAAAAAAAAAAABkARQnAQ',
+  },
+  {
+    type: 'indented',
+    image:
+      'https://gw.alipayobjects.com/mdn/rms_f8c6a0/afts/img/A*kbzRRZk2t2cAAAAAAAAAAABkARQnAQ',
   },
   {
     type: 'dendrogram',

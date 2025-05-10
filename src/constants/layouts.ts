@@ -1,46 +1,55 @@
 export const LAYOUTS = {
-  indented: {
-    type: 'indented',
-    direction: 'LR',
-    directions: ['LR', 'RL', 'TB', 'BT'],
-    indent: 240,
-    dropCap: false,
-    preLayout: true,
-  },
-  dendrogram: {
-    type: 'dendrogram',
-    direction: 'LR',
-    directions: ['LR', 'RL', 'TB', 'BT'],
-    rankSep: 240,
-    nodeSep: 240,
-    preLayout: true,
-  },
-  mindmap: {
+  'mindmap': {
     type: 'mindmap',
     direction: 'LR',
-    directions: ['LR', 'RL', 'H'],
-    hgap: 100,
-    vgap: 100,
-    getHGap: () => {
-      return 150
+    directions: ['H', 'LR', 'RL', 'TB', 'BT'],
+    getWidth: (d) => {
+      return d.data?.width
     },
-    getVGap: () => {
-      return 100
+    getHeight: (d) => {
+      return d.data?.height
     },
-    preLayout: true,
+    getVGap: 40,
+    getHGap: 120,
+    // getVGap: () => 16,
+    // getHGap: () => 72,
   },
-  compactBox: {
-    type: 'compactBox',
+  'compact-box': {
+    type: 'compact-box',
     direction: 'LR',
-    directions: ['LR', 'RL', 'TB', 'BT'],
-    hgap: 150,
-    vgap: 100,
-    getHGap: () => {
-      return 150
+    directions: ['LR', 'RL', 'H', 'V'],
+    getWidth: (d) => {
+      return d.data?.width
     },
-    getVGap: () => {
-      return 100
+    getHeight: (d) => {
+      return d.data?.height
     },
-    preLayout: true,
+
+    getVGap: 40,
+    getHGap: 120,
+    // getVGap: () => 16,
+    // getHGap: () => 40,
   },
+  'indented': {
+    type: 'indented',
+    direction: 'LR',
+    directions: ['LR', 'RL', 'H'],
+    indent: 240,
+    dropCap: false,
+    getWidth: (d) => {
+      return d.data?.width
+    },
+    getHeight: (d) => {
+      return d.data?.height
+    },
+  },
+  'dendrogram': {
+    type: 'dendrogram',
+    direction: 'LR',
+    directions: ['LR', 'RL', 'H'],
+    nodeSep: 100,
+    rankSep: 160,
+    radial: false,
+  },
+
 }

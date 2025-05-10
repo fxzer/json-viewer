@@ -1,5 +1,7 @@
+import { LAYOUTS } from '@/constants'
 import { COLORS } from '@/constants/theme-colors'
 import { jsonToTree, saveImage } from '@/utils'
+import { isFunction, isNumber } from '@/utils/typeis'
 import { CanvasEvent, EdgeEvent, Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
 import chroma from 'chroma-js'
 import { useCodeStore } from './code'
@@ -21,44 +23,54 @@ export const useGraphStore = defineStore('graph', () => {
     return `${(ratio.value * 100).toFixed(2)}%`
   })
 
+  const activeLayout = ref('mindmap')
+  const layoutList = reactive(LAYOUTS)
+  const activeConfig = computed(() => {
+    return layoutList[activeLayout.value]
+  })
   // 监听搜索关键词变化
   watchDebounced(() => keyword.value, newKeyword => focusNode(newKeyword), { debounce: 300 })
-
   // 节点点击
   const nodeDetailVisible = ref(false)
   const nodeDetail = ref({})
 
+  function layoutFormat(layoutConfig: any) {
+    const config = { ...layoutConfig }
+    if (['mindmap', 'compact-box'].includes(config.type)) {
+      const { getVGap, getHGap } = config
+      config.getVGap = () => getVGap
+      config.getHGap = () => getHGap
+    }
+    config.animation = false
+    return config
+  }
   let graph: Graph | null = null
+
+  watchDebounced(() => activeConfig.value, (_newLayout) => {
+    if (graph) {
+      const formattedLayout = layoutFormat(activeConfig.value)
+      graph.layout(formattedLayout)
+      // 重新布局后居中展示
+      graph.fitView({
+        when: 'always',
+        direction: 'both',
+      })
+    }
+  }, { debounce: 400, deep: true })
   function initGraph(container: HTMLElement) {
     if (graph)
       return graph
 
     try {
+      const layout = layoutFormat(activeConfig.value)
       graph = new Graph({
         container,
         autoFit: 'view',
         theme: isDark.value ? 'dark' : 'light',
         padding: [30, 30, 30, 30],
         zoomRange: [0.1, 3],
-        animation: false,
-        layout: {
-          type: 'mindmap',
-          direction: 'LR',
-          preLayout: false,
-          getHeight: (d) => {
-            // 根据内容行数动态调整高度
-            return d.data?.height
-          },
-          getWidth: (d) => {
-            return d.data.width
-          },
-          getVGap: (d) => {
-            return d.data?.height
-          },
-          getHGap: (d) => {
-            return d.data?.width * 2
-          },
-        },
+        animation: true,
+        layout,
         node: {
           type: 'flow-rect',
           style: {
@@ -249,8 +261,6 @@ export const useGraphStore = defineStore('graph', () => {
   watch(isDark, () => {
     if (graph) {
       graph.setTheme(isDark.value ? 'dark' : 'light')
-      const currentTheme = graph.getTheme()
-      console.log('[ currentTheme ]-252', currentTheme)
     }
   })
 
@@ -279,5 +289,5 @@ export const useGraphStore = defineStore('graph', () => {
     graph?.destroy()
   }
 
-  return { ratio, ratioText, initGraph, destroyGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail }
+  return { ratio, ratioText, initGraph, destroyGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail, activeLayout, activeConfig }
 }, { persist: true })
