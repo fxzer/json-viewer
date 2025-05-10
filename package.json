@@ -1,7 +1,7 @@
 {
   "name": "json-viewer",
   "type": "module",
-  "version": "2.2.9",
+  "version": "3.0.0",
   "private": true,
   "packageManager": "pnpm@10.10.0",
   "scripts": {
@@ -30,7 +30,7 @@
     "vite-plugin-pwa": "^1.0.0",
     "vue": "^3.5.13",
     "vue-codemirror": "^6.1.1",
-    "vue-i18n": "^12.0.0-alpha.1"
+    "vue-i18n": "^12.0.0-alpha.2"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.13.0",
