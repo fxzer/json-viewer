@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { useCodeStore, useGlobalStore, useGraphStore } from '@/store'
+import { useCodeStore, useGraphStore } from '@/store'
 import { exportJSON, importJSON } from '@/utils'
 
 const ConfigDrawer = defineAsyncComponent(() => import('@/components/async/ConfigDrawer.vue'))
@@ -8,7 +8,7 @@ const drawerVisible = ref(false)
 function openConfig() {
   drawerVisible.value = !drawerVisible.value
 }
-const { originCode, json, jsonValid } = toRefs(useCodeStore())
+const { rawCode, parsedJson, isJsonValid } = toRefs(useCodeStore())
 const { autoRender } = toRefs(useGraphStore())
 const { render, toggleExecuteMode } = useGraphStore()
 const editorIconList = [
@@ -22,20 +22,20 @@ const editorIconList = [
     content: 'import',
     onClick: () => {
       importJSON((json: any) => {
-        originCode.value = json
+        rawCode.value = json
       })
     },
   },
   {
     icon: 'icon-export-json',
     content: 'export',
-    onClick: () => exportJSON(json.value),
+    onClick: () => exportJSON(parsedJson.value),
   },
   {
     icon: 'icon-clear-json',
     content: 'clear',
     onClick: () => {
-      originCode.value = ''
+      rawCode.value = ''
     },
   },
 ]
@@ -55,7 +55,7 @@ const editorIconList = [
     <el-tooltip :content="$t(autoRender ? 'autoRender' : 'manualRender')">
       <span
         class="iconfont icon-auto"
-        :class="autoRender ? jsonValid ? '!text-green-500' : '!text-gray-300' : ''"
+        :class="autoRender ? isJsonValid ? '!text-green-500' : '!text-gray-300' : ''"
         @click="toggleExecuteMode()"
       />
     </el-tooltip>
@@ -65,11 +65,11 @@ const editorIconList = [
           v-show="!autoRender"
           class="iconfont icon-execute"
           :class="[
-            !autoRender && jsonValid ? '!text-green-500' : '',
-            jsonValid ? '' : '!text-gray-300',
+            !autoRender && isJsonValid ? '!text-green-500' : '',
+            isJsonValid ? '' : '!text-gray-300',
           ]"
           link
-          :disabled="!jsonValid"
+          :disabled="!isJsonValid"
           @click="render()"
         />
       </Transition>

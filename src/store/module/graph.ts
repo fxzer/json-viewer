@@ -1,5 +1,5 @@
 import { LAYOUTS } from '@/constants'
-import { jsonToTree, saveImage } from '@/utils'
+import { formatLayoutConfig, jsonToTree, saveImage } from '@/utils'
 import { Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
 import { compressToEncodedURIComponent as encode } from 'lz-string'
 import { queryKey, useCodeStore } from './code'
@@ -7,11 +7,9 @@ import { useGlobalStore } from './global'
 
 const baseUrl = import.meta.env.VITE_BASE_URL as string
 const url = new URL(baseUrl, window.location.origin)
+
 export const useGraphStore = defineStore('graph', () => {
-  // 调试设置
-  const debug = ref(false)
-  const logDebug = (...args) => debug.value && console.warn('[JsonCanvas]', ...args)
-  const { json, originCode } = toRefs(useCodeStore())
+  const { parsedJson, rawCode } = toRefs(useCodeStore())
   const { isDark } = toRefs(useGlobalStore())
   const [isExpandNode, toggleNode] = useToggle(true)
   const focusCount = ref(0)
@@ -20,76 +18,74 @@ export const useGraphStore = defineStore('graph', () => {
   const jsonCanvasRef = ref<HTMLElement | null>(null)
   const { width, height } = useElementSize(jsonCanvasRef)
   const ratio = ref(1)
-  const ratioText = computed(() => {
-    return `${(ratio.value * 100).toFixed(2)}%`
-  })
-
-  const autoRender = ref(true)
-  // 添加一个标志变量，用于标记是否是首次加载
+  const ratioText = computed(() => `${(ratio.value * 100).toFixed(2)}%`)
   const isFirstLoad = ref(true)
-
-  watch([json, fields], () => {
-    autoRender.value && render()
-    if (Object.keys(json.value).length === 0) {
-      url.searchParams.delete(queryKey)
-      window.history.replaceState('', '', `${url.pathname}`)
-    }
-    else if (!isFirstLoad.value) {
-      // 只有在非首次加载时才更新 URL
-      url.searchParams.set(queryKey, encode(originCode.value))
-      window.history.replaceState('', '', `${url.pathname}${url.search}`)
-    }
-    // 首次加载后将标志设为 false
-    isFirstLoad.value = false
-  }, { deep: true })
-
-  const toggleExecuteMode = useToggle(autoRender)
+  const [autoRender, toggleExecuteMode] = useToggle(true)
   const activeLayout = ref('mindmap')
   const layoutList = reactive(LAYOUTS)
-  const activeConfig = computed(() => {
-    return layoutList[activeLayout.value]
-  })
-  // 监听搜索关键词变化
-  watchDebounced(() => keyword.value, newKeyword => focusNode(newKeyword), { debounce: 300 })
-  // 节点点击
+  const activeConfig = computed(() => layoutList[activeLayout.value])
+  // 节点详情状态
   const nodeDetailVisible = ref(false)
   const nodeDetail = ref({})
 
-  function layoutFormat(layoutConfig: any) {
-    const config = { ...layoutConfig }
-    if (['mindmap', 'compact-box'].includes(config.type)) {
-      const { getVGap, getHGap } = config
-      config.getVGap = () => getVGap
-      config.getHGap = () => getHGap
-    }
-    config.animation = false
-    return config
-  }
+  // 图实例
   let graph: Graph | null = null
 
-  watchDebounced(() => activeConfig.value, (_newLayout) => {
-    if (graph) {
-      const formattedLayout = layoutFormat(activeConfig.value)
-      graph.layout(formattedLayout)
-      // 重新布局后居中展示
-      graph.fitView({
-        when: 'always',
-        direction: 'both',
+  const render = useDebounceFn(_render, 300)
+  /**
+   * 渲染JSON数据到图形 (内部实现)
+   */
+  function _render() {
+    if (!parsedJson.value || !jsonCanvasRef.value || !jsonCanvasRef.value.offsetParent) {
+      return
+    }
+
+    try {
+      // 确保图实例已初始化
+      if (!graph) {
+        graph = initGraph(jsonCanvasRef.value)
+        if (!graph)
+          return
+      }
+
+      // 数据处理与渲染
+      graph.clear()
+      const tree = jsonToTree(parsedJson.value, fields.value)
+      const treeData = treeToGraphData(tree)
+      graph.setData(treeData)
+
+      // 使用async/await等待渲染完成
+      graph.render().then(() => {
+        // 渲染完成后，如果有关键词，执行搜索
+        if (keyword.value) {
+          if (graph) {
+            focusNode(keyword.value)
+          }
+        }
+      }).catch((error) => {
+        console.error('图形渲染失败:', error)
       })
     }
-  }, { debounce: 400, deep: true })
+    catch (error) {
+      console.error('渲染图失败:', error)
+    }
+  }
+
+  /**
+   * 初始化图实例
+   */
   function initGraph(container: HTMLElement) {
     if (graph)
       return graph
 
-    // 检查容器是否有效
     if (!container || !container.offsetParent) {
       console.error('容器元素无效或未挂载到DOM')
       return null
     }
 
     try {
-      const layout = layoutFormat(activeConfig.value)
+      const layout = formatLayoutConfig(activeConfig.value)
+
       graph = new Graph({
         container,
         autoFit: 'view',
@@ -111,7 +107,6 @@ export const useGraphStore = defineStore('graph', () => {
             fillOpacity: 0.1,
             lineWidth: 1,
           },
-          // 状态样式
           state: {
             focused: {
               haloStroke: '#4ac666',
@@ -129,6 +124,7 @@ export const useGraphStore = defineStore('graph', () => {
         behaviors: ['zoom-canvas', 'drag-canvas'],
       })
 
+      bindEvents()
       return graph
     }
     catch (error) {
@@ -136,80 +132,26 @@ export const useGraphStore = defineStore('graph', () => {
       return null
     }
   }
+
   /**
-   * 渲染JSON数据到图形
+   * 绑定图事件
    */
-  function render() {
-    logDebug('执行render()，数据:', json.value)
-
-    if (!json.value) {
-      logDebug('没有数据，跳过绘制')
-      return
-    }
-
-    // 确保 jsonCanvasRef 存在且已挂载到 DOM
-    if (!jsonCanvasRef.value || !jsonCanvasRef.value.offsetParent) {
-      logDebug('容器元素未准备好，跳过绘制')
-      return
-    }
-
-    try {
-    // 确保图实例已初始化
-      if (!graph) {
-        if (!jsonCanvasRef.value)
-          return
-
-        graph = initGraph(jsonCanvasRef.value)
-        if (!graph)
-          return
-      }
-
-      // 数据处理与渲染
-      graph.clear()
-      const tree = jsonToTree(json.value, fields.value)
-      const treeData = treeToGraphData(tree)
-      graph.setData(treeData)
-      graph.render()
-      bindEvents()
-      // 处理搜索关键词
-      if (keyword.value) {
-        focusNode(keyword.value)
-      }
-    }
-    catch (error) {
-      console.error('渲染图失败:', error)
-    }
-  }
-  function zoomBy(value: number) {
+  function bindEvents() {
     if (!graph)
       return
 
-    graph.zoomBy(value)
-    updateRatio()
-  }
-  function updateRatio() {
-    ratio.value = graph?.getZoom() || 1
-  }
-  function fitView() {
-    graph.fitView(
-      {
-        when: 'always', // 始终进行适配
-        direction: 'both', // 在两个方向上适配
-      },
-      {
-        duration: 1000, // 带动画效果
-      },
-    )
-    updateRatio()
-  }
-
-  function bindEvents() {
     // 监听画布缩放事件
     graph.on(GraphEvent.AFTER_TRANSFORM, () => {
+      if (!graph)
+        return
       updateRatio()
     })
-    /* 节点点击 */
+
+    // 节点点击事件
     graph.on(NodeEvent.CLICK, (e: any) => {
+      if (!graph)
+        return
+
       const { targetType, target } = e
       if (targetType === 'node') {
         nodeDetail.value = graph.getNodeData(target.id)
@@ -219,30 +161,95 @@ export const useGraphStore = defineStore('graph', () => {
   }
 
   /**
-   * 搜索并聚焦包含关键词的节点
-   * @param newKeyword 搜索关键词
+   * 更新缩放比例
    */
-  function focusNode(newKeyword?: string): void {
+  function updateRatio() {
+    if (!graph) {
+      ratio.value = 1
+      return
+    }
+
+    try {
+      ratio.value = graph.getZoom() || 1
+    }
+    catch {
+      // 出现异常时设置默认值
+      ratio.value = 1
+    }
+  }
+
+  /**
+   * 按比例缩放
+   */
+  function zoomBy(value: number) {
+    if (!graph)
+      return
+    graph.zoomBy(value)
+    updateRatio()
+  }
+
+  /**
+   * 适配视图
+   */
+  function fitView() {
     if (!graph)
       return
 
+    graph.fitView(
+      {
+        when: 'always',
+        direction: 'both',
+      },
+      {
+        duration: 1000,
+      },
+    )
+    updateRatio()
+  }
+
+  /**
+   * 搜索并聚焦包含关键词的节点
+   */
+  function focusNode(newKeyword?: string): void {
+    console.warn('执行focusNode', { newKeyword, hasGraph: !!graph })
+
+    if (!graph) {
+      console.warn('图形未初始化，无法执行搜索')
+      return
+    }
+
+    // 确保图形已经渲染完成
+    // 注意：不要依赖graph.rendered属性，它可能不可靠
+
+    // 切换节点状态的工具函数
     function toggleNodesState(nodes: any[], state: Array<string> = []) {
-      if (!nodes.length)
+      if (!nodes || !nodes.length)
         return
 
-      const stateMap = nodes.reduce((acc, node) => {
-        acc[node.id] = state
-        return acc
-      }, {})
-      graph.setElementState(stateMap, true)
-    }
-    // 清除已有的聚焦状态
-    const clearFocusedNodes = () => {
-      const focusedNodes = graph.getElementDataByState('node', 'focused')
-      toggleNodesState(focusedNodes, [])
+      try {
+        const stateMap = nodes.reduce((acc, node) => {
+          acc[node.id] = state
+          return acc
+        }, {})
+        graph.setElementState(stateMap, true)
+      }
+      catch (error) {
+        console.warn('设置节点状态失败:', error)
+      }
     }
 
-    // 清除已存在的聚焦状态
+    // 清除已有的聚焦状态
+    const clearFocusedNodes = () => {
+      try {
+        const focusedNodes = graph.getElementDataByState('node', 'focused')
+        if (focusedNodes && focusedNodes.length)
+          toggleNodesState(focusedNodes, [])
+      }
+      catch (error) {
+        console.warn('清除节点聚焦状态失败:', error)
+      }
+    }
+
     clearFocusedNodes()
 
     // 没有关键词时直接重置计数并返回
@@ -253,8 +260,30 @@ export const useGraphStore = defineStore('graph', () => {
     }
 
     try {
+      // 获取节点数据
+      let nodes = []
+      try {
+        nodes = graph.getNodeData() || []
+      }
+      catch (error) {
+        console.warn('获取节点数据失败:', error)
+        nodes = []
+      }
+
+      // 如果没有节点数据，可能图形还未完全渲染
+      if (!nodes.length) {
+        console.warn('图形没有节点数据，可能渲染未完成')
+        focusCount.value = 0
+
+        // 尝试延迟再次执行
+        setTimeout(() => {
+          console.warn('延迟重试搜索')
+          focusNode(newKeyword)
+        }, 500)
+        return
+      }
+
       const lowerKeyword = newKeyword.toLowerCase()
-      const nodes = graph.getNodeData()
 
       // 查找包含关键字的节点
       const foundNodes = nodes.filter((node) => {
@@ -265,6 +294,7 @@ export const useGraphStore = defineStore('graph', () => {
 
       // 更新匹配计数
       focusCount.value = foundNodes.length
+      console.warn('找到匹配节点数量:', foundNodes.length)
 
       const foundCount = foundNodes.length
 
@@ -274,10 +304,16 @@ export const useGraphStore = defineStore('graph', () => {
         // 聚焦到节点
         if (foundCount === 1) {
           // 单个节点时，直接聚焦到该节点
-          graph.focusElement(foundNodes[0].id, {
-            duration: 300,
-            easing: 'ease',
-          })
+          try {
+            graph.focusElement(foundNodes[0].id, {
+              duration: 300,
+              easing: 'ease',
+            })
+          }
+          catch (error) {
+            console.warn('聚焦到节点失败:', error)
+            fitView()
+          }
         }
         else {
           fitView()
@@ -289,39 +325,135 @@ export const useGraphStore = defineStore('graph', () => {
     }
     catch (error) {
       console.warn('节点聚焦失败:', error)
+      focusCount.value = 0
     }
   }
 
+  /**
+   * 导出图像
+   */
+  function exportImage(name: string, type: string) {
+    if (!graph)
+      return
+    saveImage(graph, name, type)
+  }
+
+  /**
+   * 销毁图实例
+   */
+  function destroyGraph() {
+    try {
+      if (graph) {
+        graph.off()
+        graph.destroy()
+        graph = null
+      }
+    }
+    catch (error) {
+      console.warn('销毁图实例出错:', error)
+      graph = null
+    }
+  }
+
+  watch(parsedJson, (json) => {
+    if (autoRender.value) {
+      render()
+    }
+    isFirstLoad.value = false
+
+    if (Object.keys(json).length === 0) {
+      url.searchParams.delete(queryKey)
+      window.history.replaceState('', '', `${url.pathname}`)
+    }
+    else if (!isFirstLoad.value) {
+      url.searchParams.set(queryKey, encode(rawCode.value))
+      window.history.replaceState('', '', `${url.pathname}${url.search}`)
+    }
+  })
+
+  watchDebounced(autoRender, () => render(), { debounce: 300 })
+
+  // 监听主题变化
+  watch(isDark, () => render())
+
+  // 监听字段变化
+  watch(fields, () => autoRender.value && render(), { deep: true })
+
+  // 监听搜索关键词变化
+  watchDebounced(() => keyword.value, (newKeyword) => {
+    // 确保图形已经渲染完成
+    if (graph && graph.rendered) {
+      focusNode(newKeyword)
+    }
+  }, { debounce: 300 })
+
+  // 监听布局配置变化
+  watchDebounced(() => activeConfig.value, () => {
+    if (graph) {
+      const formattedLayout = formatLayoutConfig(activeConfig.value)
+      graph.layout(formattedLayout)
+
+      // 重新布局后居中展示
+      graph.fitView({
+        when: 'always',
+        direction: 'both',
+      })
+    }
+  }, { debounce: 400, deep: true })
+
+  // 监听暗色模式变化
   watch(isDark, () => {
     if (graph) {
       graph.setTheme(isDark.value ? 'dark' : 'light')
     }
   })
 
-  //  收起/展开节点
+  // 监听节点展开/收起状态
   watch(isExpandNode, (val) => {
-    if (graph) {
-    // 收起并保证展开/收起的节点位置不变
-      val
-        ? graph.expandElement('ROOT', {
-            align: true,
-            animation: true,
-          })
-        : graph.collapseElement('ROOT', {
-            align: true,
-            animation: true,
-          })
-    }
+    if (!graph)
+      return
+
+    val
+      ? graph.expandElement('ROOT', {
+          align: true,
+          animation: true,
+        })
+      : graph.collapseElement('ROOT', {
+          align: true,
+          animation: true,
+        })
   })
 
-  watchDebounced([width, height], ([w, h]) => graph?.setSize(w, h), { debounce: 300 })
+  // 监听容器大小变化
+  watchDebounced([width, height], ([w, h]) => {
+    if (graph) {
+      graph.setSize(w, h)
+    }
+  }, { debounce: 300 })
 
-  function exportImage(name: string, type: string) {
-    saveImage(graph, name, type)
-  }
-  function destroyGraph() {
-    graph?.destroy()
-  }
+  return {
+    // 状态
+    ratio,
+    ratioText,
+    isExpandNode,
+    nodeDetailVisible,
+    nodeDetail,
+    activeLayout,
+    activeConfig,
+    keyword,
+    fields,
+    focusCount,
+    autoRender,
+    jsonCanvasRef,
 
-  return { ratio, ratioText, initGraph, destroyGraph, render, zoomBy, fitView, jsonCanvasRef, exportImage, isExpandNode, toggleNode, nodeDetailVisible, nodeDetail, activeLayout, activeConfig, keyword, fields, focusCount, autoRender, toggleExecuteMode }
+    // 方法
+    initGraph,
+    destroyGraph,
+    render,
+    zoomBy,
+    fitView,
+    exportImage,
+    toggleNode,
+    toggleExecuteMode,
+  }
 }, { persist: true })

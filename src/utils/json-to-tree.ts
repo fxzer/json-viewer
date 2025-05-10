@@ -188,8 +188,8 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
       fill: COLORS_MAP.object,
     },
     data: {
-      width: 64,
-      height: 64,
+      width: 56,
+      height: 56,
       badge: 'object',
     },
   }

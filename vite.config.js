@@ -10,7 +10,6 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig, loadEnv } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
-// import cdn from 'vite-plugin-cdn-import'
 import { setupPrintBuildInfo } from './build/print-build-info'
 
 const lifecycle = process.env.npm_lifecycle_event
@@ -29,7 +28,6 @@ export default defineConfig(({ _, mode }) => {
         ? visualizer({ open: true, brotliSize: true, filename: 'report.html' })
         : null, // 打包分析
       AutoImport({
-        // dirs: ['src/hooks'],
         include: [
           // 导入目标文件类型
           /\.[tj]s(x|on)?$/, // .ts, .tsx, .js, .jsx .json
@@ -56,15 +54,6 @@ export default defineConfig(({ _, mode }) => {
         dts: 'src/types/auto-components.d.ts',
         dirs: ['src/components/sync'],
       }),
-      // cdn({
-      //   modules: [
-      //     {
-      //       name: '@antv/g6', //不是用 cdn 2.4M 93分，使用后 2.8M，89 分
-      //       var: 'G6',
-      //       path: `https://unpkg.com/@antv/g6@4.8.24/dist/g6.min.js`,
-      //     },
-      //   ],
-      // }),
       VitePWA({
         outDir: 'dist',
         manifest: {

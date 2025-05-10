@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     CanvasToolBar: typeof import('./../components/sync/CanvasToolBar.vue')['default']
-    ColorPicker: typeof import('./../components/sync/ColorPicker.vue')['default']
     EditorToolBar: typeof import('./../components/sync/EditorToolBar.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElDialog: typeof import('element-plus/es')['ElDialog']
@@ -18,14 +17,12 @@ declare module 'vue' {
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElInput: typeof import('element-plus/es')['ElInput']
-    ElPopover: typeof import('element-plus/es')['ElPopover']
     ElRadioButton: typeof import('element-plus/es')['ElRadioButton']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     JsonCanvas: typeof import('./../components/sync/JsonCanvas.vue')['default']
-    Layout: typeof import('./../components/sync/Layout.vue')['default']
     SearchInput: typeof import('./../components/sync/SearchInput.vue')['default']
     VueCodeMirror: typeof import('./../components/sync/VueCodeMirror.vue')['default']
   }

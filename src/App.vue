@@ -4,11 +4,9 @@ import { useCodeStore, useGlobalStore } from '@/store'
 import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
-const { paneSize } = storeToRefs(
-  useGlobalStore(),
-)
-
 const isMobile = useMobile()
+const { paneSize } = storeToRefs(useGlobalStore())
+const { rawCode } = toRefs(useCodeStore())
 </script>
 
 <template>
@@ -20,7 +18,7 @@ const isMobile = useMobile()
     >
       <Pane max-size="50" :size="paneSize[0]">
         <EditorToolBar />
-        <VueCodeMirror/>
+        <VueCodeMirror v-model="rawCode" :style="{ height: 'calc(100% - 40px);' }" />
       </Pane>
       <Pane :size="paneSize[1]">
         <div h-full>

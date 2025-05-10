@@ -1,5 +1,5 @@
 export default {
-  'language': '简体中文',
+  'language': 'English',
   'zoomIn': '放大',
   'zoomOut': '缩小',
   'exit': '退出',

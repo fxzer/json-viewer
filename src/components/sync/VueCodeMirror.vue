@@ -11,15 +11,15 @@ defineProps({
   },
 })
 
-const { originCode } = toRefs(useCodeStore())
+const rawCode = defineModel<string>()
 const isDark = useDark()
 const extensions = computed(() => isDark.value ? [json(), oneDark] : [json()])
 </script>
 
 <template>
   <Codemirror
-    v-model="originCode" :placeholder="$t('editorPlaceholder')"
-    :style="{ height: 'calc(100% - 40px);' }" :indent-with-tab="true" :tab-size="2"
+    v-model="rawCode" :placeholder="$t('editorPlaceholder')"
+    :style="style" :indent-with-tab="true" :tab-size="2"
     :extensions="extensions"
   />
 </template>

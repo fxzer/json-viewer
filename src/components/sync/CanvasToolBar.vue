@@ -92,17 +92,11 @@ const canvasIconList = [
       </template>
 
       <el-tooltip
-        :content="`${isFullscreen ? $t('exit') : $t('enter')}${$t(
-          'fullscreen',
-        )}`"
+        :content="`${isFullscreen ? $t('exit') : $t('enter')}${$t('fullscreen')}`"
       >
         <span
           class="iconfont"
-          :class="
-            isFullscreen
-              ? 'icon-exit-fullscreen'
-              : 'icon-enter-fullscreen'
-          "
+          :class=" isFullscreen ? 'icon-exit-fullscreen' : 'icon-enter-fullscreen' "
           @click="toggle"
         />
       </el-tooltip>

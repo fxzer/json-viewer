@@ -8,24 +8,27 @@ const LANGUAGES = {
 
 export const useGlobalStore = defineStore('global', () => {
   const i18n = useI18n()
-  const language = ref(LANGUAGES.CN)
+  const currentLanguage = ref(LANGUAGES.CN)
   const isDark = useDark()
+  const isMobile = useMobile()
+
   function toggleLanguage() {
-    language.value = i18n.locale.value = language.value === LANGUAGES.CN ? LANGUAGES.EN : LANGUAGES.CN
+    const newLanguage = currentLanguage.value === LANGUAGES.CN ? LANGUAGES.EN : LANGUAGES.CN
+    currentLanguage.value = i18n.locale.value = newLanguage
   }
 
-  const isMobile = useMobile()
   const [isExpandEditor, toggleEditor] = useToggle(true)
-  const paneSize = computed(() => {
-    if (isMobile.value)
-      return isExpandEditor.value ? [50, 50] : [0, 100]
 
-    else
-      return isExpandEditor.value ? [30, 70] : [0, 100]
+  // 根据设备类型和编辑器展开状态动态计算面板尺寸
+  const paneSize = computed(() => {
+    if (!isExpandEditor.value)
+      return [0, 100]
+
+    return isMobile.value ? [50, 50] : [30, 70]
   })
   return {
     isDark,
-    language,
+    currentLanguage,
     isExpandEditor,
     toggleEditor,
     paneSize,
