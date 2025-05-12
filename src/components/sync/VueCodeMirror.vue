@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { useCodeStore } from '@/store'
 import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { Codemirror } from 'vue-codemirror'

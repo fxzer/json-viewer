@@ -21,11 +21,9 @@ const exportConfig = ref<ImageConfig> ({
 })
 
 function confirm() {
-
   const { name, type } = exportConfig.value
   exportImage(name, type)
   visible.value = false
-
 }
 </script>
 

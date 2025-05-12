@@ -1,4 +1,3 @@
-
 // 缓存相关变量
 const ID_CACHE_SIZE = 50
 export const cacheIdList: string[] = []

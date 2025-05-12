@@ -20,7 +20,7 @@ const width = useDialogWidth(640)
 
 <template>
   <el-dialog v-model="visible" :title="$t('nodeDetail')" :width="width">
-    <VueCodeMirror  :model-value="code" :style="{ height: '400px', border: '1px solid #9ca3af58' }" />
+    <VueCodeMirror :model-value="code" :style="{ height: '400px', border: '1px solid #9ca3af58' }" />
   </el-dialog>
 </template>
 
