@@ -16,6 +16,7 @@ interface NodeItem {
     height?: number
     badge?: 'object' | 'array'
   }
+  obj?: Record<string, any>
 }
 
 const PADDING = 10
@@ -102,6 +103,12 @@ function createBasicPropsNode(basicProps: [string, any][], formatFields: string[
   const height = contentLines.length * LINE_HEIGHT + PADDING * 2
 
   const basicNode = createBaseNode(basicContent, 'other', width, height)
+  // 如果是多行内容，把原始对象放在obj属性上
+  if (contentLines.length > 1) {
+    // 筛选不是formatFields的属性
+    const obj = Object.fromEntries(basicProps.filter(([k]) => !formatFields.includes(k)))
+    basicNode.obj = obj
+  }
 
   return { basicNode, parsedNodes }
 }

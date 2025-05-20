@@ -9,10 +9,12 @@ const props = defineProps({
 })
 const visible = defineModel<boolean>()
 const code = computed(() => {
-  const { id, content } = props.nodeDetail
+  const { id, content, obj } = props.nodeDetail
   if (id === 'ROOT')
     return '{}'
-
+  if (typeof obj === 'object') {
+    return JSON.stringify(obj, null, 2)
+  }
   return content
 })
 const width = useDialogWidth(640)
