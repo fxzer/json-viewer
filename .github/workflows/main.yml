@@ -33,14 +33,33 @@ jobs:
 
       - name: Build 🔧
         run: |
-          pnpm run build
+          REPO_NAME="${{ github.event.repository.name }}"
+          echo "Repository: ${REPO_NAME}"
+          if [ "$REPO_NAME" = "json-viewer" ]; then
+            pnpm run build
+          elif [ "$REPO_NAME" = "fxzer.github.io" ]; then
+            pnpm run build:edgeone
+          else
+            pnpm run build
+          fi
           node -v
 
-      - name: 📲 Push To GitHub Pages
-        uses: ftnext/action-push-ghpages@v1.0.0
+      - name: 📲 Deploy User Site to main (fxzer.github.io)
+        if: ${{ github.event.repository.name == 'fxzer.github.io' }}
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          build_dir: dist
           github_token: ${{ secrets.DEPLOY_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: main
+          force_orphan: true
+
+      - name: 📲 Deploy Project Site to gh-pages
+        if: ${{ github.event.repository.name != 'fxzer.github.io' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.DEPLOY_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
 
       # - name: Sync to Gitee
       #   uses: wearerequired/git-mirror-action@master
