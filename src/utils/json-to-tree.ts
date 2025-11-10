@@ -31,13 +31,15 @@ function formatValue(value: any): string {
 }
 
 // 创建基本节点结构
-function createBaseNode(content: string, type: string = 'object', width?: number, height: number = 40): NodeItem {
+function createBaseNode(content: string, type: string = 'object', width?: number, height: number = 40, depth: number = 0): NodeItem {
   const color = COLORS_MAP[type]
+  // 默认展开前4层级（0-3），其他层级折叠
+  const collapsed = depth >= 3
   return {
     id: randomId(),
     content,
     style: {
-      collapsed: false,
+      collapsed,
       stroke: color,
       fill: color,
     },
@@ -71,7 +73,7 @@ function categorizeProperties(obj: Record<string, any>): CategorizeProperties {
 }
 
 // 创建包含基本属性的节点
-function createBasicPropsNode(basicProps: [string, any][], formatFields: string[]): { basicNode: NodeItem, parsedNodes: NodeItem[] } {
+function createBasicPropsNode(basicProps: [string, any][], formatFields: string[], depth: number): { basicNode: NodeItem, parsedNodes: NodeItem[] } {
   let maxWidth = 0
   const contentLines = []
   const parsedNodes: NodeItem[] = []
@@ -82,7 +84,7 @@ function createBasicPropsNode(basicProps: [string, any][], formatFields: string[
       try {
         const parsedValue = JSON.parse(v)
         if (typeof parsedValue === 'object' && parsedValue !== null) {
-          const parsedNode = createNode(k, parsedValue, formatFields)
+          const parsedNode = createNode(k, parsedValue, formatFields, depth + 1)
           parsedNodes.push(parsedNode)
           continue // 跳过添加到contentLines
         }
@@ -102,7 +104,7 @@ function createBasicPropsNode(basicProps: [string, any][], formatFields: string[
   const width = maxWidth + PADDING * 2
   const height = contentLines.length * LINE_HEIGHT + PADDING * 2
 
-  const basicNode = createBaseNode(basicContent, 'other', width, height)
+  const basicNode = createBaseNode(basicContent, 'other', width, height, depth)
   // 如果是多行内容，把原始对象放在obj属性上
   if (contentLines.length > 1) {
     // 筛选不是formatFields的属性
@@ -114,7 +116,7 @@ function createBasicPropsNode(basicProps: [string, any][], formatFields: string[
 }
 
 // 处理值并创建节点
-function createNode(key: string, value: any, formatFields: string[] = []): NodeItem {
+function createNode(key: string, value: any, formatFields: string[] = [], depth: number = 0): NodeItem {
   let content = String(key)
   let type = 'object'
 
@@ -122,19 +124,19 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
   if (value === null || typeof value !== 'object') {
     content = `${key}: ${formatValue(value)}`
     type = typeof value
-    return createBaseNode(content, type)
+    return createBaseNode(content, type, undefined, undefined, depth)
   }
 
   // 处理数组
   if (Array.isArray(value)) {
-    const node = createBaseNode(content, 'array')
-    node.children = value.map((item, index) => createNode(String(index), item, formatFields))
+    const node = createBaseNode(content, 'array', undefined, undefined, depth)
+    node.children = value.map((item, index) => createNode(String(index), item, formatFields, depth + 1))
     return node
   }
 
   // 处理对象
   if (typeof value === 'object' && value !== null) {
-    const node = createBaseNode(content, 'object')
+    const node = createBaseNode(content, 'object', undefined, undefined, depth)
     const { basicProps, complexProps } = categorizeProperties(value)
 
     // 创建子节点
@@ -142,7 +144,7 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
 
     // 如果有基础类型属性，创建一个基础属性节点
     if (basicProps.length > 0) {
-      const { basicNode, parsedNodes } = createBasicPropsNode(basicProps, formatFields)
+      const { basicNode, parsedNodes } = createBasicPropsNode(basicProps, formatFields, depth + 1)
 
       if (basicNode.content && basicNode.content.trim() !== '') {
         node.children.push(basicNode)
@@ -156,7 +158,7 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
 
     // 添加复杂类型节点
     complexProps.forEach(([k, v]) => {
-      node.children.push(createNode(k, v, formatFields))
+      node.children.push(createNode(k, v, formatFields, depth + 1))
     })
 
     return node
@@ -167,7 +169,7 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
     try {
       const parsedValue = JSON.parse(value)
       if (typeof parsedValue === 'object' && parsedValue !== null) {
-        const parsedNode = createNode(key, parsedValue, formatFields)
+        const parsedNode = createNode(key, parsedValue, formatFields, depth)
         return parsedNode
       }
     }
@@ -176,7 +178,7 @@ function createNode(key: string, value: any, formatFields: string[] = []): NodeI
     }
   }
 
-  return createBaseNode(content, type)
+  return createBaseNode(content, type, undefined, undefined, depth)
 }
 
 // 处理数据结构的入口函数
@@ -213,7 +215,7 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
 
   // 如果有基础类型属性，创建一个基础属性节点
   if (basicProps.length > 0) {
-    const { basicNode, parsedNodes } = createBasicPropsNode(basicProps, formatFields)
+    const { basicNode, parsedNodes } = createBasicPropsNode(basicProps, formatFields, 1)
 
     if (basicNode.content && basicNode.content.trim() !== '') {
       rootNode.children.push(basicNode)
@@ -227,7 +229,7 @@ export function jsonToTree(data: Record<string, any>, formatFields: string[] = [
 
   // 添加复杂类型节点
   complexProps.forEach(([k, v]) => {
-    rootNode.children.push(createNode(k, v, formatFields))
+    rootNode.children.push(createNode(k, v, formatFields, 1))
   })
 
   return rootNode
