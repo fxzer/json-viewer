@@ -1,5 +1,5 @@
-import exampleJson from '@/example.json'
 import { decompressFromEncodedURIComponent as decode } from 'lz-string'
+import exampleJson from '@/example.json'
 
 const params = new URLSearchParams(window.location.search || '')
 

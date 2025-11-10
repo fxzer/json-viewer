@@ -1,7 +1,7 @@
-import { LAYOUTS } from '@/constants'
-import { formatLayoutConfig, jsonToTree, saveImage } from '@/utils'
 import { Graph, GraphEvent, NodeEvent, treeToGraphData } from '@antv/g6'
 import { compressToEncodedURIComponent as encode } from 'lz-string'
+import { LAYOUTS } from '@/constants'
+import { formatLayoutConfig, jsonToTree, saveImage } from '@/utils'
 import { queryKey, useCodeStore } from './code'
 import { useGlobalStore } from './global'
 
@@ -92,7 +92,10 @@ export const useGraphStore = defineStore('graph', () => {
         theme: isDark.value ? 'dark' : 'light',
         padding: [30, 30, 30, 30],
         zoomRange: [0.1, 3],
-        animation: true,
+        animation: {
+          duration: 300, // 动画持续时间（毫秒）
+          easing: 'ease-in-out', // 先慢后快的动画曲线
+        },
         layout,
         node: {
           type: 'flow-rect',
@@ -307,7 +310,7 @@ export const useGraphStore = defineStore('graph', () => {
           try {
             graph.focusElement(foundNodes[0].id, {
               duration: 300,
-              easing: 'ease',
+              easing: 'ease-in-out',
             })
           }
           catch (error) {
@@ -416,11 +419,17 @@ export const useGraphStore = defineStore('graph', () => {
     val
       ? graph.expandElement('ROOT', {
           align: true,
-          animation: true,
+          animation: {
+            duration: 300, // 300毫秒
+            easing: 'ease-in-out', // 先慢后快
+          },
         })
       : graph.collapseElement('ROOT', {
           align: true,
-          animation: true,
+          animation: {
+            duration: 300, // 300毫秒
+            easing: 'ease-in-out', // 先慢后快
+          },
         })
   })
 

@@ -1,5 +1,5 @@
-import { useMobile } from '@/hooks'
 import { useI18n } from 'vue-i18n'
+import { useMobile } from '@/hooks'
 
 const LANGUAGES = {
   EN: 'en-US',

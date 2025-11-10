@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { Pane, Splitpanes } from 'splitpanes'
 import { useMobile } from '@/hooks'
 import { useCodeStore, useGlobalStore } from '@/store'
-import { Pane, Splitpanes } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
 const isMobile = useMobile()

@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "bp": "vite build && vite preview",
     "lint": "eslint .",
-    "lintf": "eslint . --fix",
+    "lint:fix": "eslint . --fix",
     "release": "bumpp"
   },
   "dependencies": {

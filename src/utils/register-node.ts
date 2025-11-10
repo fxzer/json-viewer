@@ -1,5 +1,4 @@
 import type { BadgeStyleProps, LabelStyleProps } from '@antv/g6'
-import { COLORS_MAP } from '@/constants/colors'
 import { Text as GText } from '@antv/g'
 import {
   Badge,
@@ -8,6 +7,7 @@ import {
   Rect,
   register,
 } from '@antv/g6'
+import { COLORS_MAP } from '@/constants/colors'
 
 class TreeNode extends Rect {
   get data() {
@@ -91,9 +91,22 @@ class TreeNode extends Rect {
 
         const { collapsed } = this.attributes
         const graph = this.context.graph
-        if (collapsed)
-          graph.expandElement(this.id)
-        else graph.collapseElement(this.id)
+        if (collapsed) {
+          graph.expandElement(this.id, {
+            animation: {
+              duration: 300, // 300毫秒
+              easing: 'ease-in-out', // 先慢后快
+            },
+          })
+        }
+        else {
+          graph.collapseElement(this.id, {
+            animation: {
+              duration: 300, // 300毫秒
+              easing: 'ease-in-out', // 先慢后快
+            },
+          })
+        }
       })
     }
   }
