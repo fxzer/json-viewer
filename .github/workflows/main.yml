@@ -44,12 +44,11 @@ jobs:
           fi
           node -v
 
-      - name: 📲 Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: 📲 Push To GitHub Pages
+        uses: ftnext/action-push-ghpages@v1.0.0
         with:
+          build_dir: dist
           github_token: ${{ secrets.DEPLOY_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
 
       # - name: Sync to Gitee
       #   uses: wearerequired/git-mirror-action@master
