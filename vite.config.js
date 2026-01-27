@@ -112,23 +112,25 @@ export default defineConfig(({ _, mode }) => {
       filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
       globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
     },
-    esbuild: {
+    // Vite 8 使用 Oxc 进行 JS 转换
+    oxc: {
       pure: ['console'],
     },
     server: {
       host: true,
       open: true,
     },
-    // 打包配置
+    // 打包配置 - Vite 8 使用 Rolldown 替代 Rollup
     build: {
       outDir: env.VITE_OUTDIR,
       // 手动分包，把第三方库单独打包
-      rollupOptions: {
-        // external: ['@antv/g6'],
+      rolldownOptions: {
         output: {
           entryFileNames: 'entries/[name]-[hash].js',
           chunkFileNames: 'chunks/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+          // Vite 8 中 manualChunks 仍然可用（虽标记为弃用但向后兼容）
+          // 未来可以使用 codeSplitting 替代（API 尚在稳定中）
           manualChunks(id) {
             if (id.includes('node_modules')) {
               if (id.includes('@antv/g6')) {
@@ -137,10 +139,9 @@ export default defineConfig(({ _, mode }) => {
               if (id.includes('element-plus')) {
                 return 'element-plus'
               }
-              if (id.includes('codemirror')) {
+              if (id.includes('@codemirror') || id.includes('codemirror')) {
                 return 'codemirror'
               }
-              // 默认所有node_modules库都放到vendor包中
               return 'vendor'
             }
           },
