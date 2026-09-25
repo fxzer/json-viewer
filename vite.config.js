@@ -17,7 +17,7 @@ const lifecycle = process.env.npm_lifecycle_event
 export default defineConfig(({ _, mode }) => {
   const env = loadEnv(mode, process.cwd())
   return {
-    base: env.VITE_BASE_URL,
+    base: 'test',
     plugins: [
       vue(),
       setupPrintBuildInfo(),
@@ -117,7 +117,8 @@ export default defineConfig(({ _, mode }) => {
       pure: ['console'],
     },
     server: {
-      host: true,
+      host: '0.0.0.0',
+      port: 8030,
       open: true,
     },
     // 打包配置 - Vite 8 使用 Rolldown 替代 Rollup
