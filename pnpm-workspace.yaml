@@ -1,0 +1,7 @@
+minimumReleaseAgeExcludePrune: true
+trustPolicy: no-downgrade
+shellEmulator: true
+
+allowBuilds:
+  '@parcel/watcher': true
+  simple-git-hooks: true
