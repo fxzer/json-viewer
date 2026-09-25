@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./public/favicon.svg" width="100" height="100" align="center" style="margin:0 auto;" />
+<img src="./public/favicon.svg" width="100" height="100" align="center" style="margin:0 auto;" alt="JSON-Viewer logo" />
 </p>
 
 <h1 align="center">JSON-Viewer</h1>
@@ -70,7 +70,7 @@ A JSON visualization tool
 
 ## Preview Screenshots
 
-<img src="./public/preview.svg" width="100%" height="100%" align="center" style="margin:10px auto;" />
+<img src="./public/preview.svg" width="100%" height="100%" align="center" style="margin:10px auto;" alt="JSON-Viewer preview screenshot" />
 
 ## Inspiration
 

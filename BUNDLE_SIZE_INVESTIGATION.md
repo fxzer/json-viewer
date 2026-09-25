@@ -8,14 +8,14 @@
 
 ### Chunk 大小变化
 
-| Chunk | Vite 7 (Rollup) | Vite 8 (Rolldown) | 差异 | 变化率 |
-|-------|----------------|------------------|------|--------|
-| **vendor** | 1,211.43 kB | 135.56 kB | **-1,075.87 kB** | -88.8% |
-| **antv-g6** | 306.96 kB | 1,348.09 kB | **+1,041.13 kB** | +339.2% |
-| **element-plus** | 108.82 kB | 285.46 kB | **+176.64 kB** | +162.3% |
-| **codemirror** | 351.55 kB | 401.18 kB | +49.63 kB | +14.1% |
-| **index entry** | 24.38 kB | 24.13 kB | -0.25 kB | -1.0% |
-| **rolldown-runtime** | - | 1.20 kB | +1.20 kB | 新增 |
+| Chunk                | Vite 7 (Rollup) | Vite 8 (Rolldown) | 差异             | 变化率  |
+| -------------------- | --------------- | ----------------- | ---------------- | ------- |
+| **vendor**           | 1,211.43 kB     | 135.56 kB         | **-1,075.87 kB** | -88.8%  |
+| **antv-g6**          | 306.96 kB       | 1,348.09 kB       | **+1,041.13 kB** | +339.2% |
+| **element-plus**     | 108.82 kB       | 285.46 kB         | **+176.64 kB**   | +162.3% |
+| **codemirror**       | 351.55 kB       | 401.18 kB         | +49.63 kB        | +14.1%  |
+| **index entry**      | 24.38 kB        | 24.13 kB          | -0.25 kB         | -1.0%   |
+| **rolldown-runtime** | -               | 1.20 kB           | +1.20 kB         | 新增    |
 
 ### 关键发现
 
@@ -31,10 +31,12 @@
 ### 1. 代码分割策略差异
 
 **Vite 7 (Rollup)**:
+
 - 使用 `manualChunks` 将所有第三方库集中到 vendor chunk
 - 更激进的代码合并策略
 
 **Vite 8 (Rolldown)**:
+
 - 更精细的代码分割，将依赖分散到各自的命名 chunk
 - 优先考虑缓存策略（单独的库可以独立缓存）
 
@@ -48,11 +50,12 @@ Rolldown 为处理 CommonJS 和 ES Module 互操作生成了额外的辅助函�
 
 ```javascript
 // Rolldown 生成的运行时辅助函数
-var __commonJS = (callback) => { /* ... */ };
-var __toESM = (module) => { /* ... */ };
+function __commonJS(callback) { /* ... */ }
+function __toESM(module) { /* ... */ }
 ```
 
 **影响**:
+
 - 新增 `rolldown-runtime.js` (1.20 kB)
 - 各 chunk 中可能包含重复的互操作辅助代码
 - 特别是对于大量使用 CommonJS 的库（如 antv-g6, element-plus）
@@ -60,14 +63,17 @@ var __toESM = (module) => { /* ... */ };
 ### 3. Tree Shaking 策略差异
 
 **element-plus 的 sideEffects 配置**:
+
 ```json
-"sideEffects": [
-  "dist/*",
-  "theme-chalk/**/*.css",
-  "theme-chalk/src/**/*.scss",
-  "es/components/*/style/*",
-  "lib/components/*/style/*"
-]
+{
+  "sideEffects": [
+    "dist/*",
+    "theme-chalk/**/*.css",
+    "theme-chalk/src/**/*.scss",
+    "es/components/*/style/*",
+    "lib/components/*/style/*"
+  ]
+}
 ```
 
 这些文件被标记为"有副作用"，不能被 Tree Shaking 删除。Rolldown 在处理这些配置时可能比 Rollup 更保守。
@@ -85,14 +91,15 @@ antv-g6 是增加最多的库 (+1,041 kB)，可能原因：
 ### 5. 压缩器差异
 
 虽然 Oxc Minifier 在基准测试中表现良好（压缩率略优于 esbuild），但在实际项目中：
+
 - Oxc 的压缩策略可能与 esbuild 有细微差异
 - 某些代码模式的压缩效果可能不同
 
 **基准测试数据** (来源: [minification-benchmarks](https://github.com/privatenumber/minification-benchmarks)):
 
-| 工具 | 压缩后大小 | 耗时 |
-|------|-----------|------|
-| esbuild | 19.33 KB | 23 ms |
+| 工具    | 压缩后大小   | 耗时      |
+| ------- | ------------ | --------- |
+| esbuild | 19.33 KB     | 23 ms     |
 | **Oxc** | **19.24 KB** | **10 ms** |
 
 Oxc 在测试中表现更好，但实际项目中可能因为代码结构不同而产生差异。
@@ -110,12 +117,12 @@ Oxc 在测试中表现更好，但实际项目中可能因为代码结构不同�
 
 ### 权衡考虑
 
-| 方面 | Vite 7 (Rollup) | Vite 8 (Rolldown) |
-|------|----------------|-------------------|
-| 构建速度 | 12.23s | 3.20s (**-74%**) ⚡ |
-| 总体积 | 3.0M | 3.2M (+6.7%) |
-| 缓存策略 | 集中式 vendor | 独立库 chunk |
-| 长期收益 | - | 更好的并行加载、缓存粒度 |
+| 方面     | Vite 7 (Rollup) | Vite 8 (Rolldown)        |
+| -------- | --------------- | ------------------------ |
+| 构建速度 | 12.23s          | 3.20s (**-74%**) ⚡      |
+| 总体积   | 3.0M            | 3.2M (+6.7%)             |
+| 缓存策略 | 集中式 vendor   | 独立库 chunk             |
+| 长期收益 | -               | 更好的并行加载、缓存粒度 |
 
 ### 建议
 
